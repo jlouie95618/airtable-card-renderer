@@ -1,0 +1,77 @@
+#separator {
+
+}
+
+.record {
+	width: 194px; /* Artificially imposed to recreate the plugin behavior*/
+	padding: 3px;
+	margin-left: 3px;
+	/*text-align: center;*/
+}
+
+#info {
+	border: 1px solid #B8B8B8;
+	padding: 5px;
+	border-radius: 5px;
+	box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.45);
+	margin-bottom: 3px;
+	overflow: auto;
+	width: 188px;
+}
+
+#extension-options {
+
+}
+
+#first-elem {
+	overflow: auto;
+	font: 12px Arial, sans-serif;
+	font-weight: bold;
+	float: left;
+	height: 30%;
+	width: 70%;
+}
+
+#img-elem {
+	float: right;
+	width: 30%;
+	height: 30%;
+}
+
+#inner-elems {
+	clear: left;
+	width: 70%;
+	height: 60%;
+}
+
+#left-elem {
+	overflow: auto;
+	padding-right: 3px;
+	padding-left: 3px;
+	margin-left: 3px;
+	max-width: 25%;
+	float: left;
+	font: 12px Arial, sans-serif;
+}
+
+#middle-elem {
+	overflow: auto;
+	padding-right: 3px;
+	padding-left: 3px;
+	margin-left: 3px;
+	max-width: 25%;
+	border-right: 1px solid black;
+	border-left: 1px solid black;
+	float: left;
+	font: 12px Arial, sans-serif;
+}
+
+#right-elem {
+	overflow: auto;
+	padding-right: 3px;
+	padding-left: 3px;
+	margin-left: 3px;
+	max-width: 25%;
+	float: left;
+	font: 12px Arial, sans-serif;
+}
