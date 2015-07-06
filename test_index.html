@@ -4,12 +4,13 @@
 	<title>Test Index</title>
 	<link rel="stylesheet" type="text/css" href="./test_style.css">
 	<script type="text/javascript" src="jquery-1.11.3.min.js"></script>
+	<script type="text/javascript" src="underscore-1.8.3.min.js"></script>
 	<script type="text/javascript" src="card_renderer.js"></script>
 </head>
 <body>
 
-	<div id="compact" style="display: block"> <!-- This is a temporary construct to make sure we test the construction accurately-->
-		<div class="record">
+	<div class="record">
+		<div id="compact-0" style="display: block">
 			<div id="info">
 				<div id="first-elem">John Louie</div>
 				<img id="img-elem" src="./airtable_icon.png">
@@ -27,11 +28,8 @@
 				<!-- This should be the location where information is appended; should be able to handle records that are of an arbitrary size and grow dynamically -->
 			</div>
 		</div>
-		<div id="separator"></div>
-	</div>
 
-	<div id="expanded" style="display: none"> <!-- This is a temporary construct to make sure we test the construction accurately-->
-		<div class="record">
+		<div id="expanded-0" style="display: none">
 			<div id="info">
 				<div id="element">Name: John Louie</div>
 				<div id="element">Email: jlouie95618@gmail.com</div>
@@ -45,34 +43,31 @@
 				<!-- This should be the location where information is appended; should be able to handle records that are of an arbitrary size and grow dynamically -->
 			</div>
 		</div>
-		<div id="separator"></div>
 	</div>
 
 
 
-
-
-
-	<div id="outermost" style="display: block"> <!-- This is a temporary construct to make sure we test the construction accurately-->
-		<div class="record">
+	<div class="record">
+		<div id="compact-1" style="display: block">
 			<div id="info">
-				<div id="element">Name: John Louie</div>
-				<div id="element">Email: jlouie95618@gmail.com</div>
-				<div id="element">Pasted Column 1: Family</div>
-				<div id="element">Pasted Column 2: 6/13/2015</div>
-				<div id="element">Pasted Column 3: Airtable Intern</div>
-				<div id="element">Pasted Column 4: San Francisco, CA</div>
-				<div id="element">Pasted Column 5: Airtable</div>
-				<div id="element">Pasted Column 6: https://www.linkedin.com/pub/john-louie/51/399/482</div>
-				<div id="element">Pasted Column 7: San Francisco Work Trip</div>
+				<div id="first-elem">John Louie</div>
+				<img id="img-elem" src="./airtable_icon.png">
+				<div id="inner-elems">
+					<div id="left-elem">
+						Lorem Ipsum
+					</div>
+					<div id="middle-elem">
+						Lorem Ipsum
+					</div>
+					<div id="right-elem">
+						Lorem Ipsum
+					</div>
+				</div>
 				<!-- This should be the location where information is appended; should be able to handle records that are of an arbitrary size and grow dynamically -->
 			</div>
 		</div>
-		<div id="separator"></div>
-	</div>
 
-	<div id="outermost" style="display: block"> <!-- This is a temporary construct to make sure we test the construction accurately-->
-		<div class="record">
+		<div id="expanded-1" style="display: none">
 			<div id="info">
 				<div id="element">Name: John Louie</div><br>
 				<div id="element">Email: jlouie95618@gmail.com</div><br>
@@ -86,7 +81,43 @@
 				<!-- This should be the location where information is appended; should be able to handle records that are of an arbitrary size and grow dynamically -->
 			</div>
 		</div>
-		<div id="separator"></div>
+	</div>
+
+
+	<div class="record">
+		<div id="compact-2" style="display: block">
+			<div id="info">
+				<div id="first-elem">John Louie</div>
+				<img id="img-elem" src="./airtable_icon.png">
+				<div id="inner-elems">
+					<div id="left-elem">
+						Lorem Ipsum
+					</div>
+					<div id="middle-elem">
+						Lorem Ipsum
+					</div>
+					<div id="right-elem">
+						Lorem Ipsum
+					</div>
+				</div>
+				<!-- This should be the location where information is appended; should be able to handle records that are of an arbitrary size and grow dynamically -->
+			</div>
+		</div>
+
+		<div id="expanded-2" style="display: none">
+			<div id="info">
+				<div id="element">Name: John Louie</div>
+				<div id="element">Email: jlouie95618@gmail.com</div>
+				<div id="element">Pasted Column 1: Family</div>
+				<div id="element">Pasted Column 2: 6/13/2015</div>
+				<div id="element">Pasted Column 3: Airtable Intern</div>
+				<div id="element">Pasted Column 4: San Francisco, CA</div>
+				<div id="element">Pasted Column 5: Airtable</div>
+				<div id="element">Pasted Column 6: https://www.linkedin.com/pub/john-louie/51/399/482</div>
+				<div id="element">Pasted Column 7: San Francisco Work Trip</div>
+				<!-- This should be the location where information is appended; should be able to handle records that are of an arbitrary size and grow dynamically -->
+			</div>
+		</div>
 	</div>
 
 

@@ -1,39 +1,59 @@
 'use strict'; // indicate to use Strict Mode
+
 // Constants:
 
 $(document).ready(function() {
-    var classElems = document.getElementsByClassName('record');
-    for (var i = 0; i < classElems.length; i++) {
-        classElems[i].addEventListener('click', expandRecord, false);
-    }
+    var recordElems = document.getElementsByClassName('record');
+    _.each(recordElems, function(elem, key) {
+        elem.addEventListener('dblclick', function(e) {
+            expandRecord(elem, key);
+        }, false);
+    });
 })
 
-function expandRecord () {
-    console.log('clicked!');
-    console.log($('#compact'));
-    $('#compact').toggle('slow');
-    $('#expanded').toggle('slow');
+
+
+var installOnDom = function () {
+
+};
+
+// This function retrieves the html/css content that is 
+//  appropriate for the desired style of rendering
+var setRenderStyle = function(flag) {
+    if (flag === 0) {
+
+    } else if (flag === 1) {
+
+    }
+};
+
+function retrieveForChromeExtension() {
+
 }
 
-// var installOnDom = function () {
-    
-// };
+function retrieveFromURL() {
+    // body...
+}
 
-// var setRenderStyle = function() {
-    
-// };
+var renderCard = function(fields) {
 
-// var renderCard = function() {
+};
 
-// };
+function generateCompactView() {
 
-// function compactView() {
+}
 
-// }
+function generateExpandedView() {
 
-// function expandedView() {
+}
 
-// }
+function expandRecord(elem, index) {
+    console.log(elem);
+    console.log('index: ', index);
+    console.log('clicked!');
+    $('#compact-' + index).toggle('slow');
+    $('#expanded-' + index).toggle('slow');
+}
 
 // Finally, export the relevant functions:
 // module.exports = {
