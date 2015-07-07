@@ -1,17 +1,10 @@
 'use strict'; // indicate to use Strict Mode
 
-// Constants:
-
-
+// Constants and Globals:
 var result = '';
 var numRecords = 0;
-var infoDivTag = '<div id=\"info\">';
-var recordDivTag = '<div class=\"record\">';
-var closeDiv = '</div>';
-var compactStyle = 'template/css/sidebar_compact.css';
-// This should be able to change depending on what the 
-//  user wants their sidebar to look like
-var expandedStyle = 'template/css/sidebar_expanded.css';
+var config = require('./config.js');
+var _ = require('underscore');
 
 // This function retrieves the html/css content that is 
 //  appropriate for the desired style of rendering
@@ -19,7 +12,7 @@ var setRenderStyle = function(flag) {
     if (flag === 0) {
         if (chrome.extension) {
             result += '<link rel=\"stylesheet\" type=\"text/css\" href=\"';
-            result += chrome.extension.getURL(expandedStyle);
+            result += chrome.extension.getURL(config.expandedStyle);
             result += '\">';
         } else {} // TO IMPLEMENT...
     } else if (flag === 1) {} // TO IMPLEMENT...
@@ -30,25 +23,68 @@ function replaceStyle(stylePath) {
 }
 
 var renderCard = function(fields) {
-    createFramework();
-    result += generateCompactView(fields);
+    result += config.recordDivTag;
+    result += generateCompactView(fields); // does fields need to be a deep/shallow copy?
     result += generateExpandedView(fields);
+    result += config.closeDiv;
     numRecords++;
-
 };
 
-function createFramework() {
-    result += recordDivTag;
-    result += infoDivTag;
-    result += (closeDiv + closeDiv);
+function generateCompactView(fieldsObject) {
+    var firstTag = null;
+    var innerElems = null;
+    var imgTag = null;
+    var keys = null;
+    var img = _.find(fieldsObject, function(elem) {
+        // check if image is present...
+        return false;
+    });
+
+    if (!img) {
+        imgTag = '<img id=\"img-elem\" src=\"';
+        imgTag += chrome.extension.getURL(config.icon) + '\">';
+    } else {
+        // pull the image from the fieldsObject...
+        // Remove img so that it doesn't interfere with
+        //  the first 'four' elements that are to be 
+        //  displayed on the card preview
+        fieldsObject = _.without(fieldsObject, img);
+    }
+    keys = _.keys(fieldsObject);
+    firstTag = generateDiv('first-elem', fieldsObject.keys[0]);
+    innerElems = generateDiv('inner-elems', 
+        generateDiv('left-elem', fieldsObject.keys[1]) + 
+        generateDiv('middle-elem', fieldsObject.keys[2]) + 
+        generateDiv('right-elem', fieldsObject.keys[3]));
+    return generateDiv('compact-0', 
+        generateDiv('info', firstTag + imgTag + innerElems), 
+        'display: block');
 }
 
-function generateCompactView(fields) {
-
+function generateDiv(id, content, style) {
+    var string = '<div';
+    if (id) string += ' id=\"' + id + '\"';
+    if (style) string += ' style=\"' + style + '\"';
+    string += '>';
+    if (content) string += content;
+    string += config.closeDiv;
+    return string;
 }
 
 function generateExpandedView(fields) {
 
+}
+
+// This helper function takes a key and replaces the key variable
+//  with a new key string that omits the spaces between words/characters
+function handleMultiWordKeys(recordFields, key) {
+    if (key.split(' ').length > 1) { // Is there a more logical work around?...
+        var newKey = key.split(' ').join('');
+        recordFields[newKey] =  recordFields[key];
+        delete recordFields[key];
+        return newKey;
+    }
+    return key;
 }
 
 // This is the callback function definition; called within
