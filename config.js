@@ -7,7 +7,7 @@ var config = {
     // This should be able to change depending on what the 
 	//  user wants their sidebar to look like
     expandedStyle: 'template/css/sidebar_expanded.css',
-    icon: 'airtable_icon.png'
+    icon: './airtable_icon.png'
 };
 
 module.exports = config;

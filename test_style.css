@@ -1,8 +1,7 @@
 .record {
-	width: 194px; /* Artificially imposed to recreate the plugin behavior*/
 	padding: 3px;
 	margin-left: 3px;
-	/*text-align: center;*/
+	text-align: center;
 }
 
 #info {
