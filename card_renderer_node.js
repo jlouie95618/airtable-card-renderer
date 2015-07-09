@@ -28,8 +28,8 @@ var CardRenderer = Class.extend({
         }
         recordContainer.append(this._generateCompactView(record));
         recordContainer.append(this._generateExpandedView(record));
-        recordContainer.dblclick(function(eventData) {
-            that._activateExpandedView(eventData);
+        recordContainer.dblclick({cardIndex: this._numCards}, function(eventData) {
+            that._activateExpandedView(eventData, eventData.data.cardIndex);
         });
         this._numCards++;
         return recordContainer;
@@ -54,7 +54,8 @@ var CardRenderer = Class.extend({
             chrome.runtime.id + tags.defaultStyling);
     },
     // Private Functionality:
-    _activateExpandedView: function(eventData) { // TODO: implement event handler
+    _activateExpandedView: function(eventData, cardIndex) { // TODO: implement event handler
+        console.log(cardIndex);
         if (this._verbose) console.log(eventData);
         // $('#compact-' + this._numCards).toggle('slow');
         // $('#expanded-' + this._numCards).toggle('slow');
