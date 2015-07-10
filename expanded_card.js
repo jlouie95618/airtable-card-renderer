@@ -25,13 +25,6 @@ var ExpandedCard = Class.extend({
         }
         expandedCard.append(this._fillCardWithRecord()).hide();
         return expandedCard;
-
-        // Code to consider using...
-        // _.each(content, function(FieldTypeConstructor, columnName) {
-        //     var elem = new FieldTypeConstructor(columnName, 
-        //         record[columnName], this._verbose);
-        //     innerElems.append($(tags.leftElem).append(elem));
-        // });
     },
 
     _fillCardWithRecord: function() {

@@ -23,8 +23,12 @@ var CompactCard = Class.extend({
         var images = this._findImageAttachments();
         var constructors = {};
         var compactCard = $('<div></div>');
-        if (this._verbose) { console.log('cardNum: ', this._cardNum); }
-        if (this._verbose) { console.log('Images Array: ', images); }
+        if (this._verbose) { 
+            console.log('cardNum: ', this._cardNum); 
+            console.log('Images Array: ', images);
+            console.log('Record: ', record);
+            console.log('keys: ', keys);
+        }
         compactCard.attr('class', 'compact');
         // Create id to uniquely identify this particular card
         if (this._cardNum !== undefined) {
@@ -34,20 +38,27 @@ var CompactCard = Class.extend({
         info.append(this._displayFirstElemValue(keys[0], record[keys[0]].displayValue));
         // Generate the middle-elem div
         info.append(this._createImgElem(images));
-        constructors[keys[1]] = ColumnTypeConstructors[record[keys[1]].fieldType];
-        constructors[keys[2]] = ColumnTypeConstructors[record[keys[2]].fieldType];
-        constructors[keys[3]] = ColumnTypeConstructors[record[keys[3]].fieldType];
+        if (keys.length < 3) {
+            _.each(keys, function(key) {
+                if (key !== keys[0]) { // want to omit the very first key
+                    constructors[key] = ColumnTypeConstructors[record[key].fieldType];
+                }
+            });
+        } else {
+            for (var i = 1; i <= 3; i++) {
+                constructors[keys[i]] = ColumnTypeConstructors[record[keys[i]].fieldType];
+            }
+        }
+        // Append the constructed elements onto the appropriate parent elements
         info.append(this._createInnerElems(constructors));
-
         compactCard.append(info);
-
         return compactCard;
 
     },
     _findImageAttachments: function() {
         var record = this._record;
         var that = this;
-        var type = 'image'
+        var type = 'image';
         var images = []; // will become an array of objects
         _.each(record, function(contentObject, fieldName) {
             if (contentObject.fieldType === 'multipleAttachment') {
@@ -56,7 +67,7 @@ var CompactCard = Class.extend({
                     if (attachmentObject.type.indexOf(type) === 0) {
                         attachmentObject.fieldName = fieldName;
                         images.push(attachmentObject);
-                        delete attachmentArray[index];
+                        delete attachmentArray[index]; // Is this necessary?
                     } 
                 });
             }
@@ -65,10 +76,10 @@ var CompactCard = Class.extend({
     },
     _displayFirstElemValue: function(name, firstContentDisplayValue) {
         var elem = $(tags.firstElem);
-        elem.append('<strong>' + firstContentDisplayValue + '</strong>');
+        elem.append('<strong>' + _.escape(firstContentDisplayValue) + '</strong>');
         return elem;
     },
-    // eventually implement to allow for a 'slideshow'?
+    // eventually implement to allow for a 'slideshow'?...
     _createImgElem: function(imagesArray) {
         var elem = $('<img>');
         var first = null;
@@ -96,19 +107,19 @@ var CompactCard = Class.extend({
             // Construct new instance of a particular type, then 
             //  generate the appropriate element
             var elem = new FieldTypeConstructor(columnName, 
-                record[columnName], that._verbose).generateElement();
+                record[columnName], that._verbose).generateElement(true);
             if (that._verbose) { console.log(elem); }
+            // This approach is somewhat cumbersome; ideas for a better approach?...
             if (counter === 0) {
                 innerElems.append($(tags.leftElem).append(elem));
             } else if (counter === 1) {
                 innerElems.append($(tags.middleElem).append(elem));
-            } else {
+            } else if (counter === 2){
                 innerElems.append($(tags.rightElem).append(elem));
             }
             counter++;
 
         });
-
         return innerElems;
     },
 

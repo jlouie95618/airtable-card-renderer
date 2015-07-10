@@ -23,7 +23,7 @@ var CardRenderer = Class.extend({
         var numCards = this._numCards;
         var verbose = this._verbose;
         var style = this._expandedCardStyle;
-        console.log('this._numCards', numCards);
+        if (verbose) { console.log('this._numCards', numCards); }
         var compactCard = new CompactCard(record, numCards, verbose);
         var expandedCard = new ExpandedCard(record, numCards, style, verbose);
         var recordContainer = $('<div></div>').attr('class', 'record');
@@ -35,7 +35,7 @@ var CardRenderer = Class.extend({
         recordContainer.click({cardIndex: numCards}, function(eventData) {
             that._activateExpandedView(eventData);
         });
-        numCards++;
+        this._numCards++;
         return recordContainer;
     },
     installStyling: function(divElement, expandedCardStyle) {

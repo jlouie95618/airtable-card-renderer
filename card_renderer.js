@@ -1,6 +1,7 @@
 'use strict'; // indicate to use Strict Mode
 
-// Constants:
+// Globals:
+var _ = require('underscore');
 
 $(document).ready(function() {
     var recordElems = document.getElementsByClassName('record');
@@ -9,7 +10,7 @@ $(document).ready(function() {
             expandRecord(elem, key);
         }, false);
     });
-})
+});
 
 
 

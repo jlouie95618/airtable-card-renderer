@@ -6,11 +6,22 @@ var Class = require('./vendor/class.js');
 
 var GenericColumnType = Class.extend({
 	init: function(columnName, contentObject, verbose) {
-        console.log('GenericColumnType Constructor: ', contentObject);
-		this._columnName = columnName;
-        this._fieldType = contentObject.fieldType;
-        this._displayValue = contentObject.displayValue;
-        this._verbose = verbose
+        // Escape inputted information so that the person
+        //  cannot mess with the Javascript on the page
+		this._columnName = _.escape(columnName);
+        this._fieldType = _.escape(contentObject.fieldType);
+        // If the displayValue is an array of things like
+        //  attachments or multiselect options, we don't
+        //  want to get rid of the 'array/object' structure
+        if (typeof contentObject.displayValue === 'object') {
+            this._displayValue = contentObject.displayValue;
+        } else {
+            this._displayValue = _.escape(contentObject.displayValue);
+        }
+        this._verbose = verbose;
+        if (this._verbose) { 
+            console.log('GenericColumnType Constructor: ', contentObject);
+        }
 	},
     generateElement: function() {
         return $('<div></div>');

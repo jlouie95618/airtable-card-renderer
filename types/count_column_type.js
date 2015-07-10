@@ -8,7 +8,7 @@ var CountColumnType = GenericColumnType.extend({
     init: function(columnName, contentObject, verbose) {
         this._super(columnName, contentObject, verbose);
     },
-    generateElement: function() {
+    generateElement: function(isForCompact) {
         var elem = $('<div>Count</div>');
         return elem;        
     }

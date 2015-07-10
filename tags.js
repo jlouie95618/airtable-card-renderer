@@ -1,3 +1,5 @@
+'use strict';
+
 var tags = {
     // HTML div tags:
     record: '<div class=\"record\"></div>',

@@ -1,3 +1,5 @@
+'use strict';
+
 var ColumnTypeConstructors = {
     'multipleAttachment': require('./types/attachments_column_type.js'),
     'checkbox': require('./types/checkbox_column_type.js'),
