@@ -17,9 +17,9 @@ var tags = {
 
     // Styling tags:
     stylingFront: '<link rel=\"stylesheet\" type=\"text/css\" href=\"',
-    chromeExtension: 'chrome-extension://',
     // Requires chrome.runtime.id in the middle
-    defaultStyling: '/css/sidebar_style.css\">',
+
+    // Need special cases for URLs, attachments, percent, 
 };
 
 module.exports = tags;

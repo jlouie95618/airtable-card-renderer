@@ -4,11 +4,10 @@ var _ = require('underscore');
 
 var Class = require('./vendor/class.js');
 
-// var CompactCard = require('./compact_card.js');
-// var ExpandedCard = require('./expanded_card.js');
+var CompactCard = require('./compact_card.js');
+var ExpandedCard = require('./expanded_card.js');
 // var CellTypes = require('./cell_types.js');
 var config = require('./config.js');
-var tags = require('./tags.js');
 
 // The renderer itself doubles as a Card container,
 //  determining which cards to activate/expand, etc.
@@ -17,24 +16,29 @@ var CardRenderer = Class.extend({
         this._expandedCardStyle = expandedCardStyle;
         this._verbose = verbose;
         this._numCards = 0; // Not sure if this is necessary...
-        this._cardListeners = {}; // Not sure if this is necessary...
     },
     // Publicly Accessible Functionality:
     renderCard: function(record) { // record = object with field and value pairs
         var that = this;
-        var recordContainer = $(tags.record);
+        console.log('this._numCards', this._numCards);
+        var compactCard = new CompactCard(record, this._numCards, this._verbose);
+        var expandedCard = new ExpandedCard(record, this._numCards, this._verbose);
+        var recordContainer = $('<div></div>').attr('class', 'record');
         if (this._verbose) { 
             console.log('inputted (into CardRenderer) record:', record);
         }
-        recordContainer.append(this._generateCompactView(record));
-        recordContainer.append(this._generateExpandedView(record));
-        recordContainer.dblclick({cardIndex: this._numCards}, function(eventData) {
-            that._activateExpandedView(eventData, eventData.data.cardIndex);
+        recordContainer.append(compactCard.generateCard());
+        recordContainer.append(expandedCard.generateCard());
+        recordContainer.click({cardIndex: this._numCards}, function(eventData) {
+            that._activateExpandedView(eventData);
         });
         this._numCards++;
         return recordContainer;
     },
     installStyling: function(divElement, expandedCardStyle) {
+        var compactStyle = $('<link>');
+        compactStyle.attr('rel', 'stylesheet');
+        compactStyle.attr('type', 'text/css');
         if (this._verbose) { console.log(divElement); } 
         if (!this._expandedCardStyle) {
             this._expandedCardStyle = expandedCardStyle;
@@ -49,56 +53,18 @@ var CardRenderer = Class.extend({
                 break;
         }
         // Compact card styling:
-        console.log(chrome.runtime);
-        $(divElement).append(tags.stylingFront + tags.chromeExtension + 
-            chrome.runtime.id + tags.defaultStyling);
+        if (this._verbose) { console.log(chrome.runtime); }
+        compactStyle.attr('href', config.chromeExtension + chrome.runtime.id + config.defaultStyling);
+        $(divElement).append(compactStyle);
     },
     // Private Functionality:
-    _activateExpandedView: function(eventData, cardIndex) { // TODO: implement event handler
-        console.log(cardIndex);
-        if (this._verbose) console.log(eventData);
-        // $('#compact-' + this._numCards).toggle('slow');
-        // $('#expanded-' + this._numCards).toggle('slow');
-    },
-    // Compact Card
-    _generateCompactView: function(record) {
-        var info = $(tags.infoTag);
-        var compactCard = $('<div id=\"compact-' + this._numCards + '\"></div>');
-        var keys = _.keys(record);
-        compactCard.append(this._createFirstElem(keys[0], record[keys[0]].displayValue));
-        compactCard.append(this._createImgElem());
-        compactCard.append(this._createInnerElems(keys[1], keys[2], keys[3]));
-
-        info.append(compactCard);
-
-        return info;
-
-    },
-    _createFirstElem: function(name, firstContent) {
-        var elem = $(tags.firstElem);
-        elem.append('<strong>' + firstContent + '</strong>');
-        return elem;
-    },
-    _createImgElem: function(imgContent) {
-        var elem = $(tags.imgElem);
-
-        return elem;
-    },
-    _createInnerElems: function(leftContent, middleContent, rightContent) {
-        var elem = $(tags.innerElems);
-        elem.append(tags.leftElem);
-        elem.append(tags.middleElem);
-        elem.append(tags.rightElem);
-        return elem;
-    },
-    // Expanded Card
-    _generateExpandedView: function(record) {
-        var expandedCard = $('<div id=\"expanded-' + this._numCards + '\"></div>');
-
-        return expandedCard;
-    },
-    _handleMultiWordKeys: function() {
-        
+    _activateExpandedView: function(eventData) { // TODO: implement event handler
+        if (this._verbose) { console.log(eventData.data.cardIndex); }
+        if (this._verbose) { console.log(eventData); } 
+        if (this._verbose) { console.log($('.compact#compact-' + eventData.data.cardIndex)); }
+        if (this._verbose) { console.log($('.expanded#expanded-' + eventData.data.cardIndex)); }
+        $('.compact#compact-' + eventData.data.cardIndex).toggle('slow');
+        $('.expanded#expanded-' + eventData.data.cardIndex).toggle('slow');
     }
 });
 
