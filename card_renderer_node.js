@@ -20,19 +20,22 @@ var CardRenderer = Class.extend({
     // Publicly Accessible Functionality:
     renderCard: function(record) { // record = object with field and value pairs
         var that = this;
-        console.log('this._numCards', this._numCards);
-        var compactCard = new CompactCard(record, this._numCards, this._verbose);
-        var expandedCard = new ExpandedCard(record, this._numCards, this._verbose);
+        var numCards = this._numCards;
+        var verbose = this._verbose;
+        var style = this._expandedCardStyle;
+        console.log('this._numCards', numCards);
+        var compactCard = new CompactCard(record, numCards, verbose);
+        var expandedCard = new ExpandedCard(record, numCards, style, verbose);
         var recordContainer = $('<div></div>').attr('class', 'record');
-        if (this._verbose) { 
+        if (verbose) { 
             console.log('inputted (into CardRenderer) record:', record);
         }
         recordContainer.append(compactCard.generateCard());
         recordContainer.append(expandedCard.generateCard());
-        recordContainer.click({cardIndex: this._numCards}, function(eventData) {
+        recordContainer.click({cardIndex: numCards}, function(eventData) {
             that._activateExpandedView(eventData);
         });
-        this._numCards++;
+        numCards++;
         return recordContainer;
     },
     installStyling: function(divElement, expandedCardStyle) {

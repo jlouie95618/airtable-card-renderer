@@ -19,50 +19,33 @@ var CompactCard = Class.extend({
         var record = this._record;
         var info = $(tags.infoTag);
         var keys = _.keys(record);
-        var images = null;
+        // Create image tag and pull it from the record
+        var images = this._findImageAttachments();
         var constructors = {};
         var compactCard = $('<div></div>');
         if (this._verbose) { console.log('cardNum: ', this._cardNum); }
+        if (this._verbose) { console.log('Images Array: ', images); }
         compactCard.attr('class', 'compact');
+        // Create id to uniquely identify this particular card
         if (this._cardNum !== undefined) {
             compactCard.attr('id', 'compact-' + this._cardNum);
         }
-
-        // Create image tag and pull it from the record
-        images = this._findImageAttachments(record);
-        if (this._verbose) { console.log('Images Array: ', images); }
-        info.append(this._createFirstElem(keys[0], record[keys[0]].displayValue));
+        // Generate the first-elem div
+        info.append(this._displayFirstElemValue(keys[0], record[keys[0]].displayValue));
+        // Generate the middle-elem div
         info.append(this._createImgElem(images));
-        var key1 = keys[1]; var key2 = keys[2]; var key3 = keys[3];
-        console.log(key1, key2, key3);
-        // console.log(ColumnTypeConstructors[record[keys[1]].fieldType],
-        //             ColumnTypeConstructors[record[keys[2]].fieldType],
-        //             ColumnTypeConstructors[record[keys[3]].fieldType]);
-        
-        // console.log({
-        //     key1: ColumnTypeConstructors[record[keys[1]].fieldType], 
-        //     key2: ColumnTypeConstructors[record[keys[2]].fieldType], 
-        //     key3: ColumnTypeConstructors[record[keys[3]].fieldType]
-        // });
-
-        // {
-        //     key1: ColumnTypeConstructors[record[keys[1]].fieldType], 
-        //     key2: ColumnTypeConstructors[record[keys[2]].fieldType], 
-        //     key3: ColumnTypeConstructors[record[keys[3]].fieldType]
-        // }
-
-        constructors[key1] = ColumnTypeConstructors[record[keys[1]].fieldType];
-        constructors[key2] = ColumnTypeConstructors[record[keys[2]].fieldType];
-        constructors[key3] = ColumnTypeConstructors[record[keys[3]].fieldType];
-
-        info.append(this._createInnerElems(constructors, record));
+        constructors[keys[1]] = ColumnTypeConstructors[record[keys[1]].fieldType];
+        constructors[keys[2]] = ColumnTypeConstructors[record[keys[2]].fieldType];
+        constructors[keys[3]] = ColumnTypeConstructors[record[keys[3]].fieldType];
+        info.append(this._createInnerElems(constructors));
 
         compactCard.append(info);
 
         return compactCard;
 
     },
-    _findImageAttachments: function(record) {
+    _findImageAttachments: function() {
+        var record = this._record;
         var that = this;
         var type = 'image'
         var images = []; // will become an array of objects
@@ -80,12 +63,13 @@ var CompactCard = Class.extend({
         });
         return images;
     },
-    _createFirstElem: function(name, firstContentDisplayValue) {
+    _displayFirstElemValue: function(name, firstContentDisplayValue) {
         var elem = $(tags.firstElem);
         elem.append('<strong>' + firstContentDisplayValue + '</strong>');
         return elem;
     },
-    _createImgElem: function(imagesArray) {// eventually implement to allow for a 'slideshow'?
+    // eventually implement to allow for a 'slideshow'?
+    _createImgElem: function(imagesArray) {
         var elem = $('<img>');
         var first = null;
         elem.attr('id', 'img-elem');
@@ -99,16 +83,21 @@ var CompactCard = Class.extend({
         }
         return elem;
     },
-    _createInnerElems: function(fieldTypeConstructors, record) {
+    _createInnerElems: function(fieldTypeConstructors) {
         var that = this;
+        var record = this._record;
         var innerElems = $(tags.innerElems);
-        var counter = 0;
-        console.log(fieldTypeConstructors, record);
+        var counter = 0; // more descriptive name for counter?
+        if (this._verbose) { console.log(fieldTypeConstructors, record); }
         _.each(fieldTypeConstructors, function(FieldTypeConstructor, columnName) {
-            console.log('This should be the content object 2.0: ', record[columnName]);
+            if (that._verbose) { 
+                console.log('Content Object: ', record[columnName]);
+            }
+            // Construct new instance of a particular type, then 
+            //  generate the appropriate element
             var elem = new FieldTypeConstructor(columnName, 
                 record[columnName], that._verbose).generateElement();
-            console.log(elem);
+            if (that._verbose) { console.log(elem); }
             if (counter === 0) {
                 innerElems.append($(tags.leftElem).append(elem));
             } else if (counter === 1) {
