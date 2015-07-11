@@ -1,7 +1,7 @@
 {
   "name": "airtable_card_renderer",
   "version": "1.0.0",
-  "private": true,
+  "private": false,
   "dependencies": {
     "underscore": "1.8.3"
   },

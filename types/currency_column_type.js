@@ -9,8 +9,8 @@ var CurrencyColumnType = GenericColumnType.extend({
         this._super(columnName, contentObject, verbose);
     },
     generateElement: function(isForCompact) {
-        var elem = $('<div>Currency</div>');
-        return elem;        
+        return this._createBasicLayout(isForCompact, 
+                this._columnName, '\"Currency\" support in progress'); 
     }
 });
 

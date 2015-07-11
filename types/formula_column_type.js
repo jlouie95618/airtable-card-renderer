@@ -9,8 +9,8 @@ var FormulaColumnType = GenericColumnType.extend({
         this._super(columnName, contentObject, verbose);
     },
     generateElement: function(isForCompact) {
-        var elem = $('<div>Formula</div>');
-        return elem;        
+        return this._createBasicLayout(isForCompact, 
+                this._columnName, '\"Formula\" support in progress');  
     }
 });
 

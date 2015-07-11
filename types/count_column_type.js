@@ -9,8 +9,8 @@ var CountColumnType = GenericColumnType.extend({
         this._super(columnName, contentObject, verbose);
     },
     generateElement: function(isForCompact) {
-        var elem = $('<div>Count</div>');
-        return elem;        
+        return this._createBasicLayout(isForCompact, 
+                this._columnName, '\"Count\" support in progress');
     }
 });
 

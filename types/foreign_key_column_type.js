@@ -9,8 +9,8 @@ var ForeignKeyColumnType = GenericColumnType.extend({
         this._super(columnName, contentObject, verbose);
     },
     generateElement: function(isForCompact) {
-        var elem = $('<div>Foreign Key</div>');
-        return elem;
+        return this._createBasicLayout(isForCompact, 
+                this._columnName, '\"Foreign Key\" support in progress'); 
     }
 });
 

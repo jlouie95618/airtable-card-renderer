@@ -17,12 +17,12 @@ var CompactCard = Class.extend({
     // Compact Card - will eventually be its own subclass
     generateCard: function() {
         var record = this._record;
-        var info = $(tags.infoTag);
+        var info = $(tags.div).attr('id', 'info');
         var keys = _.keys(record);
         // Create image tag and pull it from the record
         var images = this._findImageAttachments();
         var constructors = {};
-        var compactCard = $('<div></div>');
+        var compactCard = $(tags.div);
         if (this._verbose) { 
             console.log('cardNum: ', this._cardNum); 
             console.log('Images Array: ', images);
@@ -75,13 +75,13 @@ var CompactCard = Class.extend({
         return images;
     },
     _displayFirstElemValue: function(name, firstContentDisplayValue) {
-        var elem = $(tags.firstElem);
-        elem.append('<strong>' + _.escape(firstContentDisplayValue) + '</strong>');
+        var elem = $(tags.div).attr('id', 'first-elem');
+        elem.append($(tags.strong).append(_.escape(firstContentDisplayValue)));
         return elem;
     },
     // eventually implement to allow for a 'slideshow'?...
     _createImgElem: function(imagesArray) {
-        var elem = $('<img>');
+        var elem = $(tags.img);
         var first = null;
         elem.attr('id', 'img-elem');
         if (!imagesArray || imagesArray.length === 0) {
@@ -97,25 +97,29 @@ var CompactCard = Class.extend({
     _createInnerElems: function(fieldTypeConstructors) {
         var that = this;
         var record = this._record;
-        var innerElems = $(tags.innerElems);
+        var innerElems = $(tags.div).attr('id', 'inner-elems');
         var counter = 0; // more descriptive name for counter?
         if (this._verbose) { console.log(fieldTypeConstructors, record); }
         _.each(fieldTypeConstructors, function(FieldTypeConstructor, columnName) {
-            if (that._verbose) { 
-                console.log('Content Object: ', record[columnName]);
-            }
+            var container;
             // Construct new instance of a particular type, then 
             //  generate the appropriate element
             var elem = new FieldTypeConstructor(columnName, 
                 record[columnName], that._verbose).generateElement(true);
-            if (that._verbose) { console.log(elem); }
+            if (that._verbose) { 
+                console.log('Content Object: ', record[columnName]);
+                console.log(elem);
+            }
             // This approach is somewhat cumbersome; ideas for a better approach?...
             if (counter === 0) {
-                innerElems.append($(tags.leftElem).append(elem));
+                container = $(tags.div).attr('id', 'left-elem');
+                innerElems.append(container.append(elem));
             } else if (counter === 1) {
-                innerElems.append($(tags.middleElem).append(elem));
+                container = $(tags.div).attr('id', 'middle-elem');
+                innerElems.append(container.append(elem));
             } else if (counter === 2){
-                innerElems.append($(tags.rightElem).append(elem));
+                container = $(tags.div).attr('id', 'right-elem');
+                innerElems.append(container.append(elem));
             }
             counter++;
 

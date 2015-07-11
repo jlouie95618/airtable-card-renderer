@@ -1,8 +1,6 @@
 'use strict';
 
 var config = {
-    recordDivTag: '<div class=\"record\">',
-    closeDiv: '</div>',
     compactStyle: 'template/css/sidebar_compact.css',
     // This should be able to change depending on what the 
 	//  user wants their sidebar to look like

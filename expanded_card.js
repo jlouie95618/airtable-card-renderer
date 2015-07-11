@@ -17,7 +17,7 @@ var ExpandedCard = Class.extend({
     },
     // Expanded Card - will eventually be its own subclass
     generateCard: function() {
-        var expandedCard = $('<div></div>');
+        var expandedCard = $(tags.div);
         expandedCard.attr('class', 'expanded');
         // Create id to uniquely identify this particular card
         if (this._cardNum !== undefined) {
@@ -32,18 +32,21 @@ var ExpandedCard = Class.extend({
         var record = this._record;
         var constructors = {};
         var keys = _.keys(this._record);
-        var info = $(tags.infoTag);
+        var info = $(tags.div).attr('id', 'info');
         _.each(keys, function(key) {
             constructors[key] = ColumnTypeConstructors[record[key].fieldType];
         });
         _.each(constructors, function(FieldTypeConstructor, columnName) {
+            var elem;
+            var container;
             if (that._verbose) { 
                 console.log('Expanded Content Object: ', record[columnName]);
             }
-            var elem = new FieldTypeConstructor(columnName, 
+            elem = new FieldTypeConstructor(columnName, 
                 record[columnName], that._verbose).generateElement();
             if (that._verbose) { console.log(elem); }
-            info.append($('<div id=\"element\"></div>').append(elem));
+            container = $(tags.div).attr('id', 'element');
+            info.append(container.append(elem));
         });
         return info;
     }

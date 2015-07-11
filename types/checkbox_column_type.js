@@ -9,18 +9,8 @@ var CheckboxColumnType = GenericColumnType.extend({
         this._super(columnName, contentObject, verbose);
     },
     generateElement: function(isForCompact) {
-        var elem;
-        var boldedColumnName = $('<strong></strong>').append(this._columnName);
-        if (isForCompact) {
-            elem = $('<div></div>');
-            elem.append($('<strong></strong>').append(this._columnName));
-            elem.append($('<div></div>').append(this._displayValue));
-        } else {
-            elem = $('<dl></dl>');
-            elem.append($('<dt></dt>').append(this._columnName));
-            elem.append($('<dd></dd>').append(this._displayValue));        
-        }
-        return elem;
+        return this._createBasicLayout(isForCompact, 
+                this._columnName, this._displayValue);
     }
 });
 

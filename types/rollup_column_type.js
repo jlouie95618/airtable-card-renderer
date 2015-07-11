@@ -9,8 +9,8 @@ var RollupColumnType = GenericColumnType.extend({
         this._super(columnName, contentObject, verbose);
     },
     generateElement: function(isForCompact) {
-        var elem = $('<div>Rollup</div>');
-        return elem;
+        return this._createBasicLayout(isForCompact, 
+                this._columnName, '\"Rollup\" support in progress');
     }
 });
 

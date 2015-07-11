@@ -10,10 +10,8 @@ var MultiselectColumnType = GenericColumnType.extend({
     },
     generateElement: function(isForCompact) {
         var that = this;
-        var elem;
         var list = "";
         var elemNum = 0;
-        var boldedColumnName = $('<strong></strong>').append(this._columnName);
         // displayValue is stored as an Array of objects
         _.each(this._displayValue, function(item) {
             item = _.escape(item);
@@ -25,16 +23,8 @@ var MultiselectColumnType = GenericColumnType.extend({
             elemNum++;
         });
 
-        if (isForCompact) {
-            elem = $('<div></div>');
-            elem.append($('<strong></strong>').append(this._columnName));
-            elem.append($('<div></div>').append(list));
-        } else {
-            elem = $('<dl></dl>');
-            elem.append($('<dt></dt>').append(this._columnName));
-            elem.append($('<dd></dd>').append(list));
-        }
-        return elem;
+        return this._createBasicLayout(isForCompact, 
+                this._columnName, list);
     }
 });
 

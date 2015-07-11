@@ -9,8 +9,8 @@ var AttachmentsColumnType = GenericColumnType.extend({
         this._super(columnName, contentObject, verbose);
     },
     generateElement: function(isForCompact) {
-        var elem = $('<div>Attachments</div>');
-        return elem;
+        return this._createBasicLayout(isForCompact, 
+                this._columnName, '\"Attachments\" support in progress'); 
     }
 });
 
