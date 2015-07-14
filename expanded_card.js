@@ -13,7 +13,7 @@ var ExpandedCard = Class.extend({
         this._record = record;
         this._cardNum = cardNum;
         this._style = style;
-        this._verbose = true;
+        this._verbose = verbose;
     },
     // Expanded Card - will eventually be its own subclass
     generateCard: function() {

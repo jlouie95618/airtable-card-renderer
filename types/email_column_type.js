@@ -12,7 +12,6 @@ var EmailColumnType = GenericColumnType.extend({
         var that = this;
         var email = $(this._tags.div).append(this._displayValue);
         var mailToIcon = $(this._tags.div);
-        email.attr('id', 'email-header');
         if (this._verbose) { console.log('InboxSDK: ', InboxSDK); }
         if (InboxSDK) {
             mailToIcon = $(this._createEmailIcon());

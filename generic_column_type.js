@@ -28,17 +28,17 @@ var GenericColumnType = Class.extend({
     generateElement: function() {
         return $(this._tags.div);
     },
-    _createBasicLayout: function(isForCompact, columnName, content) {
-        var elem;
-        var boldedColumnName = $(this._tags.strong).append(columnName);
+    _createBasicLayout: function(isForCompact, name, content) {
+        var elem = $('<div/>');
+        var columnName = $('<div/>').append(name).attr('class', 'column-name');
+        var columnContent = $('<div/>').append(content).attr('class', 'column-content');
         // if (isForCompact) {
-        //     elem = $(this._tags.div);
-        //     elem.append(boldedColumnName);
-        //     elem.append(content);
+            elem.append(columnName);
+            elem.append(columnContent);
         // } else {
-            elem = $(this._tags.dl);
-            elem.append($(this._tags.dt).append(boldedColumnName));
-            elem.append($(this._tags.dd).append(content));        
+            // elem = $(this._tags.dl);
+            // elem.append($(this._tags.dt).append(boldedColumnName));
+            // elem.append($(this._tags.dd).append(content));        
         // }
         return elem;
     }

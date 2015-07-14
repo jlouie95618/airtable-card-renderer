@@ -6,6 +6,7 @@ var Class = require('./vendor/class.js');
 
 var CompactCard = require('./compact_card.js');
 var ExpandedCard = require('./expanded_card.js');
+var Card = require('./card.js');
 // var CellTypes = require('./cell_types.js');
 var config = require('./config.js');
 
@@ -15,7 +16,7 @@ var CardRenderer = Class.extend({
     init: function(expandedCardStyle, verbose) {
         this._expandedCardStyle = expandedCardStyle;
         this._verbose = verbose;
-        this._numCards = 0; // Not sure if this is necessary...
+        this._numCards = 0;
     },
     // Publicly Accessible Functionality:
     renderCard: function(record) { // record = object with field and value pairs
@@ -23,18 +24,30 @@ var CardRenderer = Class.extend({
         var numCards = this._numCards;
         var verbose = this._verbose;
         var style = this._expandedCardStyle;
-        if (verbose) { console.log('this._numCards', numCards); }
-        var compactCard = new CompactCard(record, numCards, verbose);
-        var expandedCard = new ExpandedCard(record, numCards, style, verbose);
+        var card;
+        var compactCard; 
+        var expandedCard;
         var recordContainer = $('<div></div>').attr('class', 'record');
-        if (verbose) { 
-            console.log('inputted (into CardRenderer) record:', record);
+        if (style) {
+            // implementation for a compact and expanded card implementation
+            compactCard = new CompactCard(record, numCards, verbose);
+            expandedCard = new ExpandedCard(record, numCards, style, verbose);
+            if (verbose) {
+                console.log('this._numCards', numCards);
+                console.log('inputted (into CardRenderer) record:', record);
+            }
+            recordContainer.append(compactCard.generateCard());
+            recordContainer.append(expandedCard.generateCard());
+            recordContainer.click({cardIndex: numCards}, function(eventData) {
+                that._activateExpandedView(eventData);
+            });
+        } else {
+            // Code pertaining to just a single card, but is expanded when a
+            //  'More Info' button is clicked.
+            card = new Card(record, numCards, verbose);
+            recordContainer.append(card.generateCard());
+            recordContainer.append(card.createMoreInfoButton());
         }
-        recordContainer.append(compactCard.generateCard());
-        recordContainer.append(expandedCard.generateCard());
-        recordContainer.click({cardIndex: numCards}, function(eventData) {
-            that._activateExpandedView(eventData);
-        });
         this._numCards++;
         return recordContainer;
     },

@@ -6,60 +6,69 @@ var Class = require('./vendor/class.js');
 
 var ColumnTypeConstructors = require('./column_types.js');
 var config = require('./config.js');
-var tags = require('./tags.js');
 
-var CompactCard = Class.extend({
+var Card = Class.extend({
     init: function(record, cardNum, verbose) {
         this._record = record;
         this._cardNum = cardNum;
-        this._verbose = verbose;
+        this._verbose = true;
     },
     // Compact Card - will eventually be its own subclass
     generateCard: function() {
         var record = this._record;
-        var info = $(tags.div).attr('id', 'info');
+        var info = $('<div/>').attr('id', 'info');
         var keys = _.keys(record);
         // Create image tag and pull it from the record
         var images = this._findImageAttachments();
         var constructors = {};
-        var compactCard = $(tags.div);
+        this._card = $('<div/>');
         if (this._verbose) { 
             console.log('cardNum: ', this._cardNum); 
             console.log('Images Array: ', images);
             console.log('Record: ', record);
             console.log('keys: ', keys);
         }
-        compactCard.attr('class', 'compact');
+        this._card.attr('class', 'card');
         // Create id to uniquely identify this particular card
         if (this._cardNum !== undefined) {
-            compactCard.attr('id', 'compact-' + this._cardNum);
+            this._card.attr('id', 'card-' + this._cardNum);
         }
         // Generate the inner-elems div
         info.append(this._createImgElem(images));
         // Generate the first-elem div
-        info.append(this._displayFirstElemValue(keys[0], 
+        info.append(this._displayHeaderValue(keys[0], 
             record[keys[0]].displayValue, this._findEmail()));
-        if (keys.length < 3) {
-            _.each(keys, function(key) {
-                if (key !== keys[0]) { // want to omit the very first key
-                    constructors[key] = ColumnTypeConstructors[record[key].fieldType];
-                }
-            });
-        } else {
-            for (var i = 1; i <= 3; i++) {
-                constructors[keys[i]] = ColumnTypeConstructors[record[keys[i]].fieldType];
+        _.each(keys, function(key) {
+            if (key !== keys[0]) { // want to omit the very first key
+                constructors[key] = ColumnTypeConstructors[record[key].fieldType];
             }
-        }
+        });
         // Append the constructed elements onto the appropriate parent elements
-        info.append(this._createInnerElems(constructors));
-        compactCard.append(info);
-        return compactCard;
+        this._card.append(info.append(this._createCardContent(constructors)));
+        return this._card;
 
+    },
+    createMoreInfoButton: function() {
+        var that = this;
+        var button = $('<button/>').text('More Info');
+        button.attr('class', 'more-info-button');
+        button.click(function(eventData) {
+            that._card.toggleClass('card');
+            that._card.toggleClass('card-expanded');
+            button.toggleClass('more-info-button');
+            button.toggleClass('collapse-button');
+            if (button[0].innerText === 'More Info') {
+                button.text('Collapse');
+            } else if (button[0].innerText === 'Collapse') {
+                button.text('More Info');
+            }
+        });
+        return button;
     },
     _findEmail: function() {
         var that = this;
         var record = this._record;
-        var elem = $(tags.div);
+        var elem = $('<div/>');
         _.each(record, function(contentObject, fieldName) {
             var Constructor;
             if (contentObject.fieldType === 'email') {
@@ -101,9 +110,9 @@ var CompactCard = Class.extend({
     // eventually implement to allow for a 'slideshow'?...
     _createImgElem: function(imagesArray) {
         console.log('images: ', imagesArray);
-        var elem = $(tags.img);
+        var elem = $('<img>');
         var first = null;
-        var container = $(tags.div).attr('id', 'img-elem');
+        var container = $('<div/>').attr('class', 'img-elem');
         if (!imagesArray || imagesArray.length === 0) {
             this._noImage = true;
             return elem.attr('style', 'display: none;');
@@ -115,24 +124,24 @@ var CompactCard = Class.extend({
         elem.attr('style', 'width: 100%; height: 100%; border-radius: 50%');
         return container.append(elem);
     },
-    _displayFirstElemValue: function(name, firstContentDisplayValue, emailElem) {
-        var elem = $(tags.div).attr('id', 'first-elem');
-        var firstElemName = $(tags.strong).append(_.escape(firstContentDisplayValue));
-        firstElemName.attr('id', 'title');
-        emailElem.attr('id', 'email-header');
+    _displayHeaderValue: function(name, firstContentDisplayValue, emailElem) {
+        var elem = $('<div/>').attr('class', 'header');
+        var headerName = $('<div/>').append(_.escape(firstContentDisplayValue));
+        headerName.attr('class', 'title');
+        emailElem.attr('class', 'email-header');
         if (this._noImage) { elem.attr('style', 'word-wrap: normal; width: 180px;'); }
-        elem.append(firstElemName);
+        elem.append(headerName);
         elem.append(emailElem);
         return elem;
     },
-    _createInnerElems: function(fieldTypeConstructors) {
+    _createCardContent: function(fieldTypeConstructors) {
         var that = this;
         var record = this._record;
-        var innerElems = $(tags.div).attr('id', 'inner-elems');
-        var counter = 0; // more descriptive name for counter?
+        var contents = $('<div/>').attr('class', 'card-content');
+        var counter = 0; // more descriptive name for counter?...
         if (this._verbose) { console.log(fieldTypeConstructors, record); }
         _.each(fieldTypeConstructors, function(FieldTypeConstructor, columnName) {
-            var container;
+            var container = $('<div/>').attr('class', 'element');
             // Construct new instance of a particular type, then 
             //  generate the appropriate element
             var elem = new FieldTypeConstructor(columnName, 
@@ -141,24 +150,13 @@ var CompactCard = Class.extend({
                 console.log('Content Object: ', record[columnName]);
                 console.log(elem);
             }
-            // This approach is somewhat cumbersome; ideas for a better approach?...
-            if (counter === 0) {
-                container = $(tags.div).attr('id', 'left-elem');
-                innerElems.append(container.append(elem));
-            } else if (counter === 1) {
-                container = $(tags.div).attr('id', 'middle-elem');
-                innerElems.append(container.append(elem));
-            } else if (counter === 2){
-                container = $(tags.div).attr('id', 'right-elem');
-                innerElems.append(container.append(elem));
-            }
-            innerElems.append('<br>');
+            contents.append(container.append(elem));
             counter++;
 
         });
-        return innerElems;
+        return contents;
     },
 
 });
 
-module.exports = CompactCard;
+module.exports = Card;
