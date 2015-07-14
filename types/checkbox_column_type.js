@@ -9,8 +9,14 @@ var CheckboxColumnType = GenericColumnType.extend({
         this._super(columnName, contentObject, verbose);
     },
     generateElement: function(isForCompact) {
+        var checkboxStatus;
+        if (this._displayValue) {
+            checkboxStatus = 'Yes';
+        } else {
+            checkboxStatus = 'No';
+        }
         return this._createBasicLayout(isForCompact, 
-                this._columnName, this._displayValue);
+                this._columnName, checkboxStatus);
     }
 });
 

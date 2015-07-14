@@ -2,11 +2,14 @@
   "name": "airtable_card_renderer",
   "version": "1.0.0",
   "private": false,
+  "homepage": "https://github.com/jlouie95618/airtable_card_renderer.git",
+  "repository": "git://github.com/jlouie95618/airtable_card_renderer.git",
   "dependencies": {
     "underscore": "1.8.3"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
-    "grunt-contrib-jshint": "^0.11.2"
+    "grunt-contrib-jshint": "^0.11.2",
+    "grunt-text-replace": "^0.4.0"
   }
 }

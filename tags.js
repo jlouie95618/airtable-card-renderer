@@ -2,6 +2,7 @@
 
 var tags = {
     a: '<a></a>',
+    button: '<button></button>',
     dd: '<dd></dd>',
     dl: '<dl></dl>',
     dt: '<dt></dt>',

@@ -9,8 +9,14 @@ var DateColumnType = GenericColumnType.extend({
         this._super(columnName, contentObject, verbose);
     },
     generateElement: function(isForCompact) {
+        var dateTime = new Date(this._displayValue);
+        console.log(dateTime);
+        console.log(Date);
+        console.log(dateTime.getUTCHours());
+        console.log(dateTime.getUTCMinutes());
+        console.log(dateTime.getUTCSeconds());
         return this._createBasicLayout(isForCompact, 
-                this._columnName, this._displayValue); 
+                this._columnName, dateTime); 
     }
 });
 

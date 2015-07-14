@@ -11,7 +11,7 @@ var UrlColumnType = GenericColumnType.extend({
     generateElement: function(isForCompact) {
         var https = 'https://';
         var http = 'http://';
-        var link = $('<a></a>').append(this._displayValue);
+        var link = $(this._tags.a).append(this._displayValue);
         if (this._displayValue.indexOf(https) === 0 ||
             this._displayValue.indexOf(http) === 0) {
             link.attr('href', this._displayValue);

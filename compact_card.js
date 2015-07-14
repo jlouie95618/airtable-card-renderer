@@ -12,7 +12,7 @@ var CompactCard = Class.extend({
     init: function(record, cardNum, verbose) {
         this._record = record;
         this._cardNum = cardNum;
-        this._verbose = verbose;
+        this._verbose = true;
     },
     // Compact Card - will eventually be its own subclass
     generateCard: function() {
@@ -34,10 +34,11 @@ var CompactCard = Class.extend({
         if (this._cardNum !== undefined) {
             compactCard.attr('id', 'compact-' + this._cardNum);
         }
-        // Generate the first-elem div
-        info.append(this._displayFirstElemValue(keys[0], record[keys[0]].displayValue));
-        // Generate the middle-elem div
+        // Generate the inner-elems div
         info.append(this._createImgElem(images));
+        // Generate the first-elem div
+        info.append(this._displayFirstElemValue(keys[0], 
+            record[keys[0]].displayValue, this._findEmail()));
         if (keys.length < 3) {
             _.each(keys, function(key) {
                 if (key !== keys[0]) { // want to omit the very first key
@@ -55,6 +56,29 @@ var CompactCard = Class.extend({
         return compactCard;
 
     },
+    _findEmail: function() {
+        var that = this;
+        var record = this._record;
+        var elem = $(tags.div);
+        _.each(record, function(contentObject, fieldName) {
+            var Constructor;
+            if (contentObject.fieldType === 'email') {
+                Constructor = ColumnTypeConstructors[contentObject.fieldType];
+                elem = new Constructor(null, 
+                    record[fieldName], that._verbose).generateElement(true);
+            } else if (that._containsEmailWord(fieldName)) {
+                elem.append(_.escape(contentObject.displayValue));
+            }
+        });
+        return elem;
+    },
+    _containsEmailWord: function(fieldName) {
+        var lowerCaseFieldName = fieldName.toLowerCase();
+        return lowerCaseFieldName === 'email' || 
+            lowerCaseFieldName === 'email address' ||
+            lowerCaseFieldName === 'e-mail' ||
+            lowerCaseFieldName === 'e-mail address';
+    },
     _findImageAttachments: function() {
         var record = this._record;
         var that = this;
@@ -67,31 +91,38 @@ var CompactCard = Class.extend({
                     if (attachmentObject.type.indexOf(type) === 0) {
                         attachmentObject.fieldName = fieldName;
                         images.push(attachmentObject);
-                        delete attachmentArray[index]; // Is this necessary?
+                        // delete attachmentArray[index]; // Is this necessary?
                     } 
                 });
             }
         });
         return images;
     },
-    _displayFirstElemValue: function(name, firstContentDisplayValue) {
-        var elem = $(tags.div).attr('id', 'first-elem');
-        elem.append($(tags.strong).append(_.escape(firstContentDisplayValue)));
-        return elem;
-    },
     // eventually implement to allow for a 'slideshow'?...
     _createImgElem: function(imagesArray) {
+        console.log('images: ', imagesArray);
         var elem = $(tags.img);
         var first = null;
-        elem.attr('id', 'img-elem');
+        var container = $(tags.div).attr('id', 'img-elem');
         if (!imagesArray || imagesArray.length === 0) {
-            elem.attr('alt', config.icon);
-            elem.attr('src', config.chromeExtension + chrome.runtime.id + config.icon);
+            this._noImage = true;
+            return elem;
         } else {
             first = imagesArray[0];
             elem.attr('alt', first.filename);
             elem.attr('src', first.url);
         }
+        elem.attr('style', 'width: 100%; height: 100%; border-radius: 50%');
+        return container.append(elem);
+    },
+    _displayFirstElemValue: function(name, firstContentDisplayValue, emailElem) {
+        var elem = $(tags.div).attr('id', 'first-elem');
+        var firstElemName = $(tags.strong).append(_.escape(firstContentDisplayValue));
+        firstElemName.attr('id', 'title');
+        emailElem.attr('id', 'email-header');
+        if (this._noImage) { elem.attr('style', 'word-wrap: normal; width: 180px;'); }
+        elem.append(firstElemName);
+        elem.append(emailElem);
         return elem;
     },
     _createInnerElems: function(fieldTypeConstructors) {
@@ -121,6 +152,7 @@ var CompactCard = Class.extend({
                 container = $(tags.div).attr('id', 'right-elem');
                 innerElems.append(container.append(elem));
             }
+            innerElems.append('<br>');
             counter++;
 
         });

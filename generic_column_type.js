@@ -19,26 +19,27 @@ var GenericColumnType = Class.extend({
             this._displayValue = _.escape(contentObject.displayValue);
         }
         this._tags = require('./tags.js');
+        this._config = require('./config.js');
         this._verbose = verbose;
         if (this._verbose) { 
             console.log('GenericColumnType Constructor: ', contentObject);
         }
 	},
     generateElement: function() {
-        return $('<div></div>');
+        return $(this._tags.div);
     },
     _createBasicLayout: function(isForCompact, columnName, content) {
         var elem;
         var boldedColumnName = $(this._tags.strong).append(columnName);
-        if (isForCompact) {
-            elem = $(this._tags.div);
-            elem.append(boldedColumnName);
-            elem.append($(this._tags.div).append(content));
-        } else {
+        // if (isForCompact) {
+        //     elem = $(this._tags.div);
+        //     elem.append(boldedColumnName);
+        //     elem.append(content);
+        // } else {
             elem = $(this._tags.dl);
             elem.append($(this._tags.dt).append(boldedColumnName));
             elem.append($(this._tags.dd).append(content));        
-        }
+        // }
         return elem;
     }
 });

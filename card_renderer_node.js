@@ -58,6 +58,7 @@ var CardRenderer = Class.extend({
         // Compact card styling:
         if (this._verbose) { console.log(chrome.runtime); }
         compactStyle.attr('href', config.chromeExtension + chrome.runtime.id + config.defaultStyling);
+        // compactStyle.attr('href', './templates/css/sidebar_compact.css');
         $(divElement).append(compactStyle);
     },
     // Private Functionality:

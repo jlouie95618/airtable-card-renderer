@@ -18,15 +18,45 @@ module.exports = function(grunt) {
                     module: true,
                     console: true,
                     chrome: true,
-                    document: true
+                    document: true,
+                    InboxSDK: true,
+                    Date: true
                 }
             }
-        }
+        },
+        replace: {
+            emailproduction: {
+                src: './types/email_column_type.js',
+                overwrite: true,
+                replacements: [{
+                    from: /production|staging|development/g,
+                    to: 'production'
+                }]
+            },
+            emailstaging: {
+                src: './types/email_column_type.js',
+                overwrite: true,
+                replacements: [{
+                    from: /production|staging|development/g,
+                    to: 'staging'
+                }]
+            },
+            emaildevelopment: {
+                src: './types/email_column_type.js',
+                overwrite: true,
+                replacements: [{
+                    from: /production|staging|development/g,
+                    to: 'development'
+                }]
+            }
 
+        }
     });
 
     // Load the relevant plugins for the default task
     grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-text-replace');
+
     var env = grunt.option('env') || 'staging';
-    grunt.registerTask('default', ['jshint']);
+    grunt.registerTask('default', ['jshint', 'replace:email' + env]);
 };
