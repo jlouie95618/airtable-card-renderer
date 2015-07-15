@@ -6,7 +6,6 @@ var Class = require('./vendor/class.js');
 
 var ColumnTypeConstructors = require('./column_types.js');
 var config = require('./config.js');
-var tags = require('./tags.js');
 
 var ExpandedCard = Class.extend({
     init: function(record, cardNum, style, verbose) {
@@ -17,7 +16,7 @@ var ExpandedCard = Class.extend({
     },
     // Expanded Card - will eventually be its own subclass
     generateCard: function() {
-        var expandedCard = $(tags.div);
+        var expandedCard = $('<div/>');
         expandedCard.attr('class', 'expanded');
         // Create id to uniquely identify this particular card
         if (this._cardNum !== undefined) {
@@ -32,7 +31,7 @@ var ExpandedCard = Class.extend({
         var record = this._record;
         var constructors = {};
         var keys = _.keys(this._record);
-        var info = $(tags.div).attr('id', 'info');
+        var info = $('<div/>').attr('id', 'info');
         _.each(keys, function(key) {
             constructors[key] = ColumnTypeConstructors[record[key].fieldType];
         });
@@ -45,7 +44,7 @@ var ExpandedCard = Class.extend({
             elem = new FieldTypeConstructor(columnName, 
                 record[columnName], that._verbose).generateElement();
             if (that._verbose) { console.log(elem); }
-            container = $(tags.div).attr('id', 'element');
+            container = $('<div/>').attr('id', 'element');
             info.append(container.append(elem));
         });
         return info;

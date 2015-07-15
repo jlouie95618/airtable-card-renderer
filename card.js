@@ -11,12 +11,12 @@ var Card = Class.extend({
     init: function(record, cardNum, verbose) {
         this._record = record;
         this._cardNum = cardNum;
-        this._verbose = true;
+        this._verbose = verbose;
     },
     // Compact Card - will eventually be its own subclass
     generateCard: function() {
         var record = this._record;
-        var info = $('<div/>').attr('id', 'info');
+        var info = $('<div/>').attr('class', 'info');
         var keys = _.keys(record);
         // Create image tag and pull it from the record
         var images = this._findImageAttachments();
@@ -29,10 +29,6 @@ var Card = Class.extend({
             console.log('keys: ', keys);
         }
         this._card.attr('class', 'card');
-        // Create id to uniquely identify this particular card
-        if (this._cardNum !== undefined) {
-            this._card.attr('id', 'card-' + this._cardNum);
-        }
         // Generate the inner-elems div
         info.append(this._createImgElem(images));
         // Generate the first-elem div
@@ -112,26 +108,29 @@ var Card = Class.extend({
         console.log('images: ', imagesArray);
         var elem = $('<img>');
         var first = null;
-        var container = $('<div/>').attr('class', 'img-elem');
+        var container = $('<div/>').attr('class', 'img-container');
         if (!imagesArray || imagesArray.length === 0) {
             this._noImage = true;
-            return elem.attr('style', 'display: none;');
+            container.attr('class', 'no-image');
+            return container.append(elem.attr('class', 'no-img'));
         } else {
             first = imagesArray[0];
             elem.attr('alt', first.filename);
             elem.attr('src', first.url);
+            elem.attr('class', 'img-elem');
         }
-        elem.attr('style', 'width: 100%; height: 100%; border-radius: 50%');
         return container.append(elem);
     },
     _displayHeaderValue: function(name, firstContentDisplayValue, emailElem) {
-        var elem = $('<div/>').attr('class', 'header');
-        var headerName = $('<div/>').append(_.escape(firstContentDisplayValue));
-        headerName.attr('class', 'title');
-        emailElem.attr('class', 'email-header');
-        if (this._noImage) { elem.attr('style', 'word-wrap: normal; width: 180px;'); }
-        elem.append(headerName);
-        elem.append(emailElem);
+        var elem = $('<div/>');
+        var headerTitle = $('<div/>').append(_.escape(firstContentDisplayValue));
+        if (this._noImage) { 
+            elem.attr('class', 'header-no-image'); 
+        } else {
+            elem.attr('class', 'header');
+        }
+        elem.append(headerTitle.attr('class', 'title'));
+        elem.append(emailElem.attr('class', 'email-header'));
         return elem;
     },
     _createCardContent: function(fieldTypeConstructors) {

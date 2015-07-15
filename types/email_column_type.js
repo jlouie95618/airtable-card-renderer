@@ -10,8 +10,8 @@ var EmailColumnType = GenericColumnType.extend({
     },
     generateElement: function(isForCompact) {
         var that = this;
-        var email = $(this._tags.div).append(this._displayValue);
-        var mailToIcon = $(this._tags.div);
+        var email = $('<div/>').append(this._displayValue);
+        var mailToIcon = $('<div/>');
         if (this._verbose) { console.log('InboxSDK: ', InboxSDK); }
         if (InboxSDK) {
             mailToIcon = $(this._createEmailIcon());
@@ -29,7 +29,7 @@ var EmailColumnType = GenericColumnType.extend({
                 this._columnName, email);
     },
     _createEmailIcon: function() {
-        var mailToIcon = $(this._tags.img);
+        var mailToIcon = $('<img>');
         mailToIcon.attr('id', 'mail-to-icon');
         mailToIcon.attr('alt', 'mail to icon');
         mailToIcon.attr('src', this._config.chromeExtension + 

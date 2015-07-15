@@ -6,7 +6,6 @@ var Class = require('./vendor/class.js');
 
 var ColumnTypeConstructors = require('./column_types.js');
 var config = require('./config.js');
-var tags = require('./tags.js');
 
 var CompactCard = Class.extend({
     init: function(record, cardNum, verbose) {
@@ -17,12 +16,12 @@ var CompactCard = Class.extend({
     // Compact Card - will eventually be its own subclass
     generateCard: function() {
         var record = this._record;
-        var info = $(tags.div).attr('id', 'info');
+        var info = $('<div/>').attr('id', 'info');
         var keys = _.keys(record);
         // Create image tag and pull it from the record
         var images = this._findImageAttachments();
         var constructors = {};
-        var compactCard = $(tags.div);
+        var compactCard = $('<div/>');
         if (this._verbose) { 
             console.log('cardNum: ', this._cardNum); 
             console.log('Images Array: ', images);
@@ -59,7 +58,7 @@ var CompactCard = Class.extend({
     _findEmail: function() {
         var that = this;
         var record = this._record;
-        var elem = $(tags.div);
+        var elem = $('<div/>');
         _.each(record, function(contentObject, fieldName) {
             var Constructor;
             if (contentObject.fieldType === 'email') {
@@ -101,9 +100,9 @@ var CompactCard = Class.extend({
     // eventually implement to allow for a 'slideshow'?...
     _createImgElem: function(imagesArray) {
         console.log('images: ', imagesArray);
-        var elem = $(tags.img);
+        var elem = $('<img/>');
         var first = null;
-        var container = $(tags.div).attr('id', 'img-elem');
+        var container = $('<div/>').attr('id', 'img-elem');
         if (!imagesArray || imagesArray.length === 0) {
             this._noImage = true;
             return elem.attr('style', 'display: none;');
@@ -116,8 +115,8 @@ var CompactCard = Class.extend({
         return container.append(elem);
     },
     _displayFirstElemValue: function(name, firstContentDisplayValue, emailElem) {
-        var elem = $(tags.div).attr('id', 'first-elem');
-        var firstElemName = $(tags.strong).append(_.escape(firstContentDisplayValue));
+        var elem = $('<div/>').attr('id', 'first-elem');
+        var firstElemName = $('<div/>').append(_.escape(firstContentDisplayValue));
         firstElemName.attr('id', 'title');
         emailElem.attr('id', 'email-header');
         if (this._noImage) { elem.attr('style', 'word-wrap: normal; width: 180px;'); }
@@ -128,7 +127,7 @@ var CompactCard = Class.extend({
     _createInnerElems: function(fieldTypeConstructors) {
         var that = this;
         var record = this._record;
-        var innerElems = $(tags.div).attr('id', 'inner-elems');
+        var innerElems = $('<div/>').attr('id', 'inner-elems');
         var counter = 0; // more descriptive name for counter?
         if (this._verbose) { console.log(fieldTypeConstructors, record); }
         _.each(fieldTypeConstructors, function(FieldTypeConstructor, columnName) {
@@ -143,13 +142,13 @@ var CompactCard = Class.extend({
             }
             // This approach is somewhat cumbersome; ideas for a better approach?...
             if (counter === 0) {
-                container = $(tags.div).attr('id', 'left-elem');
+                container = $('<div/>').attr('id', 'left-elem');
                 innerElems.append(container.append(elem));
             } else if (counter === 1) {
-                container = $(tags.div).attr('id', 'middle-elem');
+                container = $('<div/>').attr('id', 'middle-elem');
                 innerElems.append(container.append(elem));
             } else if (counter === 2){
-                container = $(tags.div).attr('id', 'right-elem');
+                container = $('<div/>').attr('id', 'right-elem');
                 innerElems.append(container.append(elem));
             }
             innerElems.append('<br>');
