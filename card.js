@@ -17,7 +17,12 @@ var Card = Class.extend({
     generateCard: function() {
         var record = this._record;
         var info = $('<div/>').attr('class', 'info');
-        var keys = _.keys(record);
+        var keys;
+        if (record.keys) { // case when order specified by an array of keys
+            keys = record.keys;  
+        } else { // case when order is implied by the object itself
+            keys = _.keys(record);
+        }
         // Create image tag and pull it from the record
         var images = this._findImageAttachments();
         var constructors = {};
