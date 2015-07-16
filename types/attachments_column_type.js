@@ -10,12 +10,12 @@ var AttachmentsColumnType = GenericColumnType.extend({
     },
     generateElement: function(isForCompact) {
 
-
-        console.log('Stuff for Attachments:');
-        console.log(this._displayValue); // array of attachment objects
-        console.log(this._fieldType); // fieldType
-        console.log(this._columnName); // Column Name i.e. Documents, Pictures, etc.
-
+        if (this._verbose) {
+            console.log('Stuff for Attachments:');
+            console.log(this._displayValue); // array of attachment objects
+            console.log(this._fieldType); // fieldType
+            console.log(this._columnName); // Column Name i.e. Documents, Pictures, etc.
+        }
 
         return this._createBasicLayout(isForCompact, 
                 this._columnName, '\"Attachments\" support in progress'); 

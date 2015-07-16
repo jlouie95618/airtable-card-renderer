@@ -18,8 +18,12 @@ var Card = Class.extend({
         var record = this._record;
         var info = $('<div/>').attr('class', 'info');
         var keys;
-        if (record.keys) { // case when order specified by an array of keys
-            keys = record.keys;  
+        if (record._keys) { // case when order specified by an array of keys
+            keys = record._keys;
+            console.log('before: ', record._keys);
+            this._record = _.omit(record, '_keys');
+            keys = _.without(keys, '_keys');
+            console.log('after: ', keys);
         } else { // case when order is implied by the object itself
             keys = _.keys(record);
         }
@@ -110,7 +114,7 @@ var Card = Class.extend({
     },
     // eventually implement to allow for a 'slideshow'?...
     _createImgElem: function(imagesArray) {
-        console.log('images: ', imagesArray);
+        if (this._verbose) { console.log('images: ', imagesArray); }
         var elem = $('<img>');
         var first = null;
         var container = $('<div/>').attr('class', 'img-container');
@@ -148,6 +152,7 @@ var Card = Class.extend({
             var container = $('<div/>').attr('class', 'element');
             // Construct new instance of a particular type, then 
             //  generate the appropriate element
+            console.log(columnName, record);
             var elem = new FieldTypeConstructor(columnName, 
                 record[columnName], that._verbose).generateElement(true);
             if (that._verbose) { 
