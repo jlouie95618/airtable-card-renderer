@@ -4,9 +4,9 @@ var _ = require('underscore');
 
 var Class = require('./vendor/class.js');
 
-var CompactCard = require('./compact_card.js');
-var ExpandedCard = require('./expanded_card.js');
-var Card = require('./card.js');
+var CompactCard = require('./card_types/compact_card.js');
+var ExpandedCard = require('./card_types/expanded_card.js');
+var Card = require('./card_types/card.js');
 // var CellTypes = require('./cell_types.js');
 var config = require('./config.js');
 

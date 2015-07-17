@@ -5,9 +5,9 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON('package.json'),
         jshint: {
             // define the files to lint
-            files: ['card_renderer.js', 'card.js','card_renderer_node.js', 'config.js',
+            files: ['card_renderer.js','card_renderer_node.js', 'config.js',
                     'tags.js', 'generic_column_type.js', 'column_types.js',
-                    'compact_card.js', 'expanded_card.js', 'types/*'],
+                    'card_types/*', 'types/*'],
             // configure JSHint (documented at http://www.jshint.com/docs/)
             options: {
                 strict: true,

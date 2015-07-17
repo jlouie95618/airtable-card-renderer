@@ -16,7 +16,7 @@ var CompactCard = Class.extend({
     // Compact Card - will eventually be its own subclass
     generateCard: function() {
         var record = this._record;
-        var info = $('<div/>').attr('id', 'info');
+        var info = $('<div/>').attr('class', 'info');
         var keys = _.keys(record);
         // Create image tag and pull it from the record
         var images = this._findImageAttachments();
@@ -31,7 +31,7 @@ var CompactCard = Class.extend({
         compactCard.attr('class', 'compact');
         // Create id to uniquely identify this particular card
         if (this._cardNum !== undefined) {
-            compactCard.attr('id', 'compact-' + this._cardNum);
+            compactCard.attr('class', 'compact-' + this._cardNum);
         }
         // Generate the inner-elems div
         info.append(this._createImgElem(images));
@@ -102,7 +102,7 @@ var CompactCard = Class.extend({
         console.log('images: ', imagesArray);
         var elem = $('<img/>');
         var first = null;
-        var container = $('<div/>').attr('id', 'img-elem');
+        var container = $('<div/>').attr('class', 'img-elem');
         if (!imagesArray || imagesArray.length === 0) {
             this._noImage = true;
             return elem.attr('style', 'display: none;');
@@ -115,10 +115,10 @@ var CompactCard = Class.extend({
         return container.append(elem);
     },
     _displayFirstElemValue: function(name, firstContentDisplayValue, emailElem) {
-        var elem = $('<div/>').attr('id', 'first-elem');
+        var elem = $('<div/>').attr('class', 'first-elem');
         var firstElemName = $('<div/>').append(_.escape(firstContentDisplayValue));
-        firstElemName.attr('id', 'title');
-        emailElem.attr('id', 'email-header');
+        firstElemName.attr('class', 'title');
+        emailElem.attr('class', 'email-header');
         if (this._noImage) { elem.attr('style', 'word-wrap: normal; width: 180px;'); }
         elem.append(firstElemName);
         elem.append(emailElem);
@@ -127,7 +127,7 @@ var CompactCard = Class.extend({
     _createInnerElems: function(fieldTypeConstructors) {
         var that = this;
         var record = this._record;
-        var innerElems = $('<div/>').attr('id', 'inner-elems');
+        var innerElems = $('<div/>').attr('class', 'inner-elems');
         var counter = 0; // more descriptive name for counter?
         if (this._verbose) { console.log(fieldTypeConstructors, record); }
         _.each(fieldTypeConstructors, function(FieldTypeConstructor, columnName) {
@@ -142,13 +142,13 @@ var CompactCard = Class.extend({
             }
             // This approach is somewhat cumbersome; ideas for a better approach?...
             if (counter === 0) {
-                container = $('<div/>').attr('id', 'left-elem');
+                container = $('<div/>').attr('class', 'left-elem');
                 innerElems.append(container.append(elem));
             } else if (counter === 1) {
-                container = $('<div/>').attr('id', 'middle-elem');
+                container = $('<div/>').attr('class', 'middle-elem');
                 innerElems.append(container.append(elem));
             } else if (counter === 2){
-                container = $('<div/>').attr('id', 'right-elem');
+                container = $('<div/>').attr('class', 'right-elem');
                 innerElems.append(container.append(elem));
             }
             innerElems.append('<br>');
