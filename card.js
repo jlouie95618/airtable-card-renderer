@@ -20,10 +20,8 @@ var Card = Class.extend({
         var keys;
         if (record._keys) { // case when order specified by an array of keys
             keys = record._keys;
-            console.log('before: ', record._keys);
             this._record = _.omit(record, '_keys');
             keys = _.without(keys, '_keys');
-            console.log('after: ', keys);
         } else { // case when order is implied by the object itself
             keys = _.keys(record);
         }
@@ -152,7 +150,6 @@ var Card = Class.extend({
             var container = $('<div/>').attr('class', 'element');
             // Construct new instance of a particular type, then 
             //  generate the appropriate element
-            console.log(columnName, record);
             var elem = new FieldTypeConstructor(columnName, 
                 record[columnName], that._verbose).generateElement(true);
             if (that._verbose) { 
