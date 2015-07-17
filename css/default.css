@@ -116,6 +116,9 @@
     padding-right: 10px;
     height: inherit;
     background-color: #F5F5F5;
+    overflow: hidden;
+    white-space: pre-wrap;
+    text-overflow: ellipsis;
 }
 
 .sync {
