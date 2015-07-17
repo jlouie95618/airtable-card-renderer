@@ -55,10 +55,6 @@
     text-align: center;
 }
 
-#extension-options {
-    text-align: center;
-}
-
 .column-name {
     font-weight: bold;
 }
@@ -138,56 +134,4 @@
 .sync-button {
     float: right;
     margin: 5px;
-}
-
-#mail-to-icon {
-    width: 17px;
-    margin-left: 5px;
-}
-
-#info { /* This ID can eventually be deleted... */
-    padding: 5px;
-    padding-left: 10px;
-    padding-right: 10px;
-    height: inherit;
-    background-color: #F5F5F5;
-}
-
-#extension-options {
-    text-align: center;
-}
-
-#first-elem {
-    /*overflow: hidden;*/
-    /*white-space: nowrap;*/
-    /*text-overflow: ellipsis;*/
-    display: inline-block;
-    word-wrap: break-word;
-    margin-top: 10px;
-    width: 100px;
-}
-
-#inner-elems {
-    clear: both;
-    padding-top: 5px;
-}
-
-#left-elem {
-    font: 12px Arial, sans-serif;
-}
-
-#middle-elem {
-    font: 12px Arial, sans-serif;
-}
-
-#right-elem {
-    font: 12px Arial, sans-serif;
-}
-
-#extension-options {
-    text-align: center;
-}
-
-#button {
-    text-align: center;
 }
