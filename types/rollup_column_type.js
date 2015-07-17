@@ -10,7 +10,7 @@ var RollupColumnType = GenericColumnType.extend({
     },
     generateElement: function(isForCompact) {
         return this._createBasicLayout(isForCompact, 
-                this._columnName, '\"Rollup\" support in progress');
+                this._columnName, this._displayValue);
     }
 });
 

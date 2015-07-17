@@ -9,16 +9,21 @@ var AttachmentsColumnType = GenericColumnType.extend({
         this._super(columnName, contentObject, verbose);
     },
     generateElement: function(isForCompact) {
-
-        if (this._verbose) {
-            console.log('Stuff for Attachments:');
-            console.log(this._displayValue); // array of attachment objects
-            console.log(this._fieldType); // fieldType
-            console.log(this._columnName); // Column Name i.e. Documents, Pictures, etc.
-        }
+        var content = $('<div/>');
+        _.each(this._displayValue, function(attachmentObject) {
+            var anchor = $('<a/>').attr('href', attachmentObject.url);
+            if ((attachmentObject.type).indexOf('image') !== -1) {
+                var image = $('<img/>').attr('src', attachmentObject.url);
+                image.attr('alt', attachmentObject.filename);
+                anchor.append(image.attr('class', 'img-as-content'));
+            } else {
+                anchor.text(attachmentObject.filename);
+            }
+            content.append(anchor);
+        });
 
         return this._createBasicLayout(isForCompact, 
-                this._columnName, '\"Attachments\" support in progress'); 
+                this._columnName, content); 
     }
 });
 

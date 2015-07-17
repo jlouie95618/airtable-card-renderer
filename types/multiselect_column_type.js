@@ -10,7 +10,7 @@ var MultiselectColumnType = GenericColumnType.extend({
     },
     generateElement: function(isForCompact) {
         var that = this;
-        var list = "";
+        var list = '';
         var elemNum = 0;
         // displayValue is stored as an Array of objects
         _.each(this._displayValue, function(item) {
@@ -22,7 +22,6 @@ var MultiselectColumnType = GenericColumnType.extend({
             }
             elemNum++;
         });
-
         return this._createBasicLayout(isForCompact, 
                 this._columnName, list);
     }

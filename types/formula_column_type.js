@@ -10,7 +10,7 @@ var FormulaColumnType = GenericColumnType.extend({
     },
     generateElement: function(isForCompact) {
         return this._createBasicLayout(isForCompact, 
-                this._columnName, '\"Formula\" support in progress');  
+                this._columnName, this._displayValue);  
     }
 });
 

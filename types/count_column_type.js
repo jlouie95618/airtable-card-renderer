@@ -10,7 +10,7 @@ var CountColumnType = GenericColumnType.extend({
     },
     generateElement: function(isForCompact) {
         return this._createBasicLayout(isForCompact, 
-                this._columnName, '\"Count\" support in progress');
+                this._columnName, this._displayValue);
     }
 });
 
