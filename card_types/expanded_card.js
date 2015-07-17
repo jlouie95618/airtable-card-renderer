@@ -2,10 +2,10 @@
 
 var _ = require('underscore');
 
-var Class = require('./vendor/class.js');
+var Class = require('../vendor/class.js');
 
-var ColumnTypeConstructors = require('./column_types.js');
-var config = require('./config.js');
+var ColumnTypeConstructors = require('../column_types.js');
+var config = require('../config.js');
 
 var ExpandedCard = Class.extend({
     init: function(record, cardNum, style, verbose) {
