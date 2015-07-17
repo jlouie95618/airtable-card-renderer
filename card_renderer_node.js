@@ -59,21 +59,17 @@ var CardRenderer = Class.extend({
         if (!this._expandedCardStyle) {
             this._expandedCardStyle = expandedCardStyle;
         }
-        // Install styling for expanded cards:
-        switch(this._expandedCardStyle) {
-            case 1:
-                break;
-            case 2:
-                break;
-            default:
-                break;
-        }
-        // Compact card styling:
         if (this._verbose) { console.log(chrome.runtime); }
         if (chrome.runtime) {
-            compactStyle.attr('href', config.chromeExtension + chrome.runtime.id + config.defaultStyling);
-        } else {
-            compactStyle.attr('href', './templates/css/sidebar.css');
+            // Install styling for cards:
+            switch(this._expandedCardStyle) {
+                case 1:
+                    compactStyle.attr('href', config.compactStyling);
+                case 2:
+                    compactStyle.attr('href', config.expandedStyling);
+                default:
+                    compactStyle.attr('href', config.defaultStyling);
+            }
         }
         $(divElement).append(compactStyle);
     },

@@ -13,7 +13,6 @@ var Card = Class.extend({
         this._cardNum = cardNum;
         this._verbose = verbose;
     },
-    // Compact Card - will eventually be its own subclass
     generateCard: function() {
         var record = this._record;
         var info = $('<div/>').attr('class', 'info');
