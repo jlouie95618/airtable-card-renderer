@@ -61,14 +61,28 @@ var CardRenderer = Class.extend({
         }
         if (this._verbose) { console.log(chrome.runtime); }
         if (chrome.runtime) {
-            // Install styling for cards:
+            // Install styling for cards in chrome extension:
             switch(this._expandedCardStyle) {
                 case 1:
-                    compactStyle.attr('href', config.compactStyling);
+                    compactStyle.attr('href', config.chromeExtension + 
+                        chrome.runtime.id + config.compactStyling);
                 case 2:
-                    compactStyle.attr('href', config.expandedStyling);
+                    compactStyle.attr('href', config.chromeExtension + 
+                        chrome.runtime.id + config.expandedStyling);
                 default:
-                    compactStyle.attr('href', config.defaultStyling);
+                    compactStyle.attr('href', config.chromeExtension + 
+                        chrome.runtime.id + config.defaultStyling);
+            }
+        } else {
+            // In the case that we aren't doing things in chrome, refer
+            //  to local files
+            switch(this._expandedCardStyle) {
+                case 1:
+                    compactStyle.attr('href', '.' + config.compactStyling);
+                case 2:
+                    compactStyle.attr('href', '.' + config.expandedStyling);
+                default:
+                    compactStyle.attr('href', '.' + config.defaultStyling);
             }
         }
         $(divElement).append(compactStyle);
