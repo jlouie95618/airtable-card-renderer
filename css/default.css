@@ -2,17 +2,6 @@
 
 }
 
-.compact {
-    display: inline-block;
-    margin-bottom: 20px;
-}
-
-.expanded {
-    margin-bottom: 10px;
-    display: inline-block;
-    width: 200px;
-}
-
 .card {
     max-height: 250px;
     overflow: hidden;
@@ -89,7 +78,9 @@
 }
 
 .header {
-
+    float: right;
+    width: 100px;
+    word-wrap: break-word;
 }
 
 .header-no-image {
