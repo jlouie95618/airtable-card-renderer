@@ -5,7 +5,7 @@ var config = {
     stagingAppId: 'sdk_airtable-ch-sta_3816999c84',
     developmentAppId: 'sdk_airtable-ch-dev_d41135c420', 
     chromeExtension: 'chrome-extension://',
-    defaultStyling: '/css/sidebar_style.css',//'/css/default.css', // switch back to default once done testing
+    defaultStyling: '/css/default.css', // switch back to default once done testing '/css/sidebar_style.css',//
     compactStyling: '/css/compact.css',
     expandedStyling: '/css/expanded.css',
     mailToIcon: '/email_icon.png'
