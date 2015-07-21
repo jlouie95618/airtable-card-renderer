@@ -29,7 +29,7 @@ var GenericColumnType = Class.extend({
     },
     _createBasicLayout: function(isForCompact, name, content) {
         var elem = $('<div/>');
-        var columnName = $('<div/>').append(name).attr('class', 'column-name');
+        var columnName = $('<div/>').append(name.toUpperCase()).attr('class', 'column-name');
         var columnContent = $('<div/>').append(content).attr('class', 'column-content');
         elem.append(columnName);
         elem.append(columnContent);

@@ -15,9 +15,11 @@
     text-overflow: ellipsis;
 }
 
+
 .more-info-button {
     text-align: center;
-    font: 15px Arial, sans-serif;
+    font-size: 15px;
+    font-family: 'HelveticaNeue', Helvetica, Arial, sans-serif;
     font-weight: bold;
     border-bottom: none;
     border-left: none;
@@ -89,12 +91,14 @@
 }
 
 .title {
-    font: 15px Arial, sans-serif;
+    font-size: 15px;
+    font-family: 'HelveticaNeue', Helvetica, Arial, sans-serif;
     font-weight: bold;
 }
 
 .email-header {
-    font: 12px Arial, sans-serif;
+    font-size: 12px;
+    font-family: 'HelveticaNeue', Helvetica, Arial, sans-serif;
 }
 
 .card-content {

@@ -7,7 +7,6 @@ var Class = require('./vendor/class.js');
 var CompactCard = require('./card_types/compact_card.js');
 var ExpandedCard = require('./card_types/expanded_card.js');
 var Card = require('./card_types/card.js');
-// var CellTypes = require('./cell_types.js');
 var config = require('./config.js');
 
 // The renderer itself doubles as a Card container,
@@ -28,8 +27,8 @@ var CardRenderer = Class.extend({
         var compactCard; 
         var expandedCard;
         var recordContainer = $('<div></div>').attr('class', 'record');
-        if (style) {
-            // implementation for a compact and expanded card implementation
+        if (style) { // If the rendering style is not equal to the zero flag
+            // Implementation for a compact and expanded card implementation
             compactCard = new CompactCard(record, numCards, verbose);
             expandedCard = new ExpandedCard(record, numCards, style, verbose);
             if (verbose) {
