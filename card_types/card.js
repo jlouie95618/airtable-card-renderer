@@ -158,20 +158,16 @@ var Card = Class.extend({
     // eventually implement to allow for a 'slideshow'?...
     _createImgElem: function(imagesArray) {
         if (this._verbose) { console.log('images: ', imagesArray); }
-        var elem = $('<img>');
-        var first;
+        var first = imagesArray[0];
         var container = $('<div/>').attr('class', 'img-container');
-        if (!imagesArray || imagesArray.length === 0) {
+        if (!imagesArray || imagesArray.length === 0 || !first) {
             this._noImage = true;
             container.attr('class', 'no-image');
-            return container.append(elem.attr('class', 'no-img'));
+            return container.append($('<img/>').attr('class', 'no-img'));
         } else {
-            first = imagesArray[0];
-            elem.attr('alt', first.filename);
-            elem.attr('src', first.url);
-            elem.attr('class', 'img-elem');
+            container.css('background-image', 'url(' + first.url + ')');
         }
-        return container.append(elem);
+        return container;
     },
     _displayHeaderValue: function(name, firstContentDisplayValue, emailElem) {
         var elem = $('<div/>');
