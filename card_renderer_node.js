@@ -51,7 +51,7 @@ var CardRenderer = Class.extend({
         return recordContainer;
     },
     installStyling: function(divElement, expandedCardStyle) {
-        var compactStyle = $('<link>');
+        var compactStyle = $('<link/>');
         compactStyle.attr('rel', 'stylesheet');
         compactStyle.attr('type', 'text/css');
         if (this._verbose) { console.log(divElement); } 
@@ -65,12 +65,15 @@ var CardRenderer = Class.extend({
                 case 1:
                     compactStyle.attr('href', config.chromeExtension + 
                         chrome.runtime.id + config.compactStyling);
+                    break;
                 case 2:
                     compactStyle.attr('href', config.chromeExtension + 
                         chrome.runtime.id + config.expandedStyling);
+                    break;
                 default:
                     compactStyle.attr('href', config.chromeExtension + 
                         chrome.runtime.id + config.defaultStyling);
+                    break;
             }
         } else {
             // In the case that we aren't doing things in chrome, refer
@@ -78,10 +81,13 @@ var CardRenderer = Class.extend({
             switch(this._expandedCardStyle) {
                 case 1:
                     compactStyle.attr('href', '.' + config.compactStyling);
+                    break;
                 case 2:
                     compactStyle.attr('href', '.' + config.expandedStyling);
+                    break;
                 default:
                     compactStyle.attr('href', '.' + config.defaultStyling);
+                    break;
             }
         }
         $(divElement).append(compactStyle);

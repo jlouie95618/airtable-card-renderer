@@ -12,14 +12,18 @@ var AttachmentsColumnType = GenericColumnType.extend({
         var content = $('<div/>');
         _.each(this._displayValue, function(attachmentObject) {
             var anchor = $('<a/>').attr('href', attachmentObject.url);
+            var icon;
+            var iconText;
             if ((attachmentObject.type).indexOf('image') !== -1) {
                 var image = $('<img/>').attr('src', attachmentObject.url);
-                image.attr('alt', attachmentObject.filename);
+                image.attr('alt', attachmentObject.filename + ' ');
                 anchor.append(image.attr('class', 'img-as-content'));
             } else {
-                anchor.text(attachmentObject.filename);
+                iconText = '  ' + attachmentObject.filename;
+                icon = $('<i/>').attr('class', 'icon-file-alt').text(iconText);
+                anchor.append(icon);
             }
-            content.append(anchor);
+            content.append($('<div/>').append(anchor));
         });
 
         return this._createBasicLayout(isForCompact, 

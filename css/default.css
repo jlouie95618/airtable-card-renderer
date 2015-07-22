@@ -19,7 +19,7 @@
 .more-info-button {
     text-align: center;
     font-size: 15px;
-    font-family: 'HelveticaNeue', Helvetica, Arial, sans-serif;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: bold;
     border-bottom: none;
     border-left: none;
@@ -42,16 +42,26 @@
 
 }
 
+.extension-options {
+    display: inline-block;
+    margin: 0 auto;
+}
+
 .button {
     text-align: center;
 }
 
 .column-name {
-    font-weight: bold;
+    color: #828282;
+    padding-bottom: 3px;
+    font-size: 11px;
+
 }
 
 .column-content {
-
+    color: #464646;
+    font-size: 12px;
+    padding-bottom: 15px;
 }
 
 .no-img {
@@ -91,14 +101,15 @@
 }
 
 .title {
-    font-size: 15px;
-    font-family: 'HelveticaNeue', Helvetica, Arial, sans-serif;
-    font-weight: bold;
+    font-size: 18px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    padding-top: 5px;
+    color: #000000;
 }
 
 .email-header {
     font-size: 12px;
-    font-family: 'HelveticaNeue', Helvetica, Arial, sans-serif;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .card-content {
@@ -120,7 +131,7 @@
     text-overflow: ellipsis;
 }
 
-.sync {
+.update {
     overflow: hidden;
     background-color: #F5F5F5;
     width: 200px;
@@ -133,7 +144,7 @@
     margin: 5px;
 }
 
-.sync-button {
+.update-button {
     float: right;
     margin: 5px;
 }
@@ -141,4 +152,8 @@
 .mail-to-icon {
     width: 17px;
     margin-left: 5px;
+}
+
+.icon-file-alt {
+    margin-right: 5px;
 }

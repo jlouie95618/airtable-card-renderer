@@ -15,6 +15,8 @@ var LookupColumnType = GenericColumnType.extend({
         var elemNum = 0;
         _.each(this._displayValue, function(item) {
             var anchor;
+            var icon;
+            var iconText;
             // The case when the item is an object i.e. a document,
             //  file or picture, etc.
             if (typeof item === 'object') {
@@ -24,7 +26,9 @@ var LookupColumnType = GenericColumnType.extend({
                     image.attr('alt', item.filename);
                     anchor.append(image.attr('class', 'img-as-content'));
                 } else {
-                    anchor.text(item.filename);
+                    iconText = '  ' + item.filename;
+                    icon = $('<i/>').attr('class', 'icon-file-alt').text(iconText);
+                    anchor.append(icon);
                 }
                 content.append(anchor);
             } else { // Case when the column contains string/number values
