@@ -159,7 +159,7 @@ var Card = Class.extend({
     _createImgElem: function(imagesArray) {
         if (this._verbose) { console.log('images: ', imagesArray); }
         var elem = $('<img>');
-        var first = null;
+        var first;
         var container = $('<div/>').attr('class', 'img-container');
         if (!imagesArray || imagesArray.length === 0) {
             this._noImage = true;
