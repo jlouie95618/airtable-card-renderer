@@ -24,7 +24,8 @@ var Card = Class.extend({
         var emailKey;
 
 
-        // console.log('original keys: ', this._record._keys);
+        console.log(this._record);
+
 
 
         if (this._record._targetEmailAddr) {
@@ -55,30 +56,43 @@ var Card = Class.extend({
 
 
         this._card = $('<div/>');
+
+
+
+
         if (this._verbose) { 
             console.log('cardNum: ', this._cardNum); 
             console.log('Images Array: ', images);
             console.log('Record: ', this._record);
             console.log('keys: ', keys);
         }
+
+
+
+
         this._card.attr('class', 'card');
-        // Generate the inner-elems div
+        // Generate the image element div
         info.append(this._createImgElem(images));
-        // Generate the first-elem div
+        // Generate the header div
         info.append(this._displayHeaderValue(keys[0], 
             this._record[keys[0]].displayValue, targetEmail));
-        
-        // console.log('keys: ', keys);
+        // Generate the card content divs
         _.each(keys, function(key) {
-            // console.log(key);
             if (key !== keys[0]) { // want to omit the very first key
                 constructors[key] = ColumnTypeConstructors[that._record[key].fieldType];
             }
         });
+
         // Append the constructed elements onto the appropriate parent elements
         this._card.append(info.append(this._createCardContent(constructors)));
         return this._card;
 
+    },
+    constructViewInAirtableButton: function() {
+        var button = $('<button/>').attr('class', 'extension-options').text('View in Airtable');
+        var buttonContainer = $('<div/>').attr('class', 'button').append(button);
+        this._addButtonAndListenerWithUrl(this._card, buttonContainer, 
+            config.openLinkToRec, this._record._recordUrl);
     },
     createMoreInfoButton: function() {
         var that = this;
@@ -165,6 +179,8 @@ var Card = Class.extend({
             container.attr('class', 'no-image');
             return container.append($('<img/>').attr('class', 'no-img'));
         } else {
+            // This particular attribute for the div must be done inline
+            //  because there is no other way of determining the appropriate URL
             container.css('background-image', 'url(' + first.url + ')');
         }
         return container;
@@ -203,6 +219,27 @@ var Card = Class.extend({
         });
         return contents;
     },
+    // This function incorporates the button and event listener that allows a 
+    //  button on the side bar to open/activate various actions from the sidebar.
+    _addButtonAndListenerWithUrl: function(card, button, message, url) {
+        console.log('printing the url: ', url);
+        var that = this;
+        var request;
+        if (url) {
+            request = { type: message, url: url };
+        } else {
+            request = { type: message };
+        }
+        // Insert the HTML for the creation of the button
+        $(card).append(button);
+        // Add the event listener and tell the listener what to do when a click occurs
+        $(button).click(function() {
+            console.log('view in airtable inner button clicked.');
+            chrome.runtime.sendMessage(request, null, function(response) {
+                if (that._verbose) { console.log(response.message); }
+            });
+        });
+    }
 
 });
 

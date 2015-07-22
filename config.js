@@ -8,7 +8,8 @@ var config = {
     defaultStyling: '/css/sidebar_style.css',//'/css/default.css', // switch back to default once done testing
     compactStyling: '/css/compact.css',
     expandedStyling: '/css/expanded.css',
-    mailToIcon: '/email_icon.png'
+    mailToIcon: '/email_icon.png',
+    openLinkToRec: 'OPEN_LINK_TO_RECORD'
 };
 
 module.exports = config;

@@ -57,6 +57,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-text-replace');
 
-    var env = grunt.option('env') || 'staging';
+    var env = grunt.option('env') || 'production';
     grunt.registerTask('default', ['jshint', 'replace:email' + env]);
 };

@@ -45,6 +45,7 @@ var CardRenderer = Class.extend({
             //  'More Info' button is clicked.
             card = new Card(record, numCards, verbose);
             recordContainer.append(card.generateCard());
+            card.constructViewInAirtableButton();
             recordContainer.append(card.createMoreInfoButton());
         }
         this._numCards++;
