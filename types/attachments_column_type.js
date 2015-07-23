@@ -17,7 +17,7 @@ var AttachmentsColumnType = GenericColumnType.extend({
             if ((attachmentObject.type).indexOf('image') !== -1) {
                 var image = $('<img/>').attr('src', attachmentObject.url);
                 image.attr('alt', attachmentObject.filename + ' ');
-                anchor.append(image.attr('class', 'img-as-content'));
+                anchor.append(image.attr('class', 'img-content'));
             } else {
                 iconText = '  ' + attachmentObject.filename;
                 icon = $('<i/>').attr('class', 'icon-file-alt').text(iconText);

@@ -15,7 +15,7 @@ var Card = Class.extend({
     },
     generateCard: function() {
         var that = this;
-        var info = $('<div/>').attr('class', 'info');
+        var info = $('<div/>').addClass('card-content');
         var keys;
         // Create image tag and pull it from the record
         var images = this._findImageAttachments();
@@ -44,7 +44,7 @@ var Card = Class.extend({
 
 
 
-        this._card.attr('class', 'card');
+        this._card.addClass('card');
         // Generate the image element div
         info.append(this._createImgElem(images));
         // Generate the header div
@@ -63,15 +63,15 @@ var Card = Class.extend({
 
     },
     constructViewInAirtableButton: function() {
-        var button = $('<button/>').attr('class', 'extension-options').text('View in Airtable');
-        var buttonContainer = $('<div/>').attr('class', 'button').append(button);
+        var button = $('<button/>').addClass('extension-options').text('View in Airtable');
+        var buttonContainer = $('<div/>').addClass('card-button').append(button);
         this._addButtonAndListenerWithUrl(this._card, buttonContainer, 
             config.openLinkToRec, this._record._recordUrl);
     },
     createMoreInfoButton: function() {
         var that = this;
         var button = $('<button/>').text('More Info');
-        button.attr('class', 'more-info-button');
+        button.addClass('more-info-button');
         button.click(function(eventData) {
             that._card.toggleClass('card');
             that._card.toggleClass('card-expanded');
@@ -115,6 +115,7 @@ var Card = Class.extend({
                 }   
             } else if (that._containsEmailWord(fieldName)) {
                 elem.append(_.escape(contentObject.displayValue));
+                elem.addClass('mod-non-email-type');
             }
         });
         return elem;
@@ -148,11 +149,11 @@ var Card = Class.extend({
     _createImgElem: function(imagesArray) {
         if (this._verbose) { console.log('images: ', imagesArray); }
         var first = imagesArray[0];
-        var container = $('<div/>').attr('class', 'img-container');
+        var container = $('<div/>').addClass('img-container');
         if (!imagesArray || imagesArray.length === 0 || !first) {
             this._noImage = true;
-            container.attr('class', 'no-image');
-            return container.append($('<img/>').attr('class', 'no-img'));
+            container.addClass('mod-no-image');
+            return container;
         } else {
             // This particular attribute for the div must be done inline
             //  because there is no other way of determining the appropriate URL
@@ -164,23 +165,23 @@ var Card = Class.extend({
         var elem = $('<div/>');
         var headerTitle = $('<div/>').append(_.escape(firstContentDisplayValue));
         console.log('type of emailElem', typeof emailElem, emailElem);
+        elem.addClass('header');
+        elem.append(headerTitle.addClass('header-title'));
+        elem.append(emailElem.addClass('header-email'));
         if (this._noImage) { 
-            elem.attr('class', 'header-no-image'); 
-        } else {
-            elem.attr('class', 'header');
+            elem.addClass('mod-no-image');
+            headerTitle.addClass('mod-no-image');
+            emailElem.addClass('mod-no-image');
         }
-        elem.append(headerTitle.attr('class', 'title'));
-        elem.append(emailElem.attr('class', 'email-header'));
         return elem;
     },
     _createCardContent: function(fieldTypeConstructors) {
         var that = this;
         var record = this._record;
-        var contents = $('<div/>').attr('class', 'card-content');
-        var counter = 0; // more descriptive name for counter?...
+        var contents = $('<div/>').addClass('elements-container');
         if (this._verbose) { console.log(fieldTypeConstructors, record); }
         _.each(fieldTypeConstructors, function(FieldTypeConstructor, columnName) {
-            var container = $('<div/>').attr('class', 'element');
+            var container = $('<div/>').addClass('element');
             // Construct new instance of a particular type, then 
             //  generate the appropriate element
             var elem = new FieldTypeConstructor(columnName, 
@@ -189,8 +190,10 @@ var Card = Class.extend({
                 console.log('Content Object: ', record[columnName]);
                 console.log(elem);
             }
+            if (!that._noImage) {
+                container.addClass('mod-image-present');
+            }
             contents.append(container.append(elem));
-            counter++;
 
         });
         return contents;
