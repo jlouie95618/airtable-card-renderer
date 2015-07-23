@@ -20,41 +20,13 @@ var Card = Class.extend({
         // Create image tag and pull it from the record
         var images = this._findImageAttachments();
         var constructors = {};
-        var targetEmail;
-        var emailKey;
-
-
-        console.log(this._record);
-
-
-
-        if (this._record._targetEmailAddr) {
-            targetEmail = this._findEmail(this._record._targetEmailAddr);
-            emailKey = this._removeTargetEmailFromFields(this._record._targetEmailAddr);
-            this._record = _.omit(this._record, '_targetEmailAddr');
-        } else {
-            targetEmail = this._findEmail();
-        }
-
-
-
-
-
+        var targetEmail = this._findEmail(this._record._targetEmailAddr);
         if (this._record._keys) { // case when order specified by an array of keys
             keys = this._record._keys;
-            this._record = _.omit(this._record, '_keys');
-            keys = _.without(keys, '_keys');
-            if (emailKey) { 
-                keys = _.without(keys, emailKey);
-            }
         } else { // case when order is implied by the object itself
             keys = _.keys(this._record);
         }
-
-
-
-
-
+        // Create the card div which will contain all of the record's contents
         this._card = $('<div/>');
 
 
@@ -111,20 +83,6 @@ var Card = Class.extend({
         });
         return button;
     },
-    _removeTargetEmailFromFields: function(targetEmail) {
-        var that = this;
-        var email = targetEmail;
-        var key;
-        _.each(this._record, function(fieldObject, objectKey) {
-            if (email && fieldObject.displayValue === targetEmail) {
-                key = objectKey;
-                that._record = _.omit(that._record, objectKey);
-                email = null; // keep from omitting more than one field
-            }
-        });
-        this._record = that._record;
-        return key;
-    },
     _findEmail: function(targetEmail) { // DOUBLE CHECK FUNCTIONALITY HERE
         var that = this;
         var record = this._record;
@@ -133,7 +91,7 @@ var Card = Class.extend({
             var Constructor;
             if (contentObject.fieldType === 'email') {
                 Constructor = ColumnTypeConstructors[contentObject.fieldType];
-                if (targetEmail === contentObject.displayValue) {
+                if (targetEmail && targetEmail === contentObject.displayValue) {
                     elem = new Constructor(null, 
                         record[fieldName], that._verbose).generateElement(true);    
                 }   
@@ -169,7 +127,6 @@ var Card = Class.extend({
         });
         return images;
     },
-    // eventually implement to allow for a 'slideshow'?...
     _createImgElem: function(imagesArray) {
         if (this._verbose) { console.log('images: ', imagesArray); }
         var first = imagesArray[0];
