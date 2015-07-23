@@ -6,7 +6,7 @@ var GenericColumnType = require('../generic_column_type.js');
 
 var NumberColumnType = GenericColumnType.extend({
     init: function(columnName, contentObject, verbose) {
-        this._super(columnName, contentObject, true);
+        this._super(columnName, contentObject, verbose);
     },
     generateElement: function(isForCompact) {
         if (this._verbose) {

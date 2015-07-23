@@ -1,19 +1,25 @@
 'use strict'; // indicate to use Strict Mode
 
 var _ = require('underscore');
+var moment = require('moment');
 
 var GenericColumnType = require('../generic_column_type.js');
 
 var LookupColumnType = GenericColumnType.extend({
     init: function(columnName, contentObject, verbose) {
-        this._super(columnName, contentObject, true);
+        this._super(columnName, contentObject, verbose);
+        this._lookupResultType = contentObject.lookupResultType;
     },
     generateElement: function(isForCompact) {
         var that = this;
         var content = $('<div/>');
         var list = '';
         var elemNum = 0;
-        if (typeof this._displayValue === 'object') {
+        var dateArray;
+        if (this._verbose) {
+            console.log('lookupResultType: ', this._lookupResultType);
+        }
+        if (this._lookupResultType === 'multipleAttachment') {
             _.each(this._displayValue, function(item) {
                 var anchor;
                 var icon;
@@ -43,7 +49,17 @@ var LookupColumnType = GenericColumnType.extend({
                 }
             });
             if (list !== '') { content = list; }
-        } else {
+        } else if (this._lookupResultType === 'date') {
+            var dateArray = this._displayValue.split(' ');
+            if (this._verbose) {
+                console.log('days: ', dateArray[0]);
+                console.log('time: ', dateArray[1]);
+            }
+            content = moment(dateArray[0]).format('ll');
+            if (dateArray.length > 1) {
+                content += (' ' + dateArray[1]);
+            }
+        } else { // case when value is text or a number
             content = this._displayValue;
         }
 

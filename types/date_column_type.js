@@ -7,14 +7,14 @@ var GenericColumnType = require('../generic_column_type.js');
 
 var DateColumnType = GenericColumnType.extend({
     init: function(columnName, contentObject, verbose) {
-        this._super(columnName, contentObject, true);
+        this._super(columnName, contentObject, verbose);
     },
     generateElement: function(isForCompact) {
         var dateTime;
         if (this._displayValue.indexOf('T') > -1) {
-            dateTime = new Date(this._displayValue);
+            dateTime = moment(this._displayValue).format('lll');
         } else {
-            dateTime = new Date(this._displayValue);
+            dateTime = moment(this._displayValue).format('ll');
         }
         console.log(moment(this._displayValue).format('lll'));
         if (this._verbose) {
