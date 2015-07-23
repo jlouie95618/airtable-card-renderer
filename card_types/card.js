@@ -21,8 +21,10 @@ var Card = Class.extend({
         var images = this._findImageAttachments();
         var constructors = {};
         var targetEmail = this._findEmail(this._record._targetEmailAddr);
+        var emailKey = this._removeTargetEmailFromFields(this._record._targetEmailAddr);
         if (this._record._keys) { // case when order specified by an array of keys
             keys = this._record._keys;
+            if (emailKey) { keys = _.without(keys, emailKey); }
         } else { // case when order is implied by the object itself
             keys = _.keys(this._record);
         }
@@ -82,6 +84,22 @@ var Card = Class.extend({
             }
         });
         return button;
+    },
+    _removeTargetEmailFromFields: function(targetEmail) {
+        var that = this;
+        var email = targetEmail;
+        var key;
+        if (targetEmail) {
+            _.each(this._record, function(fieldObject, objectKey) {
+                if (email && fieldObject.displayValue === targetEmail) {
+                    key = objectKey;
+                    that._record = _.omit(that._record, objectKey);
+                    email = null; // keep from omitting more than one field
+                }
+            });
+            this._record = that._record;
+        }
+        return key;
     },
     _findEmail: function(targetEmail) { // DOUBLE CHECK FUNCTIONALITY HERE
         var that = this;
@@ -145,6 +163,7 @@ var Card = Class.extend({
     _displayHeaderValue: function(name, firstContentDisplayValue, emailElem) {
         var elem = $('<div/>');
         var headerTitle = $('<div/>').append(_.escape(firstContentDisplayValue));
+        console.log('type of emailElem', typeof emailElem, emailElem);
         if (this._noImage) { 
             elem.attr('class', 'header-no-image'); 
         } else {
