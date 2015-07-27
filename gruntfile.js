@@ -20,8 +20,10 @@ module.exports = function(grunt) {
                     chrome: true,
                     document: true,
                     InboxSDK: true,
-                    Date: true
-                }
+                    Date: true,
+                    exports: true
+                },
+                validthis: true
             }
         },
         replace: {
