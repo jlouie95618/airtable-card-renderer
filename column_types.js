@@ -14,225 +14,100 @@
         else { throw new Error('column_types requires Underscore'); }
     }
 
+
+
     var ColumnTypeConstructors = {};
 
-    if (typeof root.AttachmentsColumnType === 'undefined') {
-        if (has_require) {
-            ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
-                'multipleAttachment': require('./types/attachments_column_type.js')
-            });
-        } else {
-            throw new Error('ColumnTypeConstructors requires the AttachmentsColumnType class');
+    var requireTypes = {
+        'multipleAttachment': { 
+            'multipleAttachment': require('./types/attachments_column_type.js')
+        },
+        'checkbox': {
+            'checkbox': require('./types/checkbox_column_type.js')
+        },
+        'count': { 
+            'count': require('./types/count_column_type.js')
+        },
+        'currency': { 
+            'currency': require('./types/currency_column_type.js')
+        },
+        'date': { 
+            'date': require('./types/date_column_type.js')
+        },
+        'email': { 
+            'email': require('./types/email_column_type.js')
+        },
+        'foreignKey': { 
+            'foreignKey': require('./types/foreign_key_column_type.js')
+        },
+        'formula': { 
+            'formula': require('./types/formula_column_type.js')
+        },
+        'lookup': { 
+            'lookup': require('./types/lookup_column_type.js')
+        },
+        'multilineText': { 
+            'multilineText': require('./types/multiline_text_column_type.js')
+        },
+        'multiSelect': { 
+            'multiSelect': require('./types/multiselect_column_type.js')
+        },
+        'number': { 
+            'number': require('./types/number_column_type.js')
+        },
+        'percent': { 
+            'percent': require('./types/percent_column_type.js')
+        },
+        'phone': { 
+            'phone': require('./types/phone_column_type.js')
+        },
+        'rollup': { 
+            'rollup': require('./types/rollup_column_type.js')
+        },
+        'select': { 
+            'select': require('./types/select_column_type.js')
+        },
+        'text': { 
+            'text': require('./types/text_column_type.js')
+        },
+        'url': { 
+            'url': require('./types/url_column_type.js')
         }
-    } else {
-        ColumnTypeConstructors.multipleAttachment = root.AttachmentsColumnType;
-    }
+    };
 
-    if (typeof root.CheckboxColumnType === 'undefined') {
-        if (has_require) {
-            ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
-                'checkbox': require('./types/checkbox_column_type.js')
-            });
+    var classToFieldType = {
+        'multipleAttachment': 'AttachmentsColumnType',
+        'checkbox': 'CheckboxColumnType',
+        'count': 'CountColumnType',
+        'currency': 'CurrencyColumnType',
+        'date': 'DateColumnType',
+        'email': 'EmailColumnType',
+        'foreignKey': 'ForeignKeyColumnType',
+        'formula': 'FormulaColumnType',
+        'lookup': 'LookupColumnType',
+        'multilineText': 'MultilineTextColumnType',
+        'multiSelect': 'MultiselectColumnType',
+        'number': 'NumberColumnType',
+        'percent': 'PercentColumnType',
+        'phone': 'PhoneColumnType',
+        'rollup': 'RollupColumnType',
+        'select': 'SelectColumnType',
+        'text': 'TextColumnType',
+        'url': 'UrlColumnType'
+    };
+
+    _.each(requireTypes, function(requireObject, key) {
+        var className = classToFieldType[key];
+        if (typeof root[className] === 'undefined') {
+            if (has_require) {
+                ColumnTypeConstructors = _.extend(ColumnTypeConstructors, requireObject);
+            } else {
+                throw new Error('ColumnTypeConstructors requires the ' + className + ' class');
+            }
         } else {
-            throw new Error('ColumnTypeConstructors requires the CheckboxColumnType class');
+            ColumnTypeConstructors[key] = root[className];
         }
-    } else {
-        ColumnTypeConstructors.checkbox = root.CheckboxColumnType;
-    }
-
-    if (typeof root.CountColumnType === 'undefined') {
-        if (has_require) {
-            ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
-                'count': require('./types/count_column_type.js')
-            });
-        } else {
-            throw new Error('ColumnTypeConstructors requires the CountColumnType class');
-        }
-    } else {
-        ColumnTypeConstructors.count = root.CountColumnType;
-    }  
-
-    if (typeof root.CurrencyColumnType === 'undefined') {
-        if (has_require) {
-            ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
-                'currency': require('./types/currency_column_type.js')
-            });
-        } else {
-            throw new Error('ColumnTypeConstructors requires the CurrencyColumnType class');
-        }
-    } else {
-        ColumnTypeConstructors.currency = root.CurrencyColumnType;
-    }
-
-    if (typeof root.DateColumnType === 'undefined') {
-        if (has_require) {
-            ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
-                'date': require('./types/date_column_type.js')
-            });
-        } else {
-            throw new Error('ColumnTypeConstructors requires the DateColumnType class');
-        }
-    } else {
-        ColumnTypeConstructors.date = root.DateColumnType;
-    }   
-
-    if (typeof root.EmailColumnType === 'undefined') {
-        if (has_require) {
-            ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
-                'email': require('./types/email_column_type.js')
-            });
-        } else {
-            throw new Error('ColumnTypeConstructors requires the EmailColumnType class');
-        }
-    } else {
-        console.log();
-        ColumnTypeConstructors.email = root.EmailColumnType;
-    }   
-
-    if (typeof root.ForeignKeyColumnType === 'undefined') {
-        if (has_require) {
-            ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
-                'foreignKey': require('./types/foreign_key_column_type.js')
-            });
-        } else {
-            throw new Error('ColumnTypeConstructors requires the ForeignKeyColumnType class');
-        }
-    } else {
-        ColumnTypeConstructors.foreignKey = root.ForeignKeyColumnType;
-    }   
-
-    if (typeof root.FormulaColumnType === 'undefined') {
-        if (has_require) {
-            ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
-                'formula': require('./types/formula_column_type.js')
-            });
-        } else {
-            throw new Error('ColumnTypeConstructors requires the FormulaColumnType class');
-        }
-    } else {
-        ColumnTypeConstructors.formula = root.FormulaColumnType;
-    }   
-
-    if (typeof root.LookupColumnType === 'undefined') {
-        if (has_require) {
-            ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
-                'lookup': require('./types/lookup_column_type.js')
-            });
-        } else {
-            throw new Error('ColumnTypeConstructors requires the LookupColumnType class');
-        }
-    } else {
-        ColumnTypeConstructors.lookup = root.LookupColumnType;
-    } 
-
-    if (typeof root.MultilineTextColumnType === 'undefined') {
-        if (has_require) {
-            ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
-                'multilineText': require('./types/multiline_text_column_type.js')
-            });
-        } else {
-            throw new Error('ColumnTypeConstructors requires the MultilineTextColumnType class');
-        }
-    } else {
-        ColumnTypeConstructors.multilineText = root.MultilineTextColumnType;
-    } 
-
-    if (typeof root.MultiselectColumnType === 'undefined') {
-        if (has_require) {
-            ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
-                'multiSelect': require('./types/multiselect_column_type.js')
-            });
-        } else {
-            throw new Error('ColumnTypeConstructors requires the MultiselectColumnType class');
-        }
-    } else {
-        ColumnTypeConstructors.multiSelect = root.MultiselectColumnType;
-    } 
-
-    if (typeof root.NumberColumnType === 'undefined') {
-        if (has_require) {
-            ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
-                'number': require('./types/number_column_type.js')
-            });
-        } else {
-            throw new Error('ColumnTypeConstructors requires the NumberColumnType class');
-        }
-    } else {
-        ColumnTypeConstructors.number = root.NumberColumnType;
-    } 
-
-    if (typeof root.PercentColumnType === 'undefined') {
-        if (has_require) {
-            ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
-                'percent': require('./types/percent_column_type.js')
-            });
-        } else {
-            throw new Error('ColumnTypeConstructors requires the PercentColumnType class');
-        }
-    } else {
-        ColumnTypeConstructors.percent = root.PercentColumnType;
-    } 
-
-    if (typeof root.PhoneColumnType === 'undefined') {
-        if (has_require) {
-            ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
-                'phone': require('./types/phone_column_type.js')
-            });
-        } else {
-            throw new Error('ColumnTypeConstructors requires the PhoneColumnType class');
-        }
-    } else {
-        ColumnTypeConstructors.phone = root.PhoneColumnType;
-    }
-
-    if (typeof root.RollupColumnType === 'undefined') {
-        if (has_require) {
-            ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
-                'rollup': require('./types/rollup_column_type.js')
-            });
-        } else {
-            throw new Error('ColumnTypeConstructors requires the RollupColumnType class');
-        }
-    } else {
-        ColumnTypeConstructors.rollup = root.RollupColumnType;
-    }
-
-    if (typeof root.SelectColumnType === 'undefined') {
-        if (has_require) {
-            ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
-                'select': require('./types/select_column_type.js')
-            });
-        } else {
-            throw new Error('ColumnTypeConstructors requires the SelectColumnType class');
-        }
-    } else {
-        ColumnTypeConstructors.select = root.SelectColumnType;
-    }
-
-    if (typeof root.TextColumnType === 'undefined') {
-        if (has_require) {
-            ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
-                'text': require('./types/text_column_type.js')
-            });
-        } else {
-            throw new Error('ColumnTypeConstructors requires the TextColumnType class');
-        }
-    } else {
-        ColumnTypeConstructors.text = root.TextColumnType;
-    }
-
-    if (typeof root.UrlColumnType === 'undefined') {
-        if (has_require) {
-            ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
-                'url': require('./types/url_column_type.js')
-            });
-        } else {
-            throw new Error('ColumnTypeConstructors requires the UrlColumnType class');
-        }
-    } else {
-        ColumnTypeConstructors.url = root.UrlColumnType;
-    }
-
+    });
 
     if (typeof exports !== 'undefined') {
         if (typeof module !== 'undefined' && module.exports) {
@@ -244,3 +119,226 @@
     }
 
 }).call(this);
+
+
+
+
+
+
+
+    // if (typeof root.AttachmentsColumnType === 'undefined') {
+    //     if (has_require) {
+    //         ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
+    //             'multipleAttachment': require('./types/attachments_column_type.js')
+    //         });
+    //     } else {
+    //         throw new Error('ColumnTypeConstructors requires the AttachmentsColumnType class');
+    //     }
+    // } else {
+    //     ColumnTypeConstructors.multipleAttachment = root.AttachmentsColumnType;
+    // }
+
+    // if (typeof root.CheckboxColumnType === 'undefined') {
+    //     if (has_require) {
+    //         ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
+    //             'checkbox': require('./types/checkbox_column_type.js')
+    //         });
+    //     } else {
+    //         throw new Error('ColumnTypeConstructors requires the CheckboxColumnType class');
+    //     }
+    // } else {
+    //     ColumnTypeConstructors.checkbox = root.CheckboxColumnType;
+    // }
+
+    // if (typeof root.CountColumnType === 'undefined') {
+    //     if (has_require) {
+    //         ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
+    //             'count': require('./types/count_column_type.js')
+    //         });
+    //     } else {
+    //         throw new Error('ColumnTypeConstructors requires the CountColumnType class');
+    //     }
+    // } else {
+    //     ColumnTypeConstructors.count = root.CountColumnType;
+    // }  
+
+    // if (typeof root.CurrencyColumnType === 'undefined') {
+    //     if (has_require) {
+    //         ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
+    //             'currency': require('./types/currency_column_type.js')
+    //         });
+    //     } else {
+    //         throw new Error('ColumnTypeConstructors requires the CurrencyColumnType class');
+    //     }
+    // } else {
+    //     ColumnTypeConstructors.currency = root.CurrencyColumnType;
+    // }
+
+    // if (typeof root.DateColumnType === 'undefined') {
+    //     if (has_require) {
+    //         ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
+    //             'date': require('./types/date_column_type.js')
+    //         });
+    //     } else {
+    //         throw new Error('ColumnTypeConstructors requires the DateColumnType class');
+    //     }
+    // } else {
+    //     ColumnTypeConstructors.date = root.DateColumnType;
+    // } 
+
+    // if (typeof root.EmailColumnType === 'undefined') {
+    //     if (has_require) {
+    //         ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
+    //             'email': require('./types/email_column_type.js')
+    //         });
+    //     } else {
+    //         throw new Error('ColumnTypeConstructors requires the EmailColumnType class');
+    //     }
+    // } else {
+    //     console.log();
+    //     ColumnTypeConstructors.email = root.EmailColumnType;
+    // }
+
+    // if (typeof root.ForeignKeyColumnType === 'undefined') {
+    //     if (has_require) {
+    //         ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
+    //             'foreignKey': require('./types/foreign_key_column_type.js')
+    //         });
+    //     } else {
+    //         throw new Error('ColumnTypeConstructors requires the ForeignKeyColumnType class');
+    //     }
+    // } else {
+    //     ColumnTypeConstructors.foreignKey = root.ForeignKeyColumnType;
+    // }   
+
+    // if (typeof root.FormulaColumnType === 'undefined') {
+    //     if (has_require) {
+    //         ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
+    //             'formula': require('./types/formula_column_type.js')
+    //         });
+    //     } else {
+    //         throw new Error('ColumnTypeConstructors requires the FormulaColumnType class');
+    //     }
+    // } else {
+    //     ColumnTypeConstructors.formula = root.FormulaColumnType;
+    // }   
+
+    // if (typeof root.LookupColumnType === 'undefined') {
+    //     if (has_require) {
+    //         ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
+    //             'lookup': require('./types/lookup_column_type.js')
+    //         });
+    //     } else {
+    //         throw new Error('ColumnTypeConstructors requires the LookupColumnType class');
+    //     }
+    // } else {
+    //     ColumnTypeConstructors.lookup = root.LookupColumnType;
+    // } 
+
+    // if (typeof root.MultilineTextColumnType === 'undefined') {
+    //     if (has_require) {
+    //         ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
+    //             'multilineText': require('./types/multiline_text_column_type.js')
+    //         });
+    //     } else {
+    //         throw new Error('ColumnTypeConstructors requires the MultilineTextColumnType class');
+    //     }
+    // } else {
+    //     ColumnTypeConstructors.multilineText = root.MultilineTextColumnType;
+    // } 
+
+    // if (typeof root.MultiselectColumnType === 'undefined') {
+    //     if (has_require) {
+    //         ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
+    //             'multiSelect': require('./types/multiselect_column_type.js')
+    //         });
+    //     } else {
+    //         throw new Error('ColumnTypeConstructors requires the MultiselectColumnType class');
+    //     }
+    // } else {
+    //     ColumnTypeConstructors.multiSelect = root.MultiselectColumnType;
+    // } 
+
+    // if (typeof root.NumberColumnType === 'undefined') {
+    //     if (has_require) {
+    //         ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
+    //             'number': require('./types/number_column_type.js')
+    //         });
+    //     } else {
+    //         throw new Error('ColumnTypeConstructors requires the NumberColumnType class');
+    //     }
+    // } else {
+    //     ColumnTypeConstructors.number = root.NumberColumnType;
+    // } 
+
+    // if (typeof root.PercentColumnType === 'undefined') {
+    //     if (has_require) {
+    //         ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
+    //             'percent': require('./types/percent_column_type.js')
+    //         });
+    //     } else {
+    //         throw new Error('ColumnTypeConstructors requires the PercentColumnType class');
+    //     }
+    // } else {
+    //     ColumnTypeConstructors.percent = root.PercentColumnType;
+    // } 
+
+    // if (typeof root.PhoneColumnType === 'undefined') {
+    //     if (has_require) {
+    //         ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
+    //             'phone': require('./types/phone_column_type.js')
+    //         });
+    //     } else {
+    //         throw new Error('ColumnTypeConstructors requires the PhoneColumnType class');
+    //     }
+    // } else {
+    //     ColumnTypeConstructors.phone = root.PhoneColumnType;
+    // }
+
+    // if (typeof root.RollupColumnType === 'undefined') {
+    //     if (has_require) {
+    //         ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
+    //             'rollup': require('./types/rollup_column_type.js')
+    //         });
+    //     } else {
+    //         throw new Error('ColumnTypeConstructors requires the RollupColumnType class');
+    //     }
+    // } else {
+    //     ColumnTypeConstructors.rollup = root.RollupColumnType;
+    // }
+
+    // if (typeof root.SelectColumnType === 'undefined') {
+    //     if (has_require) {
+    //         ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
+    //             'select': require('./types/select_column_type.js')
+    //         });
+    //     } else {
+    //         throw new Error('ColumnTypeConstructors requires the SelectColumnType class');
+    //     }
+    // } else {
+    //     ColumnTypeConstructors.select = root.SelectColumnType;
+    // }
+
+    // if (typeof root.TextColumnType === 'undefined') {
+    //     if (has_require) {
+    //         ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
+    //             'text': require('./types/text_column_type.js')
+    //         });
+    //     } else {
+    //         throw new Error('ColumnTypeConstructors requires the TextColumnType class');
+    //     }
+    // } else {
+    //     ColumnTypeConstructors.text = root.TextColumnType;
+    // }
+
+    // if (typeof root.UrlColumnType === 'undefined') {
+    //     if (has_require) {
+    //         ColumnTypeConstructors = _.extend(ColumnTypeConstructors, { 
+    //             'url': require('./types/url_column_type.js')
+    //         });
+    //     } else {
+    //         throw new Error('ColumnTypeConstructors requires the UrlColumnType class');
+    //     }
+    // } else {
+    //     ColumnTypeConstructors.url = root.UrlColumnType;
+    // }
