@@ -47,30 +47,27 @@
             var emailKey = this._removeTargetEmailFromFields(this._record._targetEmailAddr);
             if (this._record._keys) { // case when order specified by an array of keys
                 keys = this._record._keys;
-                if (emailKey) { keys = _.without(keys, emailKey); }
+                if (emailKey && _.size(keys) > 1) {
+                    console.log('this should not happen to: ', this._record, keys);
+                    keys = _.without(keys, emailKey);
+                }
             } else { // case when order is implied by the object itself
                 keys = _.keys(this._record);
             }
             // Create the card div which will contain all of the record's contents
             this._card = $('<div/>');
-
-
-
-
             if (this._verbose) { 
                 console.log('cardNum: ', this._cardNum); 
                 console.log('Images Array: ', images);
                 console.log('Record: ', this._record);
                 console.log('keys: ', keys);
             }
-
-
-
-
             this._card.addClass('card');
             // Generate the image element div
             info.append(this._createImgElem(images));
             // Generate the header div
+            console.log('record: ', this._record);
+            console.log('keys: ', keys);
             info.append(this._displayHeaderValue(keys[0], 
                 this._record[keys[0]].displayValue, targetEmail));
             // Generate the card content divs
@@ -116,7 +113,9 @@
                 _.each(this._record, function(fieldObject, objectKey) {
                     if (email && fieldObject.displayValue === targetEmail) {
                         key = objectKey;
-                        that._record = _.omit(that._record, objectKey);
+                        if (_.size(that._record._keys) > 1) {
+                            that._record = _.omit(that._record, objectKey);
+                        }
                         email = null; // keep from omitting more than one field
                     }
                 });
