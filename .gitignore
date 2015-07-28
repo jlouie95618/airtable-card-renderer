@@ -2,3 +2,5 @@
 */.DS_Store
 test/*
 **/node_modules/*
+test_index.html
+test_style.css

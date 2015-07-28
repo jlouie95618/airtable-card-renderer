@@ -15,7 +15,7 @@
         else { throw new Error('generic_column_type requires Underscore'); }
     }
     if (typeof Class === 'undefined') {
-        if (has_require) { Class = require('../vendor/class.js'); }
+        if (has_require) { Class = require('./vendor/class.js'); }
         else { throw new Error('generic_column_type requires the Class file'); }
     }
     if (typeof config === 'undefined') {

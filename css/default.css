@@ -1,205 +1,10 @@
 .record {
-
-}
-
-    .card {
-        max-height: 250px;
-        overflow: hidden;
-        white-space: pre-wrap;
-        text-overflow: ellipsis;
-    }
-
-    .card-expanded { /* STATE CHANGE */
-        overflow: hidden;
-        white-space: pre-wrap;
-        text-overflow: ellipsis;
-    }
-        
-        .card-content {
-            padding: 5px;
-            padding-left: 10px;
-            padding-right: 10px;
-            height: inherit;
-            background-color: #F5F5F5;
-            overflow: hidden;
-            white-space: pre-wrap;
-            text-overflow: ellipsis;
-        }
-
-            .img-container {
-                background-repeat: no-repeat;
-                background-size: cover;
-                background-position: center;
-                width: 70px;
-                height: 70px;
-                float: left;
-                border-radius: 50%;
-                -webkit-border-radius: 50%;
-                -moz-border-radius: 50%;
-                -ms-border-radius: 50%;
-                -o-border-radius: 50%;
-                margin-bottom: 5px;
-                margin-top: 7px;
-                margin-right: 6px;
-                margin-left: 2px;
-            }
-
-            .img-container.mod-no-image {
-                display: none;
-            }
-
-                .img-content {
-                    width: 180px;
-                }
-
-            .header {
-                float: right;
-                width: 100px;
-                word-wrap: break-word;
-            }
-
-            .header.mod-no-image {
-                word-wrap: normal;
-                width: 180px;
-            }
-
-                .header-title {
-                    font-size: 18px;
-                    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-                    padding-top: 5px;
-                    color: #000000;
-                }
-
-                .header-title.mod-no-image {
-
-                }
-
-                .header-email {
-                    font-size: 12px;
-                    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-                }
-
-                .header-email.mod-no-image {
-
-                }
-
-                .header-email.mod-non-email-type {
-                    padding-top: 3px;
-                }
-
-            .element {
-                clear: both;
-                word-wrap: break-word;
-                padding-top: 15px;
-            }
-
-            .element.mod-image-present { /* make sure the first element is */
-                padding-top: 5px;        /* not too far below the image */
-            }
-
-                .element-name {
-                    color: #828282;
-                    font-size: 11px;
-                }
-
-                .element-content {
-                    color: #464646;
-                    font-size: 12px;
-                    padding-top: 3px;
-                }
-
-        .card-button {
-            background-color: #F5F5F5;
-            /*margin-top: -5px;*/
-            text-align: center;
-        }
-
-            .extension-options {
-                display: inline-block;
-                margin: 0 auto;
-                font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-                font-size: 13px;
-                border-radius: 18px;
-                border: none;
-                margin-bottom: 10px;
-                margin-top: 5px;
-                padding: 5px;
-                background-color: #DADADA;
-                color: #464646;
-            }
-
-    .more-info-button {
-        text-align: center;
-        font-size: 15px;
-        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-        font-weight: bold;
-        border-bottom: none;
-        border-left: none;
-        border-right: none;
-        border-top: 1px solid black;
-        background-color: #F5F5F5;
-        width: 200px;
-        margin-bottom: 10px;
-    }
-
-    .collapse-button {
-        text-align: center;
-        width: 200px;
-        margin-bottom: 10px;
-        background-color: #F5F5F5;
-        border-bottom: none;
-        border-left: none;
-        border-right: none;
-        border-top: 1px solid black;
-    }
-
-.update {
-    overflow: hidden;
-    background-color: #F5F5F5;
-    width: 200px;
-    margin-bottom: 5px;
-    margin-top: -5px;
-}
-
-    .update-time-stamp {
-        float: left;
-        margin: 5px;
-    }
-
-    .update-button {
-        float: right;
-        margin: 5px;
-    }
-
-/* Misc classes: */
-
-.mail-to-icon {
-    width: 17px;
-    margin-left: 5px;
-}
-
-.icon-file-alt {
-    margin-right: 5px;
-}
-
-/* CSS for the waiting sidebar */
-.waiting-message {
-    text-align: center;
-    font-weight: bold;
-    font-size: 16px;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    background-color: #F5F5F5;
     padding: 10px;
 }
 
-/* CSS for the error sidebar */
-
-.card-button.mod-error {.record {
-
-}
-
     .card {
         max-height: 250px;
+        width: 200px;
         overflow: hidden;
         white-space: pre-wrap;
         text-overflow: ellipsis;
@@ -207,6 +12,7 @@
 
     .card-expanded { /* STATE CHANGE */
         overflow: hidden;
+        width: 200px;
         white-space: pre-wrap;
         text-overflow: ellipsis;
     }
@@ -337,7 +143,7 @@
         border-top: 1px solid black;
         background-color: #F5F5F5;
         width: 200px;
-        margin-bottom: 10px;
+        /*margin-bottom: 10px;*/
     }
 
     .collapse-button {
@@ -357,6 +163,8 @@
     width: 200px;
     margin-bottom: 5px;
     margin-top: -5px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
     .update-time-stamp {
@@ -394,6 +202,9 @@
 
 .card-button.mod-error {
     text-align: center;
+    margin-bottom: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
     .extension-options.mod-error {
@@ -414,29 +225,7 @@
         font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
         background-color: #F5F5F5;
         padding: 10px;
-        margin-bottom: 0;
-    }
-
-    text-align: center;
-}
-
-    .extension-options.mod-error {
-        display: inline-block;
-        margin: 0 auto;
-        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-        font-size: 13px;
-        border-radius: 18px;
-        border: none;
-        margin-bottom: 10px;
-        padding: 5px;
-        background-color: #DADADA;
-        color: #464646;
-    }
-
-    .card-error-message {
-        font-size: 13px;
-        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-        background-color: #F5F5F5;
-        padding: 10px;
-        margin-bottom: 0;
+        margin-left: 10px;
+        margin-right: 10px;
+        margin-bottom: 0px;
     }
