@@ -50,6 +50,20 @@ module.exports = function(grunt) {
                     from: /production|staging|development/g,
                     to: 'development'
                 }]
+            },
+            css: {
+                src: './css/ios7-style-font-icons.min.css',
+                dest: './css/airtable-gmail-ext-ios7-style-font-icons.min.css',
+                replacements: [{
+                    from: '.icon-',
+                    to: '.airtable-gmail-ext-icon-'
+                }, {
+                    from: '.icons-',
+                    to: '.airtable-gmail-ext-icons-'
+                }, {
+                    from: '\'ios7-style-font-icons\'',
+                    to: '\'airtable-gmail-ext-ios7-style-font-icons\''
+                }]
             }
 
         }
@@ -60,5 +74,5 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-text-replace');
 
     var env = grunt.option('env') || 'production';
-    grunt.registerTask('default', ['jshint', 'replace:email' + env]);
+    grunt.registerTask('default', ['jshint', 'replace:email' + env, 'replace:css']);
 };
