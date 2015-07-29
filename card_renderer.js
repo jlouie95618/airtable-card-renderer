@@ -55,7 +55,7 @@
             var card;
             var compactCard; 
             var expandedCard;
-            var recordContainer = $('<div></div>').addClass('record');
+            var recordContainer = $('<div/>').addClass('record');
             if (style) { // If the rendering style is not equal to the zero flag
                 // Implementation for a compact and expanded card implementation
                 compactCard = new CompactCard(record, numCards, verbose);

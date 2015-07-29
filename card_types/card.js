@@ -187,6 +187,7 @@
             var topContents = $('<div/>').addClass('elements-container');
             var bottomContents = $('<div/>').addClass('elements-container');
             var numElem = 0;
+            var totalElems = _.size(constructors);
             if (this._verbose) { console.log(constructors, record); }
             _.each(constructors, function(FieldTypeConstructor, columnName) {
                 var container = $('<div/>').addClass('element');
@@ -203,12 +204,18 @@
                     container.addClass('mod-image-present');
                     first = false;
                 }
+                if (numElem === (totalElems - 1)) {
+                    container.addClass('mod-last-elem');
+                }
+                if (numElem === (numElemInTopCard - 1)) {
+                    container.addClass('mod-last-in-top');
+                }
                 if (numElem < numElemInTopCard) {
                     topContents.append(container.append(elem));
-                    numElem++;
                 } else {
                     bottomContents.append(container.append(elem));
                 }
+                numElem++;
             });
             card.append(top.append(topContents));
             card.append(this._createSeeMoreButton(bottom));
