@@ -52,7 +52,8 @@
                             anchor.append(image.attr('class', 'img-content'));
                         } else {
                             iconText = '  ' + item.filename;
-                            icon = $('<i/>').attr('class', 'icon-file-alt').text(iconText);
+                            icon = $('<i/>').attr('class', 
+                                'airtable-gmail-ext-icon-file-alt').text(iconText);
                             anchor.append(icon);
                         }
                         content.append(anchor);

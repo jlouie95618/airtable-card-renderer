@@ -200,6 +200,7 @@
         _createCardContent: function(fieldTypeConstructors) {
             var that = this;
             var record = this._record;
+            var first = true;
             var contents = $('<div/>').addClass('elements-container');
             if (this._verbose) { console.log(fieldTypeConstructors, record); }
             _.each(fieldTypeConstructors, function(FieldTypeConstructor, columnName) {
@@ -212,8 +213,9 @@
                     console.log('Content Object: ', record[columnName]);
                     console.log(elem);
                 }
-                if (!that._noImage) {
+                if (!that._noImage && first) {
                     container.addClass('mod-image-present');
+                    first = false;
                 }
                 contents.append(container.append(elem));
 
