@@ -39,12 +39,22 @@
         generateCard: function() {
             var that = this;
             var info = $('<div/>').addClass('card-content');
+            var topCard = $('<div/>').addClass('card-top');
+            var bottomCard = $('<div/>').addClass('card-bottom');
             var keys;
             // Create image tag and pull it from the record
             var images = this._findImageAttachments();
             var constructors = {};
             var targetEmail = this._findEmail(this._record._targetEmailAddr);
             var emailKey = this._removeTargetEmailFromFields(this._record._targetEmailAddr);
+            // Create the card div which will contain the separate record's contents
+            this._card = $('<div/>').addClass('card');
+            if (this._verbose) { 
+                console.log('cardNum: ', this._cardNum); 
+                console.log('Images Array: ', images);
+                console.log('Record: ', this._record);
+                console.log('keys: ', keys);
+            }            
             if (this._record._keys) { // case when order specified by an array of keys
                 keys = this._record._keys;
                 if (emailKey && _.size(keys) > 1) {
@@ -54,21 +64,10 @@
             } else { // case when order is implied by the object itself
                 keys = _.keys(this._record);
             }
-            // Create the card div which will contain all of the record's contents
-            this._card = $('<div/>');
-            if (this._verbose) { 
-                console.log('cardNum: ', this._cardNum); 
-                console.log('Images Array: ', images);
-                console.log('Record: ', this._record);
-                console.log('keys: ', keys);
-            }
-            this._card.addClass('card');
             // Generate the image element div
-            info.append(this._createImgElem(images));
+            topCard.append(this._createImgElem(images));
             // Generate the header div
-            console.log('record: ', this._record);
-            console.log('keys: ', keys);
-            info.append(this._displayHeaderValue(keys[0], 
+            topCard.append(this._displayHeaderValue(keys[0], 
                 this._record[keys[0]].displayValue, targetEmail));
             // Generate the card content constructors
             _.each(keys, function(key) {
@@ -76,34 +75,18 @@
                     constructors[key] = ColumnTypeConstructors[that._record[key].fieldType];
                 }
             });
-
             // Append the constructed elements onto the appropriate parent elements
-            this._card.append(info.append(this._createCardContent(constructors)));
+            this._createCardContent(constructors, this._card, topCard, bottomCard, 3);
+            // this._card.append(topCard.append());
+            this._constructViewInAirtableButton(bottomCard);
             return this._card;
 
         },
-        constructViewInAirtableButton: function() {
+        _constructViewInAirtableButton: function(bottomCard) {
             var button = $('<button/>').addClass('extension-options').text('View in Airtable');
             var buttonContainer = $('<div/>').addClass('card-button').append(button);
-            this._addButtonAndListenerWithUrl(this._card, buttonContainer, 
+            this._addButtonAndListenerWithUrl(bottomCard, buttonContainer, 
                 config.openLinkToRec, this._record._recordUrl);
-        },
-        createMoreInfoButton: function() {
-            var that = this;
-            var button = $('<button/>').text('More Info');
-            button.addClass('more-info-button');
-            button.click(function(eventData) {
-                that._card.toggleClass('card');
-                that._card.toggleClass('card-expanded');
-                button.toggleClass('more-info-button');
-                button.toggleClass('collapse-button');
-                if (button[0].innerText === 'More Info') {
-                    button.text('Collapse');
-                } else if (button[0].innerText === 'Collapse') {
-                    button.text('More Info');
-                }
-            });
-            return button;
         },
         _removeTargetEmailFromFields: function(targetEmail) {
             var that = this;
@@ -197,18 +180,21 @@
             }
             return elem;
         },
-        _createCardContent: function(fieldTypeConstructors) {
+        _createCardContent: function(constructors, card, top, bottom, numElemInTopCard) {
             var that = this;
             var record = this._record;
             var first = true;
-            var contents = $('<div/>').addClass('elements-container');
-            if (this._verbose) { console.log(fieldTypeConstructors, record); }
-            _.each(fieldTypeConstructors, function(FieldTypeConstructor, columnName) {
+            var topContents = $('<div/>').addClass('elements-container');
+            var bottomContents = $('<div/>').addClass('elements-container');
+            var numElem = 0;
+            if (this._verbose) { console.log(constructors, record); }
+            _.each(constructors, function(FieldTypeConstructor, columnName) {
                 var container = $('<div/>').addClass('element');
                 // Construct new instance of a particular type, then 
                 //  generate the appropriate element
                 var elem = new FieldTypeConstructor(columnName, 
                     record[columnName], that._verbose).generateElement(true);
+
                 if (that._verbose) { 
                     console.log('Content Object: ', record[columnName]);
                     console.log(elem);
@@ -217,15 +203,38 @@
                     container.addClass('mod-image-present');
                     first = false;
                 }
-                contents.append(container.append(elem));
-
+                if (numElem < numElemInTopCard) {
+                    topContents.append(container.append(elem));
+                    numElem++;
+                } else {
+                    bottomContents.append(container.append(elem));
+                }
             });
-            return contents;
+            card.append(top.append(topContents));
+            card.append(this._createSeeMoreButton(bottom));
+            card.append(bottom.append(bottomContents));
         },
+        _createSeeMoreButton: function(bottom) {
+            var that = this;
+            var button = $('<button/>').text('See More');
+            button.addClass('see-more-button');
+            button.click(function(eventData) {
+                // that._card.toggleClass('card');
+                // that._card.toggleClass('card-expanded');
+                bottom.toggle();
+                button.toggleClass('see-more-button');
+                button.toggleClass('see-less-button');
+                if (button[0].innerText === 'See More') {
+                    button.text('See Less');
+                } else if (button[0].innerText === 'See Less') {
+                    button.text('See More');
+                }
+            });
+            return button;
+        },        
         // This function incorporates the button and event listener that allows a 
         //  button on the side bar to open/activate various actions from the sidebar.
         _addButtonAndListenerWithUrl: function(card, button, message, url) {
-            console.log('printing the url: ', url);
             var that = this;
             var request;
             if (url) {
@@ -237,7 +246,6 @@
             $(card).append(button);
             // Add the event listener and tell the listener what to do when a click occurs
             $(button).click(function() {
-                console.log('view in airtable inner button clicked.');
                 chrome.runtime.sendMessage(request, null, function(response) {
                     if (that._verbose) { console.log(response.message); }
                 });

@@ -48,9 +48,10 @@
                     images.append(anchor);
 
                 } else {
-                    iconText = '  ' + attachmentObject.filename;
+                    iconText = ' ' + attachmentObject.filename;
                     icon = $('<i/>').attr('class', 
                         'airtable-gmail-ext-icon-file-alt').text(iconText);
+                    anchor.attr('title', attachmentObject.filename);
                     anchor.append(icon);
                     if (!docs) { docs = $('<div/>'); }
                     docs.append(anchor);

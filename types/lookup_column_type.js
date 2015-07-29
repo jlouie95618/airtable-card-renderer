@@ -67,6 +67,7 @@
                             iconText = '  ' + item.filename;
                             icon = $('<i/>').attr('class', 
                                 'airtable-gmail-ext-icon-file-alt').text(iconText);
+                            anchor.attr('title', item.filename);
                             anchor.append(icon);
                             if (!docs) { docs = $('<div/>'); }
                             docs.append(anchor);
