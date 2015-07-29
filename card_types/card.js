@@ -70,7 +70,7 @@
             console.log('keys: ', keys);
             info.append(this._displayHeaderValue(keys[0], 
                 this._record[keys[0]].displayValue, targetEmail));
-            // Generate the card content divs
+            // Generate the card content constructors
             _.each(keys, function(key) {
                 if (key !== keys[0]) { // want to omit the very first key
                     constructors[key] = ColumnTypeConstructors[that._record[key].fieldType];

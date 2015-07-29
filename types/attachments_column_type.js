@@ -21,6 +21,9 @@
     var AttachmentsColumnType = GenericColumnType.extend({
         init: function(columnName, contentObject, verbose) {
             this._super(columnName, contentObject, verbose);
+            this._numImages = this._determineNumImages(contentObject.displayValue);
+            this._singleImage = 'img-content';
+            this._gridOfImages = 'img-content-grid';
         },
         generateElement: function(isForCompact) {
             var content = $('<div/>');
@@ -43,6 +46,17 @@
 
             return this._createBasicLayout(isForCompact, 
                     this._columnName, content); 
+        },
+        _determineNumImages: function(displayValue) {
+            var numImages = 0;
+            _.each(displayValue, function(value) {
+                if (value && typeof value.type === 'string' && 
+                    (value.type).indexOf('image') === 0) {
+                    numImages++;
+                }
+            });
+            if (this._verbose) { console.log('numImages: ', numImages); }
+            return numImages;
         }
     });
 
