@@ -202,11 +202,11 @@
                     container.addClass('mod-image-present');
                     first = false;
                 }
-                if (numElem === (totalElems - 1)) {
-                    container.addClass('mod-last-elem');
-                }
                 if (numElem === (numElemInTopCard - 1)) {
                     container.addClass('mod-last-in-top');
+                }
+                if (numElem === (totalElems - 1)) {
+                    container.addClass('mod-last-elem');
                 }
                 if (numElem < numElemInTopCard) {
                     topContents.append(container.append(elem));

@@ -29,8 +29,11 @@
         'currency': { 
             'currency': require('./types/currency_column_type.js')
         },
-        'date': { 
+        'date': {
             'date': require('./types/date_column_type.js')
+        },
+        'datetime': { 
+            'datetime': require('./types/date_column_type.js')
         },
         'email': { 
             'email': require('./types/email_column_type.js')

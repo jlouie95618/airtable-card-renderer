@@ -24,7 +24,7 @@
         },
         generateElement: function(isForCompact) {
             return this._createBasicLayout(isForCompact, 
-                    this._columnName, this._displayValue + '\%');    
+                    this._columnName, this._displayValue);    
         }
     });
 
