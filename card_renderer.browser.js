@@ -350,11 +350,11 @@
                     container.addClass('mod-image-present');
                     first = false;
                 }
-                if (numElem === (totalElems - 1)) {
-                    container.addClass('mod-last-elem');
-                }
                 if (numElem === (numElemInTopCard - 1)) {
                     container.addClass('mod-last-in-top');
+                }
+                if (numElem === (totalElems - 1)) {
+                    container.addClass('mod-last-elem');
                 }
                 if (numElem < numElemInTopCard) {
                     topContents.append(container.append(elem));
@@ -730,8 +730,11 @@
         'currency': { 
             'currency': require('./types/currency_column_type.js')
         },
-        'date': { 
+        'date': {
             'date': require('./types/date_column_type.js')
+        },
+        'datetime': { 
+            'datetime': require('./types/date_column_type.js')
         },
         'email': { 
             'email': require('./types/email_column_type.js')
@@ -5788,13 +5791,8 @@
             this._super(columnName, contentObject, verbose);
         },
         generateElement: function(isForCompact) {
-
-            // console.log(this._displayValue);
-            // console.log(this._fieldType);
-            // console.log(this._columnName);
-            
             return this._createBasicLayout(isForCompact, 
-                    this._columnName, '\"Currency\" support in progress'); 
+                    this._columnName, this._displayValue); 
         }
     });
 
@@ -6352,7 +6350,7 @@
         },
         generateElement: function(isForCompact) {
             return this._createBasicLayout(isForCompact, 
-                    this._columnName, this._displayValue + '\%');    
+                    this._columnName, this._displayValue);    
         }
     });
 
