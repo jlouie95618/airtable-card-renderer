@@ -3,6 +3,9 @@ module.exports = function(grunt) {
     // Set project configuration
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+        browserify: {
+            'card_renderer.browser.js': 'card_renderer.js'
+        },
         jshint: {
             // define the files to lint
             files: ['card_renderer.js','card_renderer_node.js', 'config.js',
@@ -65,14 +68,17 @@ module.exports = function(grunt) {
                     to: '\'airtable-gmail-ext-ios7-style-font-icons\''
                 }]
             }
-
         }
     });
 
     // Load the relevant plugins for the default task
     grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-text-replace');
 
     var env = grunt.option('env') || 'production';
-    grunt.registerTask('default', ['jshint', 'replace:email' + env, 'replace:css']);
+    grunt.registerTask('default', ['jshint', 
+        'replace:email' + env, 
+        'replace:css', 
+        'browserify']);
 };

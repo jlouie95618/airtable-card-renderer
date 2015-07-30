@@ -58,7 +58,6 @@
             if (this._record._keys) { // case when order specified by an array of keys
                 keys = this._record._keys;
                 if (emailKey && _.size(keys) > 1) {
-                    console.log('this should not happen to: ', this._record, keys);
                     keys = _.without(keys, emailKey);
                 }
             } else { // case when order is implied by the object itself
@@ -169,7 +168,6 @@
         _displayHeaderValue: function(name, firstContentDisplayValue, emailElem) {
             var elem = $('<div/>');
             var headerTitle = $('<div/>').append(_.escape(firstContentDisplayValue));
-            console.log('type of emailElem', typeof emailElem, emailElem);
             elem.addClass('header');
             elem.append(headerTitle.addClass('header-title'));
             elem.append(emailElem.addClass('header-email'));
