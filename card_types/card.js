@@ -224,11 +224,7 @@
             var button = $('<button/>').text('See More');
             button.addClass('see-more-button');
             button.click(function(eventData) {
-                // that._card.toggleClass('card');
-                // that._card.toggleClass('card-expanded');
                 bottom.toggle();
-                button.toggleClass('see-more-button');
-                button.toggleClass('see-less-button');
                 if (button[0].innerText === 'See More') {
                     button.text('See Less');
                 } else if (button[0].innerText === 'See Less') {
