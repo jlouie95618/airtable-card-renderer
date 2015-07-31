@@ -214,6 +214,9 @@
             // Generate the image element div
             topCard.append(this._createImgElem(images));
             // Generate the header div
+            console.log('this._record', this._record);
+            console.log('keys', keys);
+
             topCard.append(this._displayHeaderValue(keys[0], 
                 this._record[keys[0]].displayValue, targetEmail));
             // Generate the card content constructors
@@ -5835,7 +5838,7 @@
 
     var DateColumnType = GenericColumnType.extend({
         init: function(columnName, contentObject, verbose) {
-            this._super(columnName, contentObject, verbose);
+            this._super(columnName, contentObject, true);
         },
         generateElement: function(isForCompact) {
             var dateTime;
@@ -5844,26 +5847,8 @@
             } else {
                 dateTime = moment(this._displayValue).format('ll');
             }
-            console.log(moment(this._displayValue).format('lll'));
             if (this._verbose) {
-                console.log(dateTime);
-                console.log(Date);
-                console.log('UTC Versions');
-                console.log(dateTime.getUTCDate());
-                console.log(dateTime.getUTCFullYear());
-                console.log(dateTime.getUTCMonth());
-                console.log(dateTime.getUTCDay());
-                console.log(dateTime.getUTCHours());
-                console.log(dateTime.getUTCMinutes());
-                console.log(dateTime.getUTCSeconds());
-                console.log('Non-UTC Versions');
-                console.log(dateTime.getDate());
-                console.log(dateTime.getFullYear());
-                console.log(dateTime.getMonth());
-                console.log(dateTime.getDay());
-                console.log(dateTime.getHours());
-                console.log(dateTime.getMinutes());
-                console.log(dateTime.getSeconds());
+                console.log(moment(this._displayValue).format('lll'));
             }
             return this._createBasicLayout(isForCompact, 
                     this._columnName, dateTime); 
@@ -5914,7 +5899,7 @@
             if (typeof InboxSDK !== 'undefined') {
                 mailToIcon = $(this._createEmailIcon());
                 mailToIcon.click(function() { // need to have this change depending on environment!
-                    InboxSDK.load('1.0', that._config.productionAppId).then(function(sdk) {
+                    InboxSDK.load('1.0', that._config.stagingAppId).then(function(sdk) {
                         sdk.Compose.openNewComposeView().then(function(composeView) {
                             composeView.setToRecipients([that._displayValue]);
                         });
