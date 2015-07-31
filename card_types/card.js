@@ -34,7 +34,7 @@
         init: function(record, cardNum, verbose) {
             this._record = record;
             this._cardNum = cardNum;
-            this._verbose = true;
+            this._verbose = verbose;
         },
         generateCard: function() {
             var that = this;
