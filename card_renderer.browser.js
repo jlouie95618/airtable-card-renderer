@@ -214,9 +214,6 @@
             // Generate the image element div
             topCard.append(this._createImgElem(images));
             // Generate the header div
-            console.log('this._record', this._record);
-            console.log('keys', keys);
-
             topCard.append(this._displayHeaderValue(keys[0], 
                 this._record[keys[0]].displayValue, targetEmail));
             // Generate the card content constructors

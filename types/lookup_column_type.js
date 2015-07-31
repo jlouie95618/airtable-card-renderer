@@ -33,46 +33,21 @@
             var content = $('<div/>');
             var list = '';
             var elemNum = 0;
-            var dateArray;
-            var numImages;
             var images;
             var docs;
-            if (this._verbose) {
-                console.log('lookupResultType: ', this._lookupResultType);
-            }
+            if (this._verbose) { console.log('lookupResultType: ', this._lookupResultType); }
             if (this._lookupResultType === 'multipleAttachment') {
-                numImages = this._determineNumImages(this._displayValue);
                 _.each(this._displayValue, function(item) {
                     var anchor;
-                    var icon;
-                    var iconText;
-                    var image;
                     // The case when the item is an object i.e. a document,
                     //  file or picture, etc.
                     if (typeof item === 'object') {
                         anchor = $('<a/>').attr('href', item.url);
-                        if ((item.type).indexOf('image') !== -1) {
-                            if (numImages > 1) {
-                                image = $('<div/>').attr('class', 'img-content-grid');
-                                image.css('background-image', 'url(' + item.url + ')');
-                                anchor.append(image);
-                            } else {
-                                image = $('<img/>').attr('src', item.url);
-                                image.attr('alt', item.filename);
-                                anchor.append(image.attr('class', 'img-content'));
-                            }
-                            if (!images) { images = $('<div/>'); }
-                            images.append(anchor);
-                        } else {
-                            iconText = '  ' + item.filename;
-                            icon = $('<i/>').attr('class', 
-                                'airtable-gmail-ext-icon-file-alt').text(iconText);
-                            anchor.attr('title', item.filename);
-                            anchor.append(icon);
-                            if (!docs) { docs = $('<div/>'); }
-                            docs.append(anchor);
+                        if ((item.type).indexOf('image') !== -1) { // case where handling image
+                            this._handleImageLookup(images, anchor);
+                        } else { // case where item is a document
+                            this._handleDocumentLookup(docs, anchor);
                         }
-
                     } else { // Case when the column contains string/number values
                         item = _.escape(item);
                         if (elemNum === (that._displayValue.length - 1)) {
@@ -84,16 +59,8 @@
                     }
                 });
                 if (list !== '') { content = list; }
-            } else if (this._lookupResultType === 'date') {
-                dateArray = this._displayValue.split(' ');
-                if (this._verbose) {
-                    console.log('days: ', dateArray[0]);
-                    console.log('time: ', dateArray[1]);
-                }
-                content = moment(dateArray[0]).format('ll');
-                if (dateArray.length > 1) {
-                    content += (' ' + dateArray[1]);
-                }
+            } else if (this._lookupResultType === 'date') { // case when look up field is a date
+                this._handleDateLookup(content);
             } else { // case when value is text or a number
                 content = this._displayValue;
             }
@@ -103,6 +70,21 @@
 
             return this._createBasicLayout(isForCompact, 
                     this._columnName, content);
+        },
+        _handleImageLookup: function(images, anchor) {
+            var image;
+            var numImages = this._determineNumImages(this._displayValue);
+            if (numImages > 1) {
+                image = $('<div/>').attr('class', 'img-content-grid');
+                image.css('background-image', 'url(' + item.url + ')');
+                anchor.append(image);
+            } else {
+                image = $('<img/>').attr('src', item.url);
+                image.attr('alt', item.filename);
+                anchor.append(image.attr('class', 'img-content'));
+            }
+            if (!images) { images = $('<div/>'); }
+            images.append(anchor);            
         },
         _determineNumImages: function(displayValue) {
             var numImages = 0;
@@ -114,7 +96,27 @@
             });
             if (this._verbose) { console.log('numImages: ', numImages); }
             return numImages;
-        }        
+        },
+        _handleDocumentLookup: function(docs, anchor) {
+            var icon = $('<i/>').attr('class', 
+                'airtable-gmail-ext-icon-file-alt').text(iconText);
+            var iconText = '  ' + item.filename;
+            anchor.attr('title', item.filename);
+            anchor.append(icon);
+            if (!docs) { docs = $('<div/>'); }
+            docs.append(anchor);            
+        },
+        _handleDateLookup: function(content) {
+            var dateArray = this._displayValue.split(' ');
+            if (this._verbose) {
+                console.log('days: ', dateArray[0]);
+                console.log('time: ', dateArray[1]);
+            }
+            content = moment(dateArray[0]).format('ll');
+            if (dateArray.length > 1) {
+                content += (' ' + dateArray[1]);
+            }
+        }
     });
 
     if (typeof exports !== 'undefined') {

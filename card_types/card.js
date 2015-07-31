@@ -34,7 +34,7 @@
         init: function(record, cardNum, verbose) {
             this._record = record;
             this._cardNum = cardNum;
-            this._verbose = verbose;
+            this._verbose = true;
         },
         generateCard: function() {
             var that = this;
@@ -48,13 +48,7 @@
             var targetEmail = this._findEmail(this._record._targetEmailAddr);
             var emailKey = this._removeTargetEmailFromFields(this._record._targetEmailAddr);
             // Create the card div which will contain the separate record's contents
-            this._card = $('<div/>').addClass('card');
-            if (this._verbose) { 
-                console.log('cardNum: ', this._cardNum); 
-                console.log('Images Array: ', images);
-                console.log('Record: ', this._record);
-                console.log('keys: ', keys);
-            }            
+            this._card = $('<div/>').addClass('card');            
             if (this._record._keys) { // case when order specified by an array of keys
                 keys = this._record._keys;
                 if (emailKey && _.size(keys) > 1) {
@@ -62,6 +56,12 @@
                 }
             } else { // case when order is implied by the object itself
                 keys = _.keys(this._record);
+            }
+            if (this._verbose) { 
+                console.log('cardNum: ', this._cardNum); 
+                console.log('Images Array: ', images);
+                console.log('Record: ', this._record);
+                console.log('keys: ', keys);
             }
             // Generate the image element div
             topCard.append(this._createImgElem(images));
