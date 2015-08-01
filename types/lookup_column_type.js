@@ -64,10 +64,8 @@
             } else { // case when value is text or a number
                 content = this._displayValue;
             }
-
             if (images) { content.append(images); }
             if (docs) { content.append(docs); }
-
             return this._createBasicLayout(isForCompact, 
                     this._columnName, content);
         },
