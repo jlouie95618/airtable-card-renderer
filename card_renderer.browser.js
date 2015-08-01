@@ -196,13 +196,7 @@
             var targetEmail = this._findEmail(this._record._targetEmailAddr);
             var emailKey = this._removeTargetEmailFromFields(this._record._targetEmailAddr);
             // Create the card div which will contain the separate record's contents
-            this._card = $('<div/>').addClass('card');
-            if (this._verbose) { 
-                console.log('cardNum: ', this._cardNum); 
-                console.log('Images Array: ', images);
-                console.log('Record: ', this._record);
-                console.log('keys: ', keys);
-            }            
+            this._card = $('<div/>').addClass('card');            
             if (this._record._keys) { // case when order specified by an array of keys
                 keys = this._record._keys;
                 if (emailKey && _.size(keys) > 1) {
@@ -210,6 +204,12 @@
                 }
             } else { // case when order is implied by the object itself
                 keys = _.keys(this._record);
+            }
+            if (this._verbose) { 
+                console.log('cardNum: ', this._cardNum); 
+                console.log('Images Array: ', images);
+                console.log('Record: ', this._record);
+                console.log('keys: ', keys);
             }
             // Generate the image element div
             topCard.append(this._createImgElem(images));
@@ -5617,39 +5617,32 @@
             var docs;
             _.each(this._displayValue, function(attachmentObject) {
                 var anchor = $('<a/>').attr('href', attachmentObject.url);
-                var icon;
-                var iconText;
-                var image;
                 if ((attachmentObject.type).indexOf('image') !== -1) {
-                    if (that._numImages > 1) {
-                        image = $('<div/>').attr('class', 'img-content-grid');
-                        image.css('background-image', 
-                            'url(' + attachmentObject.url + ')');
-                        anchor.append(image);
-                    } else {
-                        image = $('<img/>').attr('src', attachmentObject.url);
-                        image.attr('alt', attachmentObject.filename);
-                        anchor.append(image.attr('class', 'img-content'));
-                    }
-                    if (!images) { images = $('<div/>'); }
-                    images.append(anchor);
-
+                    images = that._handleImageLookup(images, attachmentObject, anchor);
                 } else {
-                    iconText = ' ' + attachmentObject.filename;
-                    icon = $('<i/>').attr('class', 
-                        'airtable-gmail-ext-icon-file-alt').text(iconText);
-                    anchor.attr('title', attachmentObject.filename);
-                    anchor.append(icon);
-                    if (!docs) { docs = $('<div/>'); }
-                    docs.append(anchor);
+                    docs = that._handleDocumentLookup(docs, attachmentObject, anchor);
                 }
             });
-
             if (images) { content.append(images); }
             if (docs) { content.append(docs); }
-
             return this._createBasicLayout(isForCompact, 
                     this._columnName, content); 
+        },
+        _handleImageLookup: function(images, item, anchor) {
+            var image;
+            var numImages = this._determineNumImages(this._displayValue);
+            if (numImages > 1) {
+                image = $('<div/>').attr('class', 'img-content-grid');
+                image.css('background-image', 'url(' + item.url + ')');
+                anchor.append(image);
+            } else {
+                image = $('<img/>').attr('src', item.url);
+                image.attr('alt', item.filename);
+                anchor.append(image.attr('class', 'img-content'));
+            }
+            if (!images) { images = $('<div/>'); }
+            images.append(anchor);
+            return images;
         },
         _determineNumImages: function(displayValue) {
             var numImages = 0;
@@ -5661,6 +5654,16 @@
             });
             if (this._verbose) { console.log('numImages: ', numImages); }
             return numImages;
+        },
+        _handleDocumentLookup: function(docs, item, anchor) {
+            var iconText = '  ' + item.filename;
+            var icon = $('<i/>').attr('class', 
+                'airtable-gmail-ext-icon-file-alt').text(iconText);
+            anchor.attr('title', item.filename);
+            anchor.append(icon);
+            if (!docs) { docs = $('<div/>'); }
+            docs.append(anchor);     
+            return docs;       
         }
     });
 
@@ -6067,46 +6070,21 @@
             var content = $('<div/>');
             var list = '';
             var elemNum = 0;
-            var dateArray;
-            var numImages;
             var images;
             var docs;
-            if (this._verbose) {
-                console.log('lookupResultType: ', this._lookupResultType);
-            }
+            if (this._verbose) { console.log('lookupResultType: ', this._lookupResultType); }
             if (this._lookupResultType === 'multipleAttachment') {
-                numImages = this._determineNumImages(this._displayValue);
                 _.each(this._displayValue, function(item) {
                     var anchor;
-                    var icon;
-                    var iconText;
-                    var image;
                     // The case when the item is an object i.e. a document,
                     //  file or picture, etc.
                     if (typeof item === 'object') {
                         anchor = $('<a/>').attr('href', item.url);
-                        if ((item.type).indexOf('image') !== -1) {
-                            if (numImages > 1) {
-                                image = $('<div/>').attr('class', 'img-content-grid');
-                                image.css('background-image', 'url(' + item.url + ')');
-                                anchor.append(image);
-                            } else {
-                                image = $('<img/>').attr('src', item.url);
-                                image.attr('alt', item.filename);
-                                anchor.append(image.attr('class', 'img-content'));
-                            }
-                            if (!images) { images = $('<div/>'); }
-                            images.append(anchor);
-                        } else {
-                            iconText = '  ' + item.filename;
-                            icon = $('<i/>').attr('class', 
-                                'airtable-gmail-ext-icon-file-alt').text(iconText);
-                            anchor.attr('title', item.filename);
-                            anchor.append(icon);
-                            if (!docs) { docs = $('<div/>'); }
-                            docs.append(anchor);
+                        if ((item.type).indexOf('image') !== -1) { // case where handling image
+                            images = that._handleImageLookup(images, item, anchor);
+                        } else { // case where item is a document
+                            docs = that._handleDocumentLookup(docs, item, anchor);
                         }
-
                     } else { // Case when the column contains string/number values
                         item = _.escape(item);
                         if (elemNum === (that._displayValue.length - 1)) {
@@ -6118,25 +6096,31 @@
                     }
                 });
                 if (list !== '') { content = list; }
-            } else if (this._lookupResultType === 'date') {
-                dateArray = this._displayValue.split(' ');
-                if (this._verbose) {
-                    console.log('days: ', dateArray[0]);
-                    console.log('time: ', dateArray[1]);
-                }
-                content = moment(dateArray[0]).format('ll');
-                if (dateArray.length > 1) {
-                    content += (' ' + dateArray[1]);
-                }
+            } else if (this._lookupResultType === 'date') { // case when look up field is a date
+                content = this._handleDateLookup(content);
             } else { // case when value is text or a number
                 content = this._displayValue;
             }
-
             if (images) { content.append(images); }
             if (docs) { content.append(docs); }
-
             return this._createBasicLayout(isForCompact, 
                     this._columnName, content);
+        },
+        _handleImageLookup: function(images, item, anchor) {
+            var image;
+            var numImages = this._determineNumImages(this._displayValue);
+            if (numImages > 1) {
+                image = $('<div/>').attr('class', 'img-content-grid');
+                image.css('background-image', 'url(' + item.url + ')');
+                anchor.append(image);
+            } else {
+                image = $('<img/>').attr('src', item.url);
+                image.attr('alt', item.filename);
+                anchor.append(image.attr('class', 'img-content'));
+            }
+            if (!images) { images = $('<div/>'); }
+            images.append(anchor);
+            return images;
         },
         _determineNumImages: function(displayValue) {
             var numImages = 0;
@@ -6148,7 +6132,29 @@
             });
             if (this._verbose) { console.log('numImages: ', numImages); }
             return numImages;
-        }        
+        },
+        _handleDocumentLookup: function(docs, item, anchor) {
+            var iconText = '  ' + item.filename;
+            var icon = $('<i/>').attr('class', 
+                'airtable-gmail-ext-icon-file-alt').text(iconText);
+            anchor.attr('title', item.filename);
+            anchor.append(icon);
+            if (!docs) { docs = $('<div/>'); }
+            docs.append(anchor);     
+            return docs;       
+        },
+        _handleDateLookup: function(content) {
+            var dateArray = this._displayValue.split(' ');
+            if (this._verbose) {
+                console.log('days: ', dateArray[0]);
+                console.log('time: ', dateArray[1]);
+            }
+            content = moment(dateArray[0]).format('ll');
+            if (dateArray.length > 1) {
+                content += (' ' + dateArray[1]);
+            }
+            return content;
+        }
     });
 
     if (typeof exports !== 'undefined') {
