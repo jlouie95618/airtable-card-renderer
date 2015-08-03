@@ -1,418 +1,347 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
-(function() {
-    var root = this;
-    var previousCardRenderer = root.CardRenderer;
+var _ = require('underscore');
+var Class = require('./vendor/class.js');
 
-    var has_require = typeof require !== 'undefined';
+var CompactCard = require('./card_types/compact_card.js');
+var ExpandedCard = require('./card_types/expanded_card.js');
+var Card = require('./card_types/card.js');
+var config = require('./config.js');
 
-    var _ = root._;
-    var Class = root.Class;
-    var CompactCard = root.CompactCard;
-    var ExpandedCard = root.ExpandedCard;
-    var Card = root.Card;
-    var config = root.config;
-
-    if (typeof _ === 'undefined') {
-        if (has_require) { _ = require('underscore'); }
-        else { throw new Error('card_renderer requires Underscore'); } 
-    }
-    if (typeof Class === 'undefined') {
-        if (has_require) { Class = require('./vendor/class.js'); }
-        else { throw new Error('card_renderer requires the Class file'); } 
-    }
-    if (typeof CompactCard === 'undefined') {
-        if (has_require) { CompactCard = require('./card_types/compact_card.js'); }
-        else { throw new Error('card_renderer requires the CompactCard class'); } 
-    }
-    if (typeof ExpandedCard === 'undefined') {
-        if (has_require) { ExpandedCard = require('./card_types/expanded_card.js'); }
-        else { throw new Error('card_renderer requires the ExpandedCard class'); } 
-    }
-    if (typeof Card === 'undefined') {
-        if (has_require) { Card = require('./card_types/card.js'); }
-        else { throw new Error('card_renderer requires the Card class'); } 
-    }
-    if (typeof config === 'undefined') {
-        if (has_require) { config = require('./config.js'); }
-        else { throw new Error('card_renderer requires the config class'); } 
-    }
-
-    // The renderer itself doubles as a Card container,
-    //  determining which cards to activate/expand, etc.
-    var CardRenderer = Class.extend({
-        init: function(expandedCardStyle, verbose) {
+// The renderer itself doubles as a Card container,
+//  determining which cards to activate/expand, etc.
+var CardRenderer = Class.extend({
+    init: function(expandedCardStyle, verbose) {
+        this._expandedCardStyle = expandedCardStyle;
+        this._verbose = verbose;
+        this._numCards = 0;
+    },
+    // Publicly Accessible Functionality:
+    renderCard: function(record) { // record = object with field and value pairs
+        var that = this;
+        var numCards = this._numCards;
+        var verbose = this._verbose;
+        var style = this._expandedCardStyle;
+        var card;
+        var compactCard; 
+        var expandedCard;
+        var recordContainer = $('<div/>').addClass('record');
+        if (style) { // If the rendering style is not equal to the zero flag
+            // Implementation for a compact and expanded card implementation
+            compactCard = new CompactCard(record, numCards, verbose);
+            expandedCard = new ExpandedCard(record, numCards, style, verbose);
+            if (verbose) {
+                console.log('this._numCards', numCards);
+                console.log('inputted (into CardRenderer) record:', record);
+            }
+            recordContainer.append(compactCard.generateCard());
+            recordContainer.append(expandedCard.generateCard());
+            recordContainer.click({cardIndex: numCards}, function(eventData) {
+                that._activateExpandedView(eventData);
+            });
+        } else {
+            // Code pertaining to just a single card, but is expanded when a
+            //  'More Info' button is clicked.
+            card = new Card(record, numCards, verbose);
+            recordContainer.append(card.generateCard());
+            // card.constructViewInAirtableButton();
+            // recordContainer.append(card.createMoreInfoButton());
+        }
+        this._numCards++;
+        return recordContainer;
+    },
+    installStyling: function(divElement, expandedCardStyle) {
+        var compactStyle = $('<link/>');
+        compactStyle.attr('rel', 'stylesheet');
+        compactStyle.attr('type', 'text/css');
+        if (this._verbose) { console.log(divElement); } 
+        if (!this._expandedCardStyle) {
             this._expandedCardStyle = expandedCardStyle;
-            this._verbose = verbose;
-            this._numCards = 0;
-        },
-        // Publicly Accessible Functionality:
-        renderCard: function(record) { // record = object with field and value pairs
-            var that = this;
-            var numCards = this._numCards;
-            var verbose = this._verbose;
-            var style = this._expandedCardStyle;
-            var card;
-            var compactCard; 
-            var expandedCard;
-            var recordContainer = $('<div/>').addClass('record');
-            if (style) { // If the rendering style is not equal to the zero flag
-                // Implementation for a compact and expanded card implementation
-                compactCard = new CompactCard(record, numCards, verbose);
-                expandedCard = new ExpandedCard(record, numCards, style, verbose);
-                if (verbose) {
-                    console.log('this._numCards', numCards);
-                    console.log('inputted (into CardRenderer) record:', record);
-                }
-                recordContainer.append(compactCard.generateCard());
-                recordContainer.append(expandedCard.generateCard());
-                recordContainer.click({cardIndex: numCards}, function(eventData) {
-                    that._activateExpandedView(eventData);
-                });
-            } else {
-                // Code pertaining to just a single card, but is expanded when a
-                //  'More Info' button is clicked.
-                card = new Card(record, numCards, verbose);
-                recordContainer.append(card.generateCard());
-                // card.constructViewInAirtableButton();
-                // recordContainer.append(card.createMoreInfoButton());
-            }
-            this._numCards++;
-            return recordContainer;
-        },
-        installStyling: function(divElement, expandedCardStyle) {
-            var compactStyle = $('<link/>');
-            compactStyle.attr('rel', 'stylesheet');
-            compactStyle.attr('type', 'text/css');
-            if (this._verbose) { console.log(divElement); } 
-            if (!this._expandedCardStyle) {
-                this._expandedCardStyle = expandedCardStyle;
-            }
-            if (this._verbose) { console.log(chrome.runtime); }
-            if (chrome.runtime) {
-                // Install styling for cards in chrome extension:
-                switch(this._expandedCardStyle) {
-                    case 1:
-                        compactStyle.attr('href', config.chromeExtension + 
-                            chrome.runtime.id + config.compactStyling);
-                        break;
-                    case 2:
-                        compactStyle.attr('href', config.chromeExtension + 
-                            chrome.runtime.id + config.expandedStyling);
-                        break;
-                    default:
-                        compactStyle.attr('href', config.chromeExtension + 
-                            chrome.runtime.id + config.defaultStyling);
-                        break;
-                }
-            } else {
-                // In the case that we aren't doing things in chrome, refer
-                //  to local files
-                switch(this._expandedCardStyle) {
-                    case 1:
-                        compactStyle.attr('href', '.' + config.compactStyling);
-                        break;
-                    case 2:
-                        compactStyle.attr('href', '.' + config.expandedStyling);
-                        break;
-                    default:
-                        compactStyle.attr('href', '.' + config.defaultStyling);
-                        break;
-                }
-            }
-            $(divElement).append(compactStyle);
-        },
-        // Private Functionality:
-        _activateExpandedView: function(eventData) { // TODO: implement event handler
-            if (this._verbose) { console.log(eventData.data.cardIndex); }
-            if (this._verbose) { console.log(eventData); } 
-            if (this._verbose) { console.log($('.compact#compact-' + eventData.data.cardIndex)); }
-            if (this._verbose) { console.log($('.expanded#expanded-' + eventData.data.cardIndex)); }
-            $('.compact#compact-' + eventData.data.cardIndex).toggle('slow');
-            $('.expanded#expanded-' + eventData.data.cardIndex).toggle('slow');
         }
-    });
-
-    if (typeof exports !== 'undefined') {
-        if (typeof module !== 'undefined' && module.exports) {
-            exports = module.exports = CardRenderer;
+        if (this._verbose) { console.log(chrome.runtime); }
+        if (chrome.runtime) {
+            // Install styling for cards in chrome extension:
+            switch(this._expandedCardStyle) {
+                case 1:
+                    compactStyle.attr('href', config.chromeExtension + 
+                        chrome.runtime.id + config.compactStyling);
+                    break;
+                case 2:
+                    compactStyle.attr('href', config.chromeExtension + 
+                        chrome.runtime.id + config.expandedStyling);
+                    break;
+                default:
+                    compactStyle.attr('href', config.chromeExtension + 
+                        chrome.runtime.id + config.defaultStyling);
+                    break;
+            }
+        } else {
+            // In the case that we aren't doing things in chrome, refer
+            //  to local files
+            switch(this._expandedCardStyle) {
+                case 1:
+                    compactStyle.attr('href', '.' + config.compactStyling);
+                    break;
+                case 2:
+                    compactStyle.attr('href', '.' + config.expandedStyling);
+                    break;
+                default:
+                    compactStyle.attr('href', '.' + config.defaultStyling);
+                    break;
+            }
         }
-        exports.CardRenderer = CardRenderer;
-    } else {
-        root.CardRenderer = CardRenderer;
+        $(divElement).append(compactStyle);
+    },
+    // Private Functionality:
+    _activateExpandedView: function(eventData) { // TODO: implement event handler
+        if (this._verbose) { console.log(eventData.data.cardIndex); }
+        if (this._verbose) { console.log(eventData); } 
+        if (this._verbose) { console.log($('.compact#compact-' + eventData.data.cardIndex)); }
+        if (this._verbose) { console.log($('.expanded#expanded-' + eventData.data.cardIndex)); }
+        $('.compact#compact-' + eventData.data.cardIndex).toggle('slow');
+        $('.expanded#expanded-' + eventData.data.cardIndex).toggle('slow');
     }
+});
 
-}).call(this);
+module.exports = CardRenderer;
 
 },{"./card_types/card.js":2,"./card_types/compact_card.js":3,"./card_types/expanded_card.js":4,"./config.js":6,"./vendor/class.js":28,"underscore":9}],2:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
+var _ = require('underscore');
+var Class = require('../vendor/class.js');
 
-(function() {
+var ColumnTypeConstructors = require('../column_types.js');
+var config = require('../config.js');
 
-    var root = this;
-    var previousCard = root.Card;
-
-    var has_require = typeof require !== 'undefined';
-
-    var _ = root._;
-    var Class = root.Class;
-    var ColumnTypeConstructors = root.ColumnTypeConstructors;
-    var config = root.config;
-
-    if (typeof _ === 'undefined') {
-        if (has_require) { _ = require('underscore'); }
-        else { throw new Error('card requires Underscore'); }
-    }
-    if (typeof Class === 'undefined') {
-        if (has_require) { Class = require('../vendor/class.js'); }
-        else { throw new Error('card requires the Class file'); }
-    }
-    if (typeof ColumnTypeConstructors === 'undefined') {
-        if (has_require) { ColumnTypeConstructors = require('../column_types.js'); }
-        else { throw new Error('card requires the column_types.js file'); }
-    }
-    if (typeof config === 'undefined') {
-        if (has_require) { config = require('../config.js'); }
-        else { throw new Error('card requires the config class'); }
-    }
-
-    var Card = Class.extend({
-        init: function(record, cardNum, verbose) {
-            this._record = record;
-            this._cardNum = cardNum;
-            this._verbose = verbose;
-        },
-        generateCard: function() {
-            var that = this;
-            var info = $('<div/>').addClass('card-content');
-            var topCard = $('<div/>').addClass('card-top');
-            var bottomCard = $('<div/>').addClass('card-bottom');
-            var keys;
-            // Create image tag and pull it from the record
-            var images = this._findImageAttachments();
-            var constructors = {};
-            var targetEmail = this._findEmail(this._record._targetEmailAddr);
-            var emailKey = this._removeTargetEmailFromFields(this._record._targetEmailAddr);
-            // Create the card div which will contain the separate record's contents
-            this._card = $('<div/>').addClass('card');            
-            if (this._record._keys) { // case when order specified by an array of keys
-                keys = this._record._keys;
-                if (emailKey && _.size(keys) > 1) {
-                    keys = _.without(keys, emailKey);
-                }
-            } else { // case when order is implied by the object itself
-                keys = _.keys(this._record);
+var Card = Class.extend({
+    init: function(record, cardNum, verbose) {
+        this._record = record;
+        this._cardNum = cardNum;
+        this._verbose = verbose;
+    },
+    generateCard: function() {
+        var that = this;
+        var info = $('<div/>').addClass('card-content');
+        var topCard = $('<div/>').addClass('card-top');
+        var bottomCard = $('<div/>').addClass('card-bottom');
+        var keys;
+        // Create image tag and pull it from the record
+        var images = this._findImageAttachments();
+        var constructors = {};
+        var targetEmail = this._findEmail(this._record._targetEmailAddr);
+        var emailKey = this._removeTargetEmailFromFields(this._record._targetEmailAddr);
+        // Create the card div which will contain the separate record's contents
+        this._card = $('<div/>').addClass('card');            
+        if (this._record._keys) { // case when order specified by an array of keys
+            keys = this._record._keys;
+            if (emailKey && _.size(keys) > 1) {
+                keys = _.without(keys, emailKey);
             }
-            if (this._verbose) { 
-                console.log('cardNum: ', this._cardNum); 
-                console.log('Images Array: ', images);
-                console.log('Record: ', this._record);
-                console.log('keys: ', keys);
+        } else { // case when order is implied by the object itself
+            keys = _.keys(this._record);
+        }
+        if (true) { 
+            console.log('cardNum: ', this._cardNum); 
+            console.log('Images Array: ', images);
+            console.log('Record: ', this._record);
+            console.log('keys: ', keys);
+            console.log('keys 2: ', this._record._keys);
+        }
+        // Generate the image element div
+        topCard.append(this._createImgElem(images));
+        // Generate the header div
+        topCard.append(this._displayHeaderValue(keys[0], 
+            this._record[keys[0]].displayValue, targetEmail));
+        // Generate the card content constructors
+        _.each(keys, function(key) {
+            if (key !== keys[0]) { // want to omit the very first key
+                constructors[key] = ColumnTypeConstructors[that._record[key].fieldType];
             }
-            // Generate the image element div
-            topCard.append(this._createImgElem(images));
-            // Generate the header div
-            topCard.append(this._displayHeaderValue(keys[0], 
-                this._record[keys[0]].displayValue, targetEmail));
-            // Generate the card content constructors
-            _.each(keys, function(key) {
-                if (key !== keys[0]) { // want to omit the very first key
-                    constructors[key] = ColumnTypeConstructors[that._record[key].fieldType];
-                }
-            });
-            // Append the constructed elements onto the appropriate parent elements
-            this._createCardContent(constructors, this._card, topCard, bottomCard, 3);
-            // this._card.append(topCard.append());
-            this._constructViewInAirtableButton(bottomCard);
-            return this._card;
+        });
+        // Append the constructed elements onto the appropriate parent elements
+        this._createCardContent(constructors, this._card, topCard, bottomCard, 3);
+        // this._card.append(topCard.append());
+        this._constructViewInAirtableButton(bottomCard);
+        return this._card;
 
-        },
-        _constructViewInAirtableButton: function(bottomCard) {
-            var button = $('<button/>').addClass('extension-options').text('View in Airtable');
-            var buttonContainer = $('<div/>').addClass('card-button').append(button);
-            this._addButtonAndListenerWithUrl(bottomCard, buttonContainer, 
-                config.openLinkToRec, this._record._recordUrl);
-        },
-        _removeTargetEmailFromFields: function(targetEmail) {
-            var that = this;
-            var email = targetEmail;
-            var key;
-            if (targetEmail) {
-                _.each(this._record, function(fieldObject, objectKey) {
-                    if (email && fieldObject.displayValue === targetEmail) {
-                        key = objectKey;
-                        if (_.size(that._record._keys) > 1) {
-                            that._record = _.omit(that._record, objectKey);
-                        }
-                        email = null; // keep from omitting more than one field
+    },
+    _constructViewInAirtableButton: function(bottomCard) {
+        var button = $('<button/>').addClass('extension-options').text('View in Airtable');
+        var buttonContainer = $('<div/>').addClass('card-button').append(button);
+        this._addButtonAndListenerWithUrl(bottomCard, buttonContainer, 
+            config.openLinkToRec, this._record._recordUrl);
+    },
+    _removeTargetEmailFromFields: function(targetEmail) {
+        var that = this;
+        var email = targetEmail;
+        var key;
+        if (targetEmail) {
+            _.each(this._record, function(fieldObject, objectKey) {
+                if (email && fieldObject.displayValue === targetEmail) {
+                    key = objectKey;
+                    if (_.size(that._record._keys) > 1) {
+                        that._record = _.omit(that._record, objectKey);
                     }
+                    email = null; // keep from omitting more than one field
+                }
+            });
+            this._record = that._record;
+        }
+        return key;
+    },
+    _findEmail: function(targetEmail) { // DOUBLE CHECK FUNCTIONALITY HERE
+        var that = this;
+        var record = this._record;
+        var elem = $('<div/>');
+        _.each(record, function(contentObject, fieldName) {
+            var Constructor;
+            if (contentObject.fieldType === 'email') {
+                Constructor = ColumnTypeConstructors[contentObject.fieldType];
+                if (targetEmail && targetEmail === contentObject.displayValue) {
+                    elem = new Constructor(null, 
+                        record[fieldName], that._verbose).generateElement(true);    
+                }   
+            } else if (that._containsEmailWord(fieldName)) {
+                elem.append(_.escape(contentObject.displayValue));
+                elem.addClass('mod-non-email-type');
+            }
+        });
+        return elem;
+    },
+    _containsEmailWord: function(fieldName) {
+        var lowerCaseFieldName = fieldName.toLowerCase();
+        return lowerCaseFieldName === 'email' || 
+            lowerCaseFieldName === 'email address' ||
+            lowerCaseFieldName === 'e-mail' ||
+            lowerCaseFieldName === 'e-mail address';
+    },
+    _findImageAttachments: function() {
+        var record = this._record;
+        var that = this;
+        var type = 'image';
+        var images = []; // will become an array of objects
+        _.each(record, function(contentObject, fieldName) {
+            if (contentObject.fieldType === 'multipleAttachment') {
+                var attachmentArray = contentObject.displayValue;
+                _.each(attachmentArray, function(attachmentObject, index) {
+                    if (attachmentObject.type.indexOf(type) === 0) {
+                        attachmentObject.fieldName = fieldName;
+                        images.push(attachmentObject);
+                        // delete attachmentArray[index]; // Is this necessary?
+                    } 
                 });
-                this._record = that._record;
             }
-            return key;
-        },
-        _findEmail: function(targetEmail) { // DOUBLE CHECK FUNCTIONALITY HERE
-            var that = this;
-            var record = this._record;
-            var elem = $('<div/>');
-            _.each(record, function(contentObject, fieldName) {
-                var Constructor;
-                if (contentObject.fieldType === 'email') {
-                    Constructor = ColumnTypeConstructors[contentObject.fieldType];
-                    if (targetEmail && targetEmail === contentObject.displayValue) {
-                        elem = new Constructor(null, 
-                            record[fieldName], that._verbose).generateElement(true);    
-                    }   
-                } else if (that._containsEmailWord(fieldName)) {
-                    elem.append(_.escape(contentObject.displayValue));
-                    elem.addClass('mod-non-email-type');
-                }
-            });
-            return elem;
-        },
-        _containsEmailWord: function(fieldName) {
-            var lowerCaseFieldName = fieldName.toLowerCase();
-            return lowerCaseFieldName === 'email' || 
-                lowerCaseFieldName === 'email address' ||
-                lowerCaseFieldName === 'e-mail' ||
-                lowerCaseFieldName === 'e-mail address';
-        },
-        _findImageAttachments: function() {
-            var record = this._record;
-            var that = this;
-            var type = 'image';
-            var images = []; // will become an array of objects
-            _.each(record, function(contentObject, fieldName) {
-                if (contentObject.fieldType === 'multipleAttachment') {
-                    var attachmentArray = contentObject.displayValue;
-                    _.each(attachmentArray, function(attachmentObject, index) {
-                        if (attachmentObject.type.indexOf(type) === 0) {
-                            attachmentObject.fieldName = fieldName;
-                            images.push(attachmentObject);
-                            // delete attachmentArray[index]; // Is this necessary?
-                        } 
-                    });
-                }
-            });
-            return images;
-        },
-        _createImgElem: function(imagesArray) {
-            if (this._verbose) { console.log('images: ', imagesArray); }
-            var first = imagesArray[0];
-            var container = $('<div/>').addClass('img-container');
-            if (!imagesArray || imagesArray.length === 0 || !first) {
-                this._noImage = true;
-                container.addClass('mod-no-image');
-                return container;
-            } else {
-                // This particular attribute for the div must be done inline
-                //  because there is no other way of determining the appropriate URL
-                container.css('background-image', 'url(' + first.url + ')');
-            }
+        });
+        return images;
+    },
+    _createImgElem: function(imagesArray) {
+        if (this._verbose) { console.log('images: ', imagesArray); }
+        var first = imagesArray[0];
+        var container = $('<div/>').addClass('img-container');
+        if (!imagesArray || imagesArray.length === 0 || !first) {
+            this._noImage = true;
+            container.addClass('mod-no-image');
             return container;
-        },
-        _displayHeaderValue: function(name, firstContentDisplayValue, emailElem) {
-            var elem = $('<div/>');
-            var headerTitle = $('<div/>').append(_.escape(firstContentDisplayValue));
-            elem.addClass('header');
-            elem.append(headerTitle.addClass('header-title'));
-            elem.append(emailElem.addClass('header-email'));
-            if (this._noImage) { 
-                elem.addClass('mod-no-image');
-                headerTitle.addClass('mod-no-image');
-                emailElem.addClass('mod-no-image');
-            }
-            return elem;
-        },
-        _createCardContent: function(constructors, card, top, bottom, numElemInTopCard) {
-            var that = this;
-            var record = this._record;
-            var first = true;
-            var topContents = $('<div/>').addClass('elements-container');
-            var bottomContents = $('<div/>').addClass('elements-container');
-            var numElem = 0;
-            var totalElems = _.size(constructors);
-            if (this._verbose) { console.log(constructors, record); }
-            _.each(constructors, function(FieldTypeConstructor, columnName) {
-                var container = $('<div/>').addClass('element');
-                // Construct new instance of a particular type, then 
-                //  generate the appropriate element
-                var elem = new FieldTypeConstructor(columnName, 
-                    record[columnName], that._verbose).generateElement(true);
+        } else {
+            // This particular attribute for the div must be done inline
+            //  because there is no other way of determining the appropriate URL
+            container.css('background-image', 'url(' + first.url + ')');
+        }
+        return container;
+    },
+    _displayHeaderValue: function(name, firstContentDisplayValue, emailElem) {
+        var elem = $('<div/>');
+        var headerTitle = $('<div/>').append(_.escape(firstContentDisplayValue));
+        elem.addClass('header');
+        elem.append(headerTitle.addClass('header-title'));
+        elem.append(emailElem.addClass('header-email'));
+        if (this._noImage) { 
+            elem.addClass('mod-no-image');
+            headerTitle.addClass('mod-no-image');
+            emailElem.addClass('mod-no-image');
+        }
+        return elem;
+    },
+    _createCardContent: function(constructors, card, top, bottom, numElemInTopCard) {
+        console.log('constructors:', constructors);
+        var that = this;
+        var record = this._record;
+        var first = true;
+        var topContents = $('<div/>').addClass('elements-container');
+        var bottomContents = $('<div/>').addClass('elements-container');
+        var numElem = 0;
+        var totalElems = _.size(constructors);
+        if (this._verbose) { console.log(constructors, record); }
+        _.each(constructors, function(FieldTypeConstructor, columnName) {
+            var container = $('<div/>').addClass('element');
+            // Construct new instance of a particular type, then 
+            //  generate the appropriate element
+            var elem = new FieldTypeConstructor(columnName, 
+                record[columnName], that._verbose).generateElement(true);
 
-                if (that._verbose) { 
-                    console.log('Content Object: ', record[columnName]);
-                    console.log(elem);
-                }
-                if (!that._noImage && first) {
-                    container.addClass('mod-image-present');
-                    first = false;
-                }
-                if (numElem === (numElemInTopCard - 1)) {
-                    container.addClass('mod-last-in-top');
-                }
-                if (numElem === (totalElems - 1)) {
-                    container.addClass('mod-last-elem');
-                }
-                if (numElem < numElemInTopCard) {
-                    topContents.append(container.append(elem));
-                } else {
-                    bottomContents.append(container.append(elem));
-                }
-                numElem++;
-            });
-            card.append(top.append(topContents));
-            card.append(this._createSeeMoreButton(bottom));
-            card.append(bottom.append(bottomContents));
-        },
-        _createSeeMoreButton: function(bottom) {
-            var that = this;
-            var button = $('<button/>').text('See More');
-            button.addClass('see-more-button');
-            button.click(function(eventData) {
-                bottom.toggle();
-                if (button[0].innerText === 'See More') {
-                    button.text('See Less');
-                } else if (button[0].innerText === 'See Less') {
-                    button.text('See More');
-                }
-            });
-            return button;
-        },        
-        // This function incorporates the button and event listener that allows a 
-        //  button on the side bar to open/activate various actions from the sidebar.
-        _addButtonAndListenerWithUrl: function(card, button, message, url) {
-            var that = this;
-            var request;
-            if (url) {
-                request = { type: message, url: url };
+            if (that._verbose) { 
+                console.log('Content Object: ', record[columnName]);
+                console.log(elem);
+            }
+            if (!that._noImage && first) {
+                container.addClass('mod-image-present');
+                first = false;
+            }
+            if (numElem === (numElemInTopCard - 1)) {
+                container.addClass('mod-last-in-top');
+            }
+            if (numElem === (totalElems - 1)) {
+                container.addClass('mod-last-elem');
+            }
+            if (numElem < numElemInTopCard) {
+                topContents.append(container.append(elem));
             } else {
-                request = { type: message };
+                bottomContents.append(container.append(elem));
             }
-            // Insert the HTML for the creation of the button
-            $(card).append(button);
-            // Add the event listener and tell the listener what to do when a click occurs
-            $(button).click(function() {
-                chrome.runtime.sendMessage(request, null, function(response) {
-                    if (that._verbose) { console.log(response.message); }
-                });
+            numElem++;
+        });
+        card.append(top.append(topContents));
+        card.append(this._createSeeMoreButton(bottom));
+        card.append(bottom.append(bottomContents));
+    },
+    _createSeeMoreButton: function(bottom) {
+        var that = this;
+        var button = $('<button/>').text('See More');
+        button.addClass('see-more-button');
+        button.click(function(eventData) {
+            bottom.toggle();
+            if (button[0].innerText === 'See More') {
+                button.text('See Less');
+            } else if (button[0].innerText === 'See Less') {
+                button.text('See More');
+            }
+        });
+        return button;
+    },        
+    // This function incorporates the button and event listener that allows a 
+    //  button on the side bar to open/activate various actions from the sidebar.
+    _addButtonAndListenerWithUrl: function(card, button, message, url) {
+        var that = this;
+        var request;
+        if (url) {
+            request = { type: message, url: url };
+        } else {
+            request = { type: message };
+        }
+        // Insert the HTML for the creation of the button
+        $(card).append(button);
+        // Add the event listener and tell the listener what to do when a click occurs
+        $(button).click(function() {
+            chrome.runtime.sendMessage(request, null, function(response) {
+                if (that._verbose) { console.log(response.message); }
             });
-        }
-
-    });
-
-    if (typeof exports !== 'undefined') {
-        if (typeof module !== 'undefined' && module.exports) {
-            exports = module.exports = Card;
-        }
-        exports.Card = Card;
-    } else {
-        root.Card = Card;
+        });
     }
+});
 
-}).call(this);
+module.exports = Card;
 
 },{"../column_types.js":5,"../config.js":6,"../vendor/class.js":28,"underscore":9}],3:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
@@ -701,227 +630,89 @@
 },{"../column_types.js":5,"../config.js":6,"../vendor/class.js":28,"underscore":9}],5:[function(require,module,exports){
 'use strict';
 
-(function () {
+var ColumnTypeConstructors = {
+    'multipleAttachment': require('./types/attachments_column_type.js'),
+    'checkbox': require('./types/checkbox_column_type.js'),
+    'count': require('./types/count_column_type.js'),    
+    'currency': require('./types/currency_column_type.js'),
+    'date': require('./types/date_column_type.js'),
+    'datetime': require('./types/date_column_type.js'),
+    'email': require('./types/email_column_type.js'),
+    'foreignKey': require('./types/foreign_key_column_type.js'),
+    'formula': require('./types/formula_column_type.js'),
+    'lookup': require('./types/lookup_column_type.js'),
+    'multilineText': require('./types/multiline_text_column_type.js'),
+    'multiSelect': require('./types/multiselect_column_type.js'),
+    'number': require('./types/number_column_type.js'),
+    'percent': require('./types/percent_column_type.js'),
+    'phone': require('./types/phone_column_type.js'),
+    'rollup': require('./types/rollup_column_type.js'),
+    'select': require('./types/select_column_type.js'),
+    'text': require('./types/text_column_type.js'),
+    'url': require('./types/url_column_type.js')
+};
 
-    var root = this;
-    var previousColumnTypeConstructors = root.ColumnTypeConstructors;
+module.exports = ColumnTypeConstructors;
 
-    var has_require = typeof require !== 'undefined';
-
-    var _ = root._;
-
-    if (typeof _ === 'undefined') {
-        if (has_require) { _ = require('underscore'); }
-        else { throw new Error('column_types requires Underscore'); }
-    }
-
-    var ColumnTypeConstructors = {};
-
-    var requireTypes = {
-        'multipleAttachment': { 
-            'multipleAttachment': require('./types/attachments_column_type.js')
-        },
-        'checkbox': {
-            'checkbox': require('./types/checkbox_column_type.js')
-        },
-        'count': { 
-            'count': require('./types/count_column_type.js')
-        },
-        'currency': { 
-            'currency': require('./types/currency_column_type.js')
-        },
-        'date': {
-            'date': require('./types/date_column_type.js')
-        },
-        'datetime': { 
-            'datetime': require('./types/date_column_type.js')
-        },
-        'email': { 
-            'email': require('./types/email_column_type.js')
-        },
-        'foreignKey': { 
-            'foreignKey': require('./types/foreign_key_column_type.js')
-        },
-        'formula': { 
-            'formula': require('./types/formula_column_type.js')
-        },
-        'lookup': { 
-            'lookup': require('./types/lookup_column_type.js')
-        },
-        'multilineText': { 
-            'multilineText': require('./types/multiline_text_column_type.js')
-        },
-        'multiSelect': { 
-            'multiSelect': require('./types/multiselect_column_type.js')
-        },
-        'number': { 
-            'number': require('./types/number_column_type.js')
-        },
-        'percent': { 
-            'percent': require('./types/percent_column_type.js')
-        },
-        'phone': { 
-            'phone': require('./types/phone_column_type.js')
-        },
-        'rollup': { 
-            'rollup': require('./types/rollup_column_type.js')
-        },
-        'select': { 
-            'select': require('./types/select_column_type.js')
-        },
-        'text': { 
-            'text': require('./types/text_column_type.js')
-        },
-        'url': { 
-            'url': require('./types/url_column_type.js')
-        }
-    };
-
-    var classToFieldType = {
-        'multipleAttachment': 'AttachmentsColumnType',
-        'checkbox': 'CheckboxColumnType',
-        'count': 'CountColumnType',
-        'currency': 'CurrencyColumnType',
-        'date': 'DateColumnType',
-        'email': 'EmailColumnType',
-        'foreignKey': 'ForeignKeyColumnType',
-        'formula': 'FormulaColumnType',
-        'lookup': 'LookupColumnType',
-        'multilineText': 'MultilineTextColumnType',
-        'multiSelect': 'MultiselectColumnType',
-        'number': 'NumberColumnType',
-        'percent': 'PercentColumnType',
-        'phone': 'PhoneColumnType',
-        'rollup': 'RollupColumnType',
-        'select': 'SelectColumnType',
-        'text': 'TextColumnType',
-        'url': 'UrlColumnType'
-    };
-
-    _.each(requireTypes, function(requireObject, key) {
-        var className = classToFieldType[key];
-        if (typeof root[className] === 'undefined') {
-            if (has_require) {
-                ColumnTypeConstructors = _.extend(ColumnTypeConstructors, requireObject);
-            } else {
-                throw new Error('ColumnTypeConstructors requires the ' + className + ' class');
-            }
-        } else {
-            ColumnTypeConstructors[key] = root[className];
-        }
-    });
-
-    if (typeof exports !== 'undefined') {
-        if (typeof module !== 'undefined' && module.exports) {
-            exports = module.exports = ColumnTypeConstructors;
-        }
-        exports.ColumnTypeConstructors = ColumnTypeConstructors;
-    } else {
-        root.ColumnTypeConstructors = ColumnTypeConstructors;
-    }
-
-}).call(this);
-
-},{"./types/attachments_column_type.js":10,"./types/checkbox_column_type.js":11,"./types/count_column_type.js":12,"./types/currency_column_type.js":13,"./types/date_column_type.js":14,"./types/email_column_type.js":15,"./types/foreign_key_column_type.js":16,"./types/formula_column_type.js":17,"./types/lookup_column_type.js":18,"./types/multiline_text_column_type.js":19,"./types/multiselect_column_type.js":20,"./types/number_column_type.js":21,"./types/percent_column_type.js":22,"./types/phone_column_type.js":23,"./types/rollup_column_type.js":24,"./types/select_column_type.js":25,"./types/text_column_type.js":26,"./types/url_column_type.js":27,"underscore":9}],6:[function(require,module,exports){
+},{"./types/attachments_column_type.js":10,"./types/checkbox_column_type.js":11,"./types/count_column_type.js":12,"./types/currency_column_type.js":13,"./types/date_column_type.js":14,"./types/email_column_type.js":15,"./types/foreign_key_column_type.js":16,"./types/formula_column_type.js":17,"./types/lookup_column_type.js":18,"./types/multiline_text_column_type.js":19,"./types/multiselect_column_type.js":20,"./types/number_column_type.js":21,"./types/percent_column_type.js":22,"./types/phone_column_type.js":23,"./types/rollup_column_type.js":24,"./types/select_column_type.js":25,"./types/text_column_type.js":26,"./types/url_column_type.js":27}],6:[function(require,module,exports){
 'use strict';
 
-(function () {
+var config = {
+    productionAppId: 'sdk_airtable-ch-ext_5ca3d8a66b',
+    stagingAppId: 'sdk_airtable-ch-sta_3816999c84',
+    developmentAppId: 'sdk_airtable-ch-dev_d41135c420', 
+    chromeExtension: 'chrome-extension://',
+    defaultStyling: '/css/sidebar_style.css',//'/css/default.css', // switch back to default once done testing 
+    expandedStyling: '/css/expanded.css',
+    mailToIcon: '/email_icon.png',
+    openLinkToRec: 'OPEN_LINK_TO_RECORD'
+};
 
-    var root = this;
-    var previousConfig = root.config;
-
-    var config = {
-        productionAppId: 'sdk_airtable-ch-ext_5ca3d8a66b',
-        stagingAppId: 'sdk_airtable-ch-sta_3816999c84',
-        developmentAppId: 'sdk_airtable-ch-dev_d41135c420', 
-        chromeExtension: 'chrome-extension://',
-        defaultStyling: '/css/sidebar_style.css',//'/css/default.css', // switch back to default once done testing 
-        expandedStyling: '/css/expanded.css',
-        mailToIcon: '/email_icon.png',
-        openLinkToRec: 'OPEN_LINK_TO_RECORD'
-    };
-
-    if (typeof exports !== 'undefined') {
-        if (typeof module !== 'undefined' && module.exports) {
-            exports = module.exports = config;
-        }
-        exports.config = config;
-    } else {
-        root.config = config;
-    }
-
-}).call(this);
-
+module.exports = config;
 
 },{}],7:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
-(function() {
-    var root = this;
-    var previousGenericColumnType = root.GenericColumnType;
+var _ = require('underscore');
+var Class = require('./vendor/class.js');
+var config = require('./config.js');
 
-    var has_require = typeof require !== 'undefined';
-
-    var _ = root._;
-    var Class = root.Class;
-    var config = root.config;
-
-    if (typeof _ === 'undefined') {
-        if (has_require) { _ = require('underscore'); }
-        else { throw new Error('generic_column_type requires Underscore'); }
-    }
-    if (typeof Class === 'undefined') {
-        if (has_require) { Class = require('./vendor/class.js'); }
-        else { throw new Error('generic_column_type requires the Class file'); }
-    }
-    if (typeof config === 'undefined') {
-        if (has_require) { config = require('./config.js'); }
-        else { throw new Error('generic_column_type requires the config file'); }
-    }
-
-    var GenericColumnType = Class.extend({
-    	init: function(columnName, contentObject, verbose) {
-            // Escape inputted information so that the person
-            //  cannot mess with the Javascript on the page
-    		this._columnName = _.escape(columnName);
-            this._fieldType = _.escape(contentObject.fieldType);
-            // If the displayValue is an array of things like
-            //  attachments or multiselect options, we don't
-            //  want to get rid of the 'array/object' structure
-            if (typeof contentObject.displayValue === 'object') {
-                this._displayValue = contentObject.displayValue;
-            } else {
-                this._displayValue = _.escape(contentObject.displayValue);
-            }
-            this._config = config;
-            this._verbose = verbose;
-            if (this._verbose) { 
-                console.log('GenericColumnType Constructor: ', contentObject);
-            }
-    	},
-        generateElement: function() {
-            return $('<div/>');
-        },
-        _createBasicLayout: function(isForCompact, name, content) {
-            var elem = $('<div/>');
-            var columnName = $('<div/>').append(name.toUpperCase()).attr('class', 'element-name');
-            var columnContent = $('<div/>').append(content).attr('class', 'element-content');
-            elem.append(columnName);
-            elem.append(columnContent);
-            return elem;
+var GenericColumnType = Class.extend({
+	init: function(columnName, contentObject, verbose) {
+        // Escape inputted information so that the person
+        //  cannot mess with the Javascript on the page
+		this._columnName = _.escape(columnName);
+        this._fieldType = _.escape(contentObject.fieldType);
+        // If the displayValue is an array of things like
+        //  attachments or multiselect options, we don't
+        //  want to get rid of the 'array/object' structure
+        if (typeof contentObject.displayValue === 'object') {
+            this._displayValue = contentObject.displayValue;
+        } else {
+            this._displayValue = _.escape(contentObject.displayValue);
         }
-    });
-
-    if (typeof exports !== 'undefined') {
-        if (typeof module !== 'undefined' && module.exports) {
-            exports = module.exports = GenericColumnType;
+        this._config = config;
+        this._verbose = verbose;
+        if (this._verbose) { 
+            console.log('GenericColumnType Constructor: ', contentObject);
         }
-        exports.GenericColumnType = GenericColumnType;
-    } else {
-        root.GenericColumnType = GenericColumnType;
+	},
+    generateElement: function() {
+        return $('<div/>');
+    },
+    _createBasicLayout: function(isForCompact, name, content) {
+        var elem = $('<div/>');
+        var columnName = $('<div/>').append(name.toUpperCase()).attr('class', 'element-name');
+        var columnContent = $('<div/>').append(content).attr('class', 'element-content');
+        elem.append(columnName);
+        elem.append(columnContent);
+        return elem;
     }
+});
 
-}).call(this);
+module.exports = GenericColumnType;
+
+
 },{"./config.js":6,"./vendor/class.js":28,"underscore":9}],8:[function(require,module,exports){
 //! moment.js
 //! version : 2.10.3
@@ -5587,165 +5378,101 @@
 },{}],10:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
-(function() {
-    var root = this;
-    var previousAttachmentsColumnType = root.AttachmentsColumnType;
+var _ = require('underscore');
 
-    var has_require = typeof require !== 'undefined';
+var GenericColumnType = require('../generic_column_type.js');
 
-    var _ = root._;
-    var GenericColumnType = root.GenericColumnType;
-
-    if (typeof _ === 'undefined') {
-        if (has_require) { _ = require('underscore'); }
-        else { throw new Error('attachments_column_type requires Underscore'); }
-    }
-    if (typeof GenericColumnType === 'undefined') {
-        if (has_require) { GenericColumnType = require('../generic_column_type.js'); }
-        else { throw new Error('attachments_column_type requires the GenericColumnType file'); }
-    }
-
-    var AttachmentsColumnType = GenericColumnType.extend({
-        init: function(columnName, contentObject, verbose) {
-            this._super(columnName, contentObject, verbose);
-            this._numImages = this._determineNumImages(contentObject.displayValue);
-        },
-        generateElement: function(isForCompact) {
-            var that = this;
-            var content = $('<div/>');
-            var images;
-            var docs;
-            _.each(this._displayValue, function(attachmentObject) {
-                var anchor = $('<a/>').attr('href', attachmentObject.url);
-                if ((attachmentObject.type).indexOf('image') !== -1) {
-                    images = that._handleImageLookup(images, attachmentObject, anchor);
-                } else {
-                    docs = that._handleDocumentLookup(docs, attachmentObject, anchor);
-                }
-            });
-            if (images) { content.append(images); }
-            if (docs) { content.append(docs); }
-            return this._createBasicLayout(isForCompact, 
-                    this._columnName, content); 
-        },
-        _handleImageLookup: function(images, item, anchor) {
-            var image;
-            var numImages = this._determineNumImages(this._displayValue);
-            if (numImages > 1) {
-                image = $('<div/>').attr('class', 'img-content-grid');
-                image.css('background-image', 'url(' + item.url + ')');
-                anchor.append(image);
+var AttachmentsColumnType = GenericColumnType.extend({
+    init: function(columnName, contentObject, verbose) {
+        this._super(columnName, contentObject, verbose);
+        this._numImages = this._determineNumImages(contentObject.displayValue);
+    },
+    generateElement: function(isForCompact) {
+        var that = this;
+        var content = $('<div/>');
+        var images;
+        var docs;
+        _.each(this._displayValue, function(attachmentObject) {
+            var anchor = $('<a/>').attr('href', attachmentObject.url);
+            if ((attachmentObject.type).indexOf('image') !== -1) {
+                images = that._handleImageLookup(images, attachmentObject, anchor);
             } else {
-                image = $('<img/>').attr('src', item.url);
-                image.attr('alt', item.filename);
-                anchor.append(image.attr('class', 'img-content'));
+                docs = that._handleDocumentLookup(docs, attachmentObject, anchor);
             }
-            if (!images) { images = $('<div/>'); }
-            images.append(anchor);
-            return images;
-        },
-        _determineNumImages: function(displayValue) {
-            var numImages = 0;
-            _.each(displayValue, function(value) {
-                if (value && typeof value.type === 'string' && 
-                    (value.type).indexOf('image') === 0) {
-                    numImages++;
-                }
-            });
-            if (this._verbose) { console.log('numImages: ', numImages); }
-            return numImages;
-        },
-        _handleDocumentLookup: function(docs, item, anchor) {
-            var iconText = '  ' + item.filename;
-            var icon = $('<i/>').attr('class', 
-                'airtable-gmail-ext-icon-file-alt').text(iconText);
-            anchor.attr('title', item.filename);
-            anchor.append(icon);
-            if (!docs) { docs = $('<div/>'); }
-            docs.append(anchor);     
-            return docs;       
+        });
+        if (images) { content.append(images); }
+        if (docs) { content.append(docs); }
+        return this._createBasicLayout(isForCompact, 
+                this._columnName, content); 
+    },
+    _handleImageLookup: function(images, item, anchor) {
+        var image;
+        var numImages = this._determineNumImages(this._displayValue);
+        if (numImages > 1) {
+            image = $('<div/>').attr('class', 'img-content-grid');
+            image.css('background-image', 'url(' + item.url + ')');
+            anchor.append(image);
+        } else {
+            image = $('<img/>').attr('src', item.url);
+            image.attr('alt', item.filename);
+            anchor.append(image.attr('class', 'img-content'));
         }
-    });
-
-    if (typeof exports !== 'undefined') {
-        if (typeof module !== 'undefined' && module.exports) {
-            exports = module.exports = AttachmentsColumnType;
-        }
-        exports.AttachmentsColumnType = AttachmentsColumnType;
-    } else {
-        root.AttachmentsColumnType = AttachmentsColumnType;
+        if (!images) { images = $('<div/>'); }
+        images.append(anchor);
+        return images;
+    },
+    _determineNumImages: function(displayValue) {
+        var numImages = 0;
+        _.each(displayValue, function(value) {
+            if (value && typeof value.type === 'string' && 
+                (value.type).indexOf('image') === 0) {
+                numImages++;
+            }
+        });
+        if (this._verbose) { console.log('numImages: ', numImages); }
+        return numImages;
+    },
+    _handleDocumentLookup: function(docs, item, anchor) {
+        var iconText = '  ' + item.filename;
+        var icon = $('<i/>').attr('class', 
+            'airtable-gmail-ext-icon-file-alt').text(iconText);
+        anchor.attr('title', item.filename);
+        anchor.append(icon);
+        if (!docs) { docs = $('<div/>'); }
+        docs.append(anchor);     
+        return docs;       
     }
+});
 
-}).call(this);
+module.exports = AttachmentsColumnType;
 
 },{"../generic_column_type.js":7,"underscore":9}],11:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
-(function() {
-    var root = this;
-    var previousCheckboxColumnType = root.CheckboxColumnType;
+var GenericColumnType = require('../generic_column_type.js'); 
 
-    var has_require = typeof require !== 'undefined';
-
-    var _ = root._;
-    var GenericColumnType = root.GenericColumnType;
-
-    if (typeof _ === 'undefined') {
-        if (has_require) { _ = require('underscore'); }
-        else { throw new Error('checkbox_column_type requires Underscore'); }
-    }
-    if (typeof GenericColumnType === 'undefined') {
-        if (has_require) { GenericColumnType = require('../generic_column_type.js'); }
-        else { throw new Error('checkbox_column_type requires the GenericColumnType file'); }
-    }
-
-    var CheckboxColumnType = GenericColumnType.extend({
-        init: function(columnName, contentObject, verbose) {
-            this._super(columnName, contentObject, verbose);
-        },
-        generateElement: function(isForCompact) {
-            var checkboxStatus;
-            if (this._displayValue) {
-                checkboxStatus = 'Yes';
-            } else {
-                checkboxStatus = 'No';
-            }
-            return this._createBasicLayout(isForCompact, 
-                    this._columnName, checkboxStatus);
+var CheckboxColumnType = GenericColumnType.extend({
+    init: function(columnName, contentObject, verbose) {
+        this._super(columnName, contentObject, verbose);
+    },
+    generateElement: function(isForCompact) {
+        var checkboxStatus;
+        if (this._displayValue) {
+            checkboxStatus = 'Yes';
+        } else {
+            checkboxStatus = 'No';
         }
-    });
-
-    if (typeof exports !== 'undefined') {
-        if (typeof module !== 'undefined' && module.exports) {
-            exports = module.exports = CheckboxColumnType;
-        }
-        exports.CheckboxColumnType = CheckboxColumnType;
-    } else {
-        root.CheckboxColumnType = CheckboxColumnType;
+        return this._createBasicLayout(isForCompact, 
+                this._columnName, checkboxStatus);
     }
+});
 
-}).call(this);
+module.exports = CheckboxColumnType;
 
-},{"../generic_column_type.js":7,"underscore":9}],12:[function(require,module,exports){
+},{"../generic_column_type.js":7}],12:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
-(function() {
-    var root = this;
-    var previousCountColumnType = root.CountColumnType;
-
-    var has_require = typeof require !== 'undefined';
-
-    var _ = root._;
-    var GenericColumnType = root.GenericColumnType;
-
-    if (typeof _ === 'undefined') {
-        if (has_require) { _ = require('underscore'); }
-        else { throw new Error('count_column_type requires Underscore'); }
-    }
-    if (typeof GenericColumnType === 'undefined') {
-        if (has_require) { GenericColumnType = require('../generic_column_type.js'); }
-        else { throw new Error('count_column_type requires the GenericColumnType file'); }
-    }
+var GenericColumnType = require('../generic_column_type.js');
 
     var CountColumnType = GenericColumnType.extend({
         init: function(columnName, contentObject, verbose) {
@@ -5757,771 +5484,406 @@
         }
     });
 
-    if (typeof exports !== 'undefined') {
-        if (typeof module !== 'undefined' && module.exports) {
-            exports = module.exports = CountColumnType;
-        }
-        exports.CountColumnType = CountColumnType;
-    } else {
-        root.CountColumnType = CountColumnType;
-    }
+module.exports = CountColumnType;
 
-}).call(this);
-
-},{"../generic_column_type.js":7,"underscore":9}],13:[function(require,module,exports){
+},{"../generic_column_type.js":7}],13:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
-(function() {
-    var root = this;
-    var previousCurrencyColumnType = root.CurrencyColumnType;
+var GenericColumnType = require('../generic_column_type.js');
 
-    var has_require = typeof require !== 'undefined';
-
-    var _ = root._;
-    var GenericColumnType = root.GenericColumnType;
-
-    if (typeof _ === 'undefined') {
-        if (has_require) { _ = require('underscore'); }
-        else { throw new Error('currency_column_type requires Underscore'); }
+var CurrencyColumnType = GenericColumnType.extend({
+    init: function(columnName, contentObject, verbose) {
+        this._super(columnName, contentObject, verbose);
+    },
+    generateElement: function(isForCompact) {
+        return this._createBasicLayout(isForCompact, 
+                this._columnName, this._displayValue); 
     }
-    if (typeof GenericColumnType === 'undefined') {
-        if (has_require) { GenericColumnType = require('../generic_column_type.js'); }
-        else { throw new Error('currency_column_type requires the GenericColumnType file'); }
-    }
+});
 
-    var CurrencyColumnType = GenericColumnType.extend({
-        init: function(columnName, contentObject, verbose) {
-            this._super(columnName, contentObject, verbose);
-        },
-        generateElement: function(isForCompact) {
-            return this._createBasicLayout(isForCompact, 
-                    this._columnName, this._displayValue); 
-        }
-    });
+module.exports = CurrencyColumnType;
 
-    if (typeof exports !== 'undefined') {
-        if (typeof module !== 'undefined' && module.exports) {
-            exports = module.exports = CurrencyColumnType;
-        }
-        exports.CurrencyColumnType = CurrencyColumnType;
-    } else {
-        root.CurrencyColumnType = CurrencyColumnType;
-    }
-
-}).call(this);
-
-},{"../generic_column_type.js":7,"underscore":9}],14:[function(require,module,exports){
+},{"../generic_column_type.js":7}],14:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
-(function() {
-    var root = this;
-    var previousDateColumnType = root.DateColumnType;
+var moment = require('moment');
 
-    var has_require = typeof require !== 'undefined';
+var GenericColumnType = require('../generic_column_type.js');
 
-    var _ = root._;
-    var moment = root.moment;
-    var GenericColumnType = root.GenericColumnType;
-
-    if (typeof _ === 'undefined') {
-        if (has_require) { _ = require('underscore'); }
-        else { throw new Error('date_column_type requires Underscore'); }
-    }
-    if (typeof moment === 'undefined') {
-        if (has_require) { moment = require('moment'); }
-        else { throw new Error('date_column_type requires the moment file'); }
-    }
-    if (typeof GenericColumnType === 'undefined') {
-        if (has_require) { GenericColumnType = require('../generic_column_type.js'); }
-        else { throw new Error('date_column_type requires the GenericColumnType file'); }
-    }
-
-    var DateColumnType = GenericColumnType.extend({
-        init: function(columnName, contentObject, verbose) {
-            this._super(columnName, contentObject, true);
-        },
-        generateElement: function(isForCompact) {
-            var dateTime;
-            if (this._displayValue.indexOf('T') > -1) {
-                dateTime = moment(this._displayValue).format('lll');
-            } else {
-                dateTime = moment(this._displayValue).format('ll');
-            }
-            if (this._verbose) {
-                console.log(moment(this._displayValue).format('lll'));
-            }
-            return this._createBasicLayout(isForCompact, 
-                    this._columnName, dateTime); 
+var DateColumnType = GenericColumnType.extend({
+    init: function(columnName, contentObject, verbose) {
+        this._super(columnName, contentObject, true);
+    },
+    generateElement: function(isForCompact) {
+        var dateTime;
+        if (this._displayValue.indexOf('T') > -1) {
+            dateTime = moment(this._displayValue).format('lll');
+        } else {
+            dateTime = moment(this._displayValue).format('ll');
         }
-    });
-
-    if (typeof exports !== 'undefined') {
-        if (typeof module !== 'undefined' && module.exports) {
-            exports = module.exports = DateColumnType;
+        if (this._verbose) {
+            console.log(moment(this._displayValue).format('lll'));
         }
-        exports.DateColumnType = DateColumnType;
-    } else {
-        root.DateColumnType = DateColumnType;
+        return this._createBasicLayout(isForCompact, 
+                this._columnName, dateTime); 
     }
+});
 
-}).call(this);
+module.exports = DateColumnType;
 
-},{"../generic_column_type.js":7,"moment":8,"underscore":9}],15:[function(require,module,exports){
+},{"../generic_column_type.js":7,"moment":8}],15:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
-(function() {
-    var root = this;
-    var previousEmailColumnType = root.EmailColumnType;
+var GenericColumnType = require('../generic_column_type.js');
 
-    var has_require = typeof require !== 'undefined';
-
-    var _ = root._;
-    var GenericColumnType = root.GenericColumnType;
-
-    if (typeof _ === 'undefined') {
-        if (has_require) { _ = require('underscore'); }
-        else { throw new Error('email_column_type requires Underscore'); }
-    }
-    if (typeof GenericColumnType === 'undefined') {
-        if (has_require) { GenericColumnType = require('../generic_column_type.js'); }
-        else { throw new Error('email_column_type requires the GenericColumnType file'); }
-    }
-
-    var EmailColumnType = GenericColumnType.extend({
-        init: function(columnName, contentObject, verbose) {
-            this._super(columnName, contentObject, verbose);
-        },
-        generateElement: function(isForCompact) {
-            var that = this;
-            var email = $('<div/>').append(this._displayValue);
-            var mailToIcon = $('<div/>');
-            if (this._verbose && typeof InboxSDK !== 'undefined') { console.log('InboxSDK: ', InboxSDK); }
-            if (typeof InboxSDK !== 'undefined') {
-                mailToIcon = $(this._createEmailIcon());
-                mailToIcon.click(function() { // need to have this change depending on environment!
-                    InboxSDK.load('1.0', that._config.stagingAppId).then(function(sdk) {
-                        sdk.Compose.openNewComposeView().then(function(composeView) {
-                            composeView.setToRecipients([that._displayValue]);
-                        });
+var EmailColumnType = GenericColumnType.extend({
+    init: function(columnName, contentObject, verbose) {
+        this._super(columnName, contentObject, verbose);
+    },
+    generateElement: function(isForCompact) {
+        var that = this;
+        var email = $('<div/>').append(this._displayValue);
+        var mailToIcon = $('<div/>');
+        if (this._verbose && typeof InboxSDK !== 'undefined') { console.log('InboxSDK: ', InboxSDK); }
+        if (typeof InboxSDK !== 'undefined') {
+            mailToIcon = $(this._createEmailIcon());
+            mailToIcon.click(function() { // need to have this change depending on environment!
+                InboxSDK.load('1.0', that._config.stagingAppId).then(function(sdk) {
+                    sdk.Compose.openNewComposeView().then(function(composeView) {
+                        composeView.setToRecipients([that._displayValue]);
                     });
-
                 });
-            }
-            email.append(mailToIcon);
-            return this._createBasicLayout(isForCompact, 
-                    this._columnName, email);
-        },
-        _createEmailIcon: function() {
-            var mailToIcon = $('<img>');
-            mailToIcon.attr('class', 'mail-to-icon');
-            mailToIcon.attr('alt', 'mail to icon');
-            if (chrome.runtime) {
-                mailToIcon.attr('src', this._config.chromeExtension + 
-                    chrome.runtime.id + this._config.mailToIcon);
-            } else {
-                // Non-chrome extension version:
-                mailToIcon.attr('src', '.' + this._config.mailToIcon);
-            }
-            return mailToIcon;
-        }
-    });
 
-    if (typeof exports !== 'undefined') {
-        if (typeof module !== 'undefined' && module.exports) {
-            exports = module.exports = EmailColumnType;
+            });
         }
-        exports.EmailColumnType = EmailColumnType;
-    } else {
-        root.EmailColumnType = EmailColumnType;
+        email.append(mailToIcon);
+        return this._createBasicLayout(isForCompact, 
+                this._columnName, email);
+    },
+    _createEmailIcon: function() {
+        var mailToIcon = $('<img>');
+        mailToIcon.attr('class', 'mail-to-icon');
+        mailToIcon.attr('alt', 'mail to icon');
+        if (chrome.runtime) {
+            mailToIcon.attr('src', this._config.chromeExtension + 
+                chrome.runtime.id + this._config.mailToIcon);
+        } else {
+            // Non-chrome extension version:
+            mailToIcon.attr('src', '.' + this._config.mailToIcon);
+        }
+        return mailToIcon;
     }
+});
 
-}).call(this);
+module.exports = EmailColumnType;
 
-},{"../generic_column_type.js":7,"underscore":9}],16:[function(require,module,exports){
+},{"../generic_column_type.js":7}],16:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
-(function() {
-    var root = this;
-    var previousForeignKeyColumnType = root.ForeignKeyColumnType;
+var _ = require('underscore');
 
-    var has_require = typeof require !== 'undefined';
+var GenericColumnType = require('../generic_column_type.js');
 
-    var _ = root._;
-    var GenericColumnType = root.GenericColumnType;
-
-    if (typeof _ === 'undefined') {
-        if (has_require) { _ = require('underscore'); }
-        else { throw new Error('foreign_key_column_type requires Underscore'); }
+var ForeignKeyColumnType = GenericColumnType.extend({
+    init: function(columnName, contentObject, verbose) {
+        this._super(columnName, contentObject, verbose);
+    },
+    generateElement: function(isForCompact) {
+        var that = this;
+        var list = '';
+        var elemNum = 0;
+        // displayValue is stored as an Array of objects
+        _.each(this._displayValue, function(item) {
+            item = _.escape(item);
+            if (elemNum === (that._displayValue.length - 1)) {
+                list += item;
+            } else {
+                list += item + ', ';
+            }
+            elemNum++;
+        });
+        return this._createBasicLayout(isForCompact, 
+                this._columnName, list);
     }
-    if (typeof GenericColumnType === 'undefined') {
-        if (has_require) { GenericColumnType = require('../generic_column_type.js'); }
-        else { throw new Error('foreign_key_column_type requires the GenericColumnType file'); }
-    }
+});
 
-    var ForeignKeyColumnType = GenericColumnType.extend({
-        init: function(columnName, contentObject, verbose) {
-            this._super(columnName, contentObject, verbose);
-        },
-        generateElement: function(isForCompact) {
-            var that = this;
-            var list = '';
-            var elemNum = 0;
-            // displayValue is stored as an Array of objects
-            _.each(this._displayValue, function(item) {
-                item = _.escape(item);
-                if (elemNum === (that._displayValue.length - 1)) {
-                    list += item;
-                } else {
-                    list += item + ', ';
-                }
-                elemNum++;
-            });
-            return this._createBasicLayout(isForCompact, 
-                    this._columnName, list);
-        }
-    });
-
-    if (typeof exports !== 'undefined') {
-        if (typeof module !== 'undefined' && module.exports) {
-            exports = module.exports = ForeignKeyColumnType;
-        }
-        exports.ForeignKeyColumnType = ForeignKeyColumnType;
-    } else {
-        root.ForeignKeyColumnType = ForeignKeyColumnType;
-    }
-
-}).call(this);
+module.exports = ForeignKeyColumnType;
 
 },{"../generic_column_type.js":7,"underscore":9}],17:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
-(function() {
-    var root = this;
-    var previousFormulaColumnType = root.FormulaColumnType;
+var GenericColumnType = require('../generic_column_type.js');
 
-    var has_require = typeof require !== 'undefined';
-
-    var _ = root._;
-    var GenericColumnType = root.GenericColumnType;
-
-    if (typeof _ === 'undefined') {
-        if (has_require) { _ = require('underscore'); }
-        else { throw new Error('formula_column_type requires Underscore'); }
+var FormulaColumnType = GenericColumnType.extend({
+    init: function(columnName, contentObject, verbose) {
+        this._super(columnName, contentObject, verbose);
+    },
+    generateElement: function(isForCompact) {
+        return this._createBasicLayout(isForCompact, 
+                this._columnName, this._displayValue);  
     }
-    if (typeof GenericColumnType === 'undefined') {
-        if (has_require) { GenericColumnType = require('../generic_column_type.js'); }
-        else { throw new Error('formula_column_type requires the GenericColumnType file'); }
-    }
+});
 
-    var FormulaColumnType = GenericColumnType.extend({
-        init: function(columnName, contentObject, verbose) {
-            this._super(columnName, contentObject, verbose);
-        },
-        generateElement: function(isForCompact) {
-            return this._createBasicLayout(isForCompact, 
-                    this._columnName, this._displayValue);  
-        }
-    });
+module.exports = FormulaColumnType;
 
-    if (typeof exports !== 'undefined') {
-        if (typeof module !== 'undefined' && module.exports) {
-            exports = module.exports = FormulaColumnType;
-        }
-        exports.FormulaColumnType = FormulaColumnType;
-    } else {
-        root.FormulaColumnType = FormulaColumnType;
-    }
-
-}).call(this);
-
-},{"../generic_column_type.js":7,"underscore":9}],18:[function(require,module,exports){
+},{"../generic_column_type.js":7}],18:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
-(function() {
-    var root = this;
-    var previousLookupColumnType = root.LookupColumnType;
+var _ = require('underscore');
+var moment = require('moment');
 
-    var has_require = typeof require !== 'undefined';
+var GenericColumnType = require('../generic_column_type.js');
 
-    var _ = root._;
-    var moment = root.moment;
-    var GenericColumnType = root.GenericColumnType;
-
-    if (typeof _ === 'undefined') {
-        if (has_require) { _ = require('underscore'); }
-        else { throw new Error('lookup_column_type requires Underscore'); }
-    }
-    if (typeof moment === 'undefined') {
-        if (has_require) { moment = require('moment'); }
-        else { throw new Error('lookup_column_type requires the moment file'); }
-    }
-    if (typeof GenericColumnType === 'undefined') {
-        if (has_require) { GenericColumnType = require('../generic_column_type.js'); }
-        else { throw new Error('lookup_column_type requires the GenericColumnType file'); }
-    }
-
-    var LookupColumnType = GenericColumnType.extend({
-        init: function(columnName, contentObject, verbose) {
-            this._super(columnName, contentObject, verbose);
-            this._lookupResultType = contentObject.lookupResultType;
-        },
-        generateElement: function(isForCompact) {
-            var that = this;
-            var content = $('<div/>');
-            var list = '';
-            var elemNum = 0;
-            var images;
-            var docs;
-            if (this._verbose) { console.log('lookupResultType: ', this._lookupResultType); }
-            if (this._lookupResultType === 'multipleAttachment') {
-                _.each(this._displayValue, function(item) {
-                    var anchor;
-                    // The case when the item is an object i.e. a document,
-                    //  file or picture, etc.
-                    if (typeof item === 'object') {
-                        anchor = $('<a/>').attr('href', item.url);
-                        if ((item.type).indexOf('image') !== -1) { // case where handling image
-                            images = that._handleImageLookup(images, item, anchor);
-                        } else { // case where item is a document
-                            docs = that._handleDocumentLookup(docs, item, anchor);
-                        }
-                    } else { // Case when the column contains string/number values
-                        item = _.escape(item);
-                        if (elemNum === (that._displayValue.length - 1)) {
-                            list += item;
-                        } else {
-                            list += item + ', ';
-                        }
-                        elemNum++;
+var LookupColumnType = GenericColumnType.extend({
+    init: function(columnName, contentObject, verbose) {
+        this._super(columnName, contentObject, verbose);
+        this._lookupResultType = contentObject.lookupResultType;
+    },
+    generateElement: function(isForCompact) {
+        var that = this;
+        var content = $('<div/>');
+        var list = '';
+        var elemNum = 0;
+        var images;
+        var docs;
+        if (this._verbose) { console.log('lookupResultType: ', this._lookupResultType); }
+        if (this._lookupResultType === 'multipleAttachment') {
+            _.each(this._displayValue, function(item) {
+                var anchor;
+                // The case when the item is an object i.e. a document,
+                //  file or picture, etc.
+                if (typeof item === 'object') {
+                    anchor = $('<a/>').attr('href', item.url);
+                    if ((item.type).indexOf('image') !== -1) { // case where handling image
+                        images = that._handleImageLookup(images, item, anchor);
+                    } else { // case where item is a document
+                        docs = that._handleDocumentLookup(docs, item, anchor);
                     }
-                });
-                if (list !== '') { content = list; }
-            } else if (this._lookupResultType === 'date') { // case when look up field is a date
-                content = this._handleDateLookup(content);
-            } else { // case when value is text or a number
-                content = this._displayValue;
-            }
-            if (images) { content.append(images); }
-            if (docs) { content.append(docs); }
-            return this._createBasicLayout(isForCompact, 
-                    this._columnName, content);
-        },
-        _handleImageLookup: function(images, item, anchor) {
-            var image;
-            var numImages = this._determineNumImages(this._displayValue);
-            if (numImages > 1) {
-                image = $('<div/>').attr('class', 'img-content-grid');
-                image.css('background-image', 'url(' + item.url + ')');
-                anchor.append(image);
-            } else {
-                image = $('<img/>').attr('src', item.url);
-                image.attr('alt', item.filename);
-                anchor.append(image.attr('class', 'img-content'));
-            }
-            if (!images) { images = $('<div/>'); }
-            images.append(anchor);
-            return images;
-        },
-        _determineNumImages: function(displayValue) {
-            var numImages = 0;
-            _.each(displayValue, function(value) {
-                if (value && typeof value.type === 'string' && 
-                    (value.type).indexOf('image') === 0) {
-                    numImages++;
+                } else { // Case when the column contains string/number values
+                    item = _.escape(item);
+                    if (elemNum === (that._displayValue.length - 1)) {
+                        list += item;
+                    } else {
+                        list += item + ', ';
+                    }
+                    elemNum++;
                 }
             });
-            if (this._verbose) { console.log('numImages: ', numImages); }
-            return numImages;
-        },
-        _handleDocumentLookup: function(docs, item, anchor) {
-            var iconText = '  ' + item.filename;
-            var icon = $('<i/>').attr('class', 
-                'airtable-gmail-ext-icon-file-alt').text(iconText);
-            anchor.attr('title', item.filename);
-            anchor.append(icon);
-            if (!docs) { docs = $('<div/>'); }
-            docs.append(anchor);     
-            return docs;       
-        },
-        _handleDateLookup: function(content) {
-            var dateArray = this._displayValue.split(' ');
-            if (this._verbose) {
-                console.log('days: ', dateArray[0]);
-                console.log('time: ', dateArray[1]);
-            }
-            content = moment(dateArray[0]).format('ll');
-            if (dateArray.length > 1) {
-                content += (' ' + dateArray[1]);
-            }
-            return content;
+            if (list !== '') { content = list; }
+        } else if (this._lookupResultType === 'date') { // case when look up field is a date
+            content = this._handleDateLookup(content);
+        } else { // case when value is text or a number
+            content = this._displayValue;
         }
-    });
-
-    if (typeof exports !== 'undefined') {
-        if (typeof module !== 'undefined' && module.exports) {
-            exports = module.exports = LookupColumnType;
+        if (images) { content.append(images); }
+        if (docs) { content.append(docs); }
+        return this._createBasicLayout(isForCompact, 
+                this._columnName, content);
+    },
+    _handleImageLookup: function(images, item, anchor) {
+        var image;
+        var numImages = this._determineNumImages(this._displayValue);
+        if (numImages > 1) {
+            image = $('<div/>').attr('class', 'img-content-grid');
+            image.css('background-image', 'url(' + item.url + ')');
+            anchor.append(image);
+        } else {
+            image = $('<img/>').attr('src', item.url);
+            image.attr('alt', item.filename);
+            anchor.append(image.attr('class', 'img-content'));
         }
-        exports.LookupColumnType = LookupColumnType;
-    } else {
-        root.LookupColumnType = LookupColumnType;
+        if (!images) { images = $('<div/>'); }
+        images.append(anchor);
+        return images;
+    },
+    _determineNumImages: function(displayValue) {
+        var numImages = 0;
+        _.each(displayValue, function(value) {
+            if (value && typeof value.type === 'string' && 
+                (value.type).indexOf('image') === 0) {
+                numImages++;
+            }
+        });
+        if (this._verbose) { console.log('numImages: ', numImages); }
+        return numImages;
+    },
+    _handleDocumentLookup: function(docs, item, anchor) {
+        var iconText = '  ' + item.filename;
+        var icon = $('<i/>').attr('class', 
+            'airtable-gmail-ext-icon-file-alt').text(iconText);
+        anchor.attr('title', item.filename);
+        anchor.append(icon);
+        if (!docs) { docs = $('<div/>'); }
+        docs.append(anchor);     
+        return docs;       
+    },
+    _handleDateLookup: function(content) {
+        var dateArray = this._displayValue.split(' ');
+        if (this._verbose) {
+            console.log('days: ', dateArray[0]);
+            console.log('time: ', dateArray[1]);
+        }
+        content = moment(dateArray[0]).format('ll');
+        if (dateArray.length > 1) {
+            content += (' ' + dateArray[1]);
+        }
+        return content;
     }
+});
 
-}).call(this);
+module.exports = LookupColumnType;
 
 },{"../generic_column_type.js":7,"moment":8,"underscore":9}],19:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
-(function() {
-    var root = this;
-    var previousMultilineTextColumnType = root.MultilineTextColumnType;
+var GenericColumnType = require('../generic_column_type.js');
 
-    var has_require = typeof require !== 'undefined';
-
-    var _ = root._;
-    var GenericColumnType = root.GenericColumnType;
-
-    if (typeof _ === 'undefined') {
-        if (has_require) { _ = require('underscore'); }
-        else { throw new Error('multiline_column_type requires Underscore'); }
+var MultilineTextColumnType = GenericColumnType.extend({
+    init: function(columnName, contentObject, verbose) {
+        this._super(columnName, contentObject, verbose);
+    },
+    generateElement: function(isForCompact) {
+        return this._createBasicLayout(isForCompact, 
+                this._columnName, this._displayValue);
     }
-    if (typeof GenericColumnType === 'undefined') {
-        if (has_require) { GenericColumnType = require('../generic_column_type.js'); }
-        else { throw new Error('multiline_column_type requires the GenericColumnType file'); }
-    }
+});
 
-    var MultilineTextColumnType = GenericColumnType.extend({
-        init: function(columnName, contentObject, verbose) {
-            this._super(columnName, contentObject, verbose);
-        },
-        generateElement: function(isForCompact) {
-            return this._createBasicLayout(isForCompact, 
-                    this._columnName, this._displayValue);
-        }
-    });
-
-    if (typeof exports !== 'undefined') {
-        if (typeof module !== 'undefined' && module.exports) {
-            exports = module.exports = MultilineTextColumnType;
-        }
-        exports.MultilineTextColumnType = MultilineTextColumnType;
-    } else {
-        root.MultilineTextColumnType = MultilineTextColumnType;
-    }
-
-}).call(this);
-
-},{"../generic_column_type.js":7,"underscore":9}],20:[function(require,module,exports){
+module.exports = MultilineTextColumnType;
+},{"../generic_column_type.js":7}],20:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
-(function() {
-    var root = this;
-    var previousMultiselectColumnType = root.MultiselectColumnType;
+var _ = require('underscore');
 
-    var has_require = typeof require !== 'undefined';
+var GenericColumnType = require('../generic_column_type.js');
 
-    var _ = root._;
-    var GenericColumnType = root.GenericColumnType;
-
-    if (typeof _ === 'undefined') {
-        if (has_require) { _ = require('underscore'); }
-        else { throw new Error('multiselect_column_type requires Underscore'); }
+var MultiselectColumnType = GenericColumnType.extend({
+    init: function(columnName, contentObject, verbose) {
+        this._super(columnName, contentObject, verbose);
+    },
+    generateElement: function(isForCompact) {
+        var that = this;
+        var list = '';
+        var elemNum = 0;
+        // displayValue is stored as an Array of objects
+        _.each(this._displayValue, function(item) {
+            item = _.escape(item);
+            if (elemNum === (that._displayValue.length - 1)) {
+                list += item;
+            } else {
+                list += item + ', ';
+            }
+            elemNum++;
+        });
+        return this._createBasicLayout(isForCompact, 
+                this._columnName, list);
     }
-    if (typeof GenericColumnType === 'undefined') {
-        if (has_require) { GenericColumnType = require('../generic_column_type.js'); }
-        else { throw new Error('multiselect_column_type requires the GenericColumnType file'); }
-    }
+});
 
-    var MultiselectColumnType = GenericColumnType.extend({
-        init: function(columnName, contentObject, verbose) {
-            this._super(columnName, contentObject, verbose);
-        },
-        generateElement: function(isForCompact) {
-            var that = this;
-            var list = '';
-            var elemNum = 0;
-            // displayValue is stored as an Array of objects
-            _.each(this._displayValue, function(item) {
-                item = _.escape(item);
-                if (elemNum === (that._displayValue.length - 1)) {
-                    list += item;
-                } else {
-                    list += item + ', ';
-                }
-                elemNum++;
-            });
-            return this._createBasicLayout(isForCompact, 
-                    this._columnName, list);
-        }
-    });
-
-    if (typeof exports !== 'undefined') {
-        if (typeof module !== 'undefined' && module.exports) {
-            exports = module.exports = MultiselectColumnType;
-        }
-        exports.MultiselectColumnType = MultiselectColumnType;
-    } else {
-        root.MultiselectColumnType = MultiselectColumnType;
-    }
-
-}).call(this);
+module.exports = MultiselectColumnType;
 
 },{"../generic_column_type.js":7,"underscore":9}],21:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
-(function() {
-    var root = this;
-    var previousNumberColumnType = root.NumberColumnType;
+var GenericColumnType = require('../generic_column_type.js');
 
-    var has_require = typeof require !== 'undefined';
-
-    var _ = root._;
-    var GenericColumnType = root.GenericColumnType;
-
-    if (typeof _ === 'undefined') {
-        if (has_require) { _ = require('underscore'); }
-        else { throw new Error('number_column_type requires Underscore'); }
+var NumberColumnType = GenericColumnType.extend({
+    init: function(columnName, contentObject, verbose) {
+        this._super(columnName, contentObject, verbose);
+    },
+    generateElement: function(isForCompact) {
+        return this._createBasicLayout(isForCompact, 
+                this._columnName, this._displayValue);     
     }
-    if (typeof GenericColumnType === 'undefined') {
-        if (has_require) { GenericColumnType = require('../generic_column_type.js'); }
-        else { throw new Error('number_column_type requires the GenericColumnType file'); }
-    }
+});
 
-    var NumberColumnType = GenericColumnType.extend({
-        init: function(columnName, contentObject, verbose) {
-            this._super(columnName, contentObject, verbose);
-        },
-        generateElement: function(isForCompact) {
-            if (this._verbose) {
-                console.log('Raw Number _displayValue: ', this._displayValue);
-                console.log(typeof this._displayValue);
-            }
-            return this._createBasicLayout(isForCompact, 
-                    this._columnName, this._displayValue);     
-        }
-    });
+module.exports = NumberColumnType;
 
-    if (typeof exports !== 'undefined') {
-        if (typeof module !== 'undefined' && module.exports) {
-            exports = module.exports = NumberColumnType;
-        }
-        exports.NumberColumnType = NumberColumnType;
-    } else {
-        root.NumberColumnType = NumberColumnType;
-    }
-
-}).call(this);
-
-},{"../generic_column_type.js":7,"underscore":9}],22:[function(require,module,exports){
+},{"../generic_column_type.js":7}],22:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
-(function() {
-    var root = this;
-    var previousPercentColumnType = root.PercentColumnType;
+var GenericColumnType = require('../generic_column_type.js');
 
-    var has_require = typeof require !== 'undefined';
-
-    var _ = root._;
-    var GenericColumnType = root.GenericColumnType;
-
-    if (typeof _ === 'undefined') {
-        if (has_require) { _ = require('underscore'); }
-        else { throw new Error('percent_column_type requires Underscore'); }
+var PercentColumnType = GenericColumnType.extend({
+    init: function(columnName, contentObject, verbose) {
+        this._super(columnName, contentObject, verbose);
+    },
+    generateElement: function(isForCompact) {
+        return this._createBasicLayout(isForCompact, 
+                this._columnName, this._displayValue);    
     }
-    if (typeof GenericColumnType === 'undefined') {
-        if (has_require) { GenericColumnType = require('../generic_column_type.js'); }
-        else { throw new Error('percent_column_type requires the GenericColumnType file'); }
-    }
+});
 
-    var PercentColumnType = GenericColumnType.extend({
-        init: function(columnName, contentObject, verbose) {
-            this._super(columnName, contentObject, verbose);
-        },
-        generateElement: function(isForCompact) {
-            return this._createBasicLayout(isForCompact, 
-                    this._columnName, this._displayValue);    
-        }
-    });
+module.exports = PercentColumnType;
 
-    if (typeof exports !== 'undefined') {
-        if (typeof module !== 'undefined' && module.exports) {
-            exports = module.exports = PercentColumnType;
-        }
-        exports.PercentColumnType = PercentColumnType;
-    } else {
-        root.PercentColumnType = PercentColumnType;
-    }
-
-}).call(this);
-
-},{"../generic_column_type.js":7,"underscore":9}],23:[function(require,module,exports){
+},{"../generic_column_type.js":7}],23:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
-(function() {
-    var root = this;
-    var previousPhoneColumnType = root.PhoneColumnType;
+var GenericColumnType = require('../generic_column_type.js');
 
-    var has_require = typeof require !== 'undefined';
-
-    var _ = root._;
-    var GenericColumnType = root.GenericColumnType;
-
-    if (typeof _ === 'undefined') {
-        if (has_require) { _ = require('underscore'); }
-        else { throw new Error('phone_column_type requires Underscore'); }
+var PhoneColumnType = GenericColumnType.extend({
+    init: function(columnName, contentObject, verbose) {
+        this._super(columnName, contentObject, verbose);
+    },
+    generateElement: function(isForCompact) {
+        return this._createBasicLayout(isForCompact, 
+                this._columnName, this._displayValue);       
     }
-    if (typeof GenericColumnType === 'undefined') {
-        if (has_require) { GenericColumnType = require('../generic_column_type.js'); }
-        else { throw new Error('phone_column_type requires the GenericColumnType file'); }
-    }
+});
 
-    var PhoneColumnType = GenericColumnType.extend({
-        init: function(columnName, contentObject, verbose) {
-            this._super(columnName, contentObject, verbose);
-        },
-        generateElement: function(isForCompact) {
-            return this._createBasicLayout(isForCompact, 
-                    this._columnName, this._displayValue);       
-        }
-    });
+module.exports = PhoneColumnType;
 
-    if (typeof exports !== 'undefined') {
-        if (typeof module !== 'undefined' && module.exports) {
-            exports = module.exports = PhoneColumnType;
-        }
-        exports.PhoneColumnType = PhoneColumnType;
-    } else {
-        root.PhoneColumnType = PhoneColumnType;
-    }
-
-}).call(this);
-
-},{"../generic_column_type.js":7,"underscore":9}],24:[function(require,module,exports){
+},{"../generic_column_type.js":7}],24:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
-(function() {
-    var root = this;
-    var previousRollupColumnType = root.RollupColumnType;
+var GenericColumnType = require('../generic_column_type.js');
 
-    var has_require = typeof require !== 'undefined';
-
-    var _ = root._;
-    var GenericColumnType = root.GenericColumnType;
-
-    if (typeof _ === 'undefined') {
-        if (has_require) { _ = require('underscore'); }
-        else { throw new Error('rollup_column_type requires Underscore'); }
+var RollupColumnType = GenericColumnType.extend({
+    init: function(columnName, contentObject, verbose) {
+        this._super(columnName, contentObject, verbose);
+    },
+    generateElement: function(isForCompact) {
+        return this._createBasicLayout(isForCompact, 
+                this._columnName, this._displayValue);
     }
-    if (typeof GenericColumnType === 'undefined') {
-        if (has_require) { GenericColumnType = require('../generic_column_type.js'); }
-        else { throw new Error('rollup_column_type requires the GenericColumnType file'); }
-    }
+});
 
-    var RollupColumnType = GenericColumnType.extend({
-        init: function(columnName, contentObject, verbose) {
-            this._super(columnName, contentObject, verbose);
-        },
-        generateElement: function(isForCompact) {
-            return this._createBasicLayout(isForCompact, 
-                    this._columnName, this._displayValue);
-        }
-    });
+module.exports = RollupColumnType;
 
-    if (typeof exports !== 'undefined') {
-        if (typeof module !== 'undefined' && module.exports) {
-            exports = module.exports = RollupColumnType;
-        }
-        exports.RollupColumnType = RollupColumnType;
-    } else {
-        root.RollupColumnType = RollupColumnType;
-    }
-
-}).call(this);
-
-},{"../generic_column_type.js":7,"underscore":9}],25:[function(require,module,exports){
+},{"../generic_column_type.js":7}],25:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
-(function() {
-    var root = this;
-    var previousSelectColumnType = root.SelectColumnType;
+var GenericColumnType = require('../generic_column_type.js');
 
-    var has_require = typeof require !== 'undefined';
-
-    var _ = root._;
-    var GenericColumnType = root.GenericColumnType;
-
-    if (typeof _ === 'undefined') {
-        if (has_require) { _ = require('underscore'); }
-        else { throw new Error('select_column_type requires Underscore'); }
+var SelectColumnType = GenericColumnType.extend({
+    init: function(columnName, contentObject, verbose) {
+        this._super(columnName, contentObject, verbose);
+    },
+    generateElement: function(isForCompact) {
+        return this._createBasicLayout(isForCompact, 
+                this._columnName, this._displayValue);        
     }
-    if (typeof GenericColumnType === 'undefined') {
-        if (has_require) { GenericColumnType = require('../generic_column_type.js'); }
-        else { throw new Error('select_column_type requires the GenericColumnType file'); }
-    }
+});
 
-    var SelectColumnType = GenericColumnType.extend({
-        init: function(columnName, contentObject, verbose) {
-            this._super(columnName, contentObject, verbose);
-        },
-        generateElement: function(isForCompact) {
-            return this._createBasicLayout(isForCompact, 
-                    this._columnName, this._displayValue);        
-        }
-    });
+module.exports = SelectColumnType;
 
-    if (typeof exports !== 'undefined') {
-        if (typeof module !== 'undefined' && module.exports) {
-            exports = module.exports = SelectColumnType;
-        }
-        exports.SelectColumnType = SelectColumnType;
-    } else {
-        root.SelectColumnType = SelectColumnType;
-    }
-
-}).call(this);
-
-},{"../generic_column_type.js":7,"underscore":9}],26:[function(require,module,exports){
+},{"../generic_column_type.js":7}],26:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
-(function() {
-    var root = this;
-    var previousTextColumnType = root.TextColumnType;
+var GenericColumnType = require('../generic_column_type.js');
 
-    var has_require = typeof require !== 'undefined';
-
-    var _ = root._;
-    var GenericColumnType = root.GenericColumnType;
-
-    if (typeof _ === 'undefined') {
-        if (has_require) { _ = require('underscore'); }
-        else { throw new Error('text_column_type requires Underscore'); }
+var TextColumnType = GenericColumnType.extend({
+    init: function(columnName, contentObject, verbose) {
+        this._super(columnName, contentObject, verbose);
+    },
+    generateElement: function(isForCompact) {
+        return this._createBasicLayout(isForCompact, 
+                this._columnName, this._displayValue);
     }
-    if (typeof GenericColumnType === 'undefined') {
-        if (has_require) { GenericColumnType = require('../generic_column_type.js'); }
-        else { throw new Error('text_column_type requires the GenericColumnType file'); }
-    }
+});
 
-    var TextColumnType = GenericColumnType.extend({
-        init: function(columnName, contentObject, verbose) {
-            this._super(columnName, contentObject, verbose);
-        },
-        generateElement: function(isForCompact) {
-            return this._createBasicLayout(isForCompact, 
-                    this._columnName, this._displayValue);
-        }
-    });
+module.exports = TextColumnType;
 
-    if (typeof exports !== 'undefined') {
-        if (typeof module !== 'undefined' && module.exports) {
-            exports = module.exports = TextColumnType;
-        }
-        exports.TextColumnType = TextColumnType;
-    } else {
-        root.TextColumnType = TextColumnType;
-    }
-
-}).call(this);
-
-},{"../generic_column_type.js":7,"underscore":9}],27:[function(require,module,exports){
+},{"../generic_column_type.js":7}],27:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
 (function() {
