@@ -30,6 +30,8 @@ var CardRenderer = Class.extend({
 
         // If record isn't an instance of the wrapper, create the wrapper
         //  using generic info that is defined within the CardData class
+        console.log('well we got to here...', record);
+        console.log(record instanceof CardData);
         if (!(record instanceof CardData)) {
             record = new CardData(record);
         }

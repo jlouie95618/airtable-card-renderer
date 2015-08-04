@@ -6,7 +6,12 @@ var Class = require('./vendor/class.js');
 var CardData = Class.extend({
     _AIRTABLE_BASE_URL: 'https://airtable.com',
     init: function(record, targetEmail, baseUrl) {
+        console.log('in card_data');
+        console.log('baseUrl: ', baseUrl);
+        console.log('record: ', record);
+        console.log('fields: ', record.fields);
         this._record = record;
+        this._baseUrl = baseUrl;
         this._targetEmail = this._findEmail(targetEmail);
         this.setFieldOrder(_.keys(this._record.fields));
         if (baseUrl) {
@@ -19,13 +24,18 @@ var CardData = Class.extend({
         }
 
     },
+    toJson: function() {
+        return JSON.stringify(this);  
+    },
     setFieldOrder: function(order) {
         console.log('order:', order);
-        if (_.size(this._record.fields) == 1) {
+        if (_.size(this._record.fields) === 1) {
             this._order = order;
         } else {
-            this._order = _.without(order, 
-                this._targetEmail);
+            var temp = this._findColumnName(this._targetEmail);
+            console.log('this._findColumnName(this._targetEmail)', 
+                temp);
+            this._order = _.without(order, temp);
         }
         // Because we are setting the ordering explicitly
         //  the position of the first element is implicitly
@@ -34,6 +44,16 @@ var CardData = Class.extend({
         if (_.size(this._order) > 1) {
             this._order = _.without(this._order, this._order[0]);
         }
+    },
+    setFirstElem: function(elem) {
+        this._firstElem = elem;
+    },
+    _findColumnName: function(targetEmail) {
+        var fields = this._record.fields;
+        var keys = _.keys(this._record.fields);
+        return _.find(keys, function(key) {
+            return fields[key].displayValue === targetEmail;
+        });
     },
     getFirstElem: function() {
         return this._firstElem;
@@ -52,10 +72,27 @@ var CardData = Class.extend({
     },
     _findEmail: function(targetEmail) {
         if (targetEmail) { return targetEmail }
-        return _.find(this._record.fields, function(fieldObject) {
+        var result;
+        var emailObject = _.find(this._record.fields, function(fieldObject) {
             return fieldObject.fieldType === 'email'; 
         });
+        if (emailObject) {
+            result = emailObject.displayValue;
+        }
+        return result;
     }
 });
+
+CardData.fromJson = function(jsonString) {
+    var preCardData = JSON.parse(jsonString);
+    console.log('preCardData: ', preCardData);
+    var cardData = new CardData(preCardData._record, 
+        preCardData._targetEmail, preCardData._baseUrl);
+    console.log('gonna setFieldOrder...', preCardData._order);
+    cardData.setFieldOrder(preCardData._order);
+    console.log('cardData._firstElem: ', cardData._firstElem);
+    cardData.setFirstElem(preCardData._firstElem);
+    return cardData;
+}
 
 module.exports = CardData;
