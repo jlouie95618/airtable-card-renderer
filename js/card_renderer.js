@@ -6,6 +6,7 @@ var Class = require('./vendor/class.js');
 var CompactCard = require('./card_types/compact_card.js');
 var ExpandedCard = require('./card_types/expanded_card.js');
 var Card = require('./card_types/card.js');
+var CardData = require('./card_data.js');
 var config = require('./config.js');
 
 // The renderer itself doubles as a Card container,
@@ -17,7 +18,7 @@ var CardRenderer = Class.extend({
         this._numCards = 0;
     },
     // Publicly Accessible Functionality:
-    renderCard: function(record) { // record = object with field and value pairs
+    renderCard: function(record) {
         var that = this;
         var numCards = this._numCards;
         var verbose = this._verbose;
@@ -26,6 +27,12 @@ var CardRenderer = Class.extend({
         var compactCard; 
         var expandedCard;
         var recordContainer = $('<div/>').addClass('record');
+
+        // If record isn't an instance of the wrapper, create the wrapper
+        //  using generic info that is defined within the CardData class
+        if (!(record instanceof CardData)) {
+            record = new CardData(record);
+        }
         if (style) { // If the rendering style is not equal to the zero flag
             // Implementation for a compact and expanded card implementation
             compactCard = new CompactCard(record, numCards, verbose);
@@ -44,8 +51,6 @@ var CardRenderer = Class.extend({
             //  'More Info' button is clicked.
             card = new Card(record, numCards, verbose);
             recordContainer.append(card.generateCard());
-            // card.constructViewInAirtableButton();
-            // recordContainer.append(card.createMoreInfoButton());
         }
         this._numCards++;
         return recordContainer;

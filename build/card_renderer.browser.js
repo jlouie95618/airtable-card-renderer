@@ -265,7 +265,6 @@ var Card = Class.extend({
         return elem;
     },
     _createCardContent: function(constructors, card, top, bottom, numElemInTopCard) {
-        console.log('constructors:', constructors);
         var that = this;
         var record = this._record;
         var first = true;
@@ -662,7 +661,7 @@ var config = {
     stagingAppId: 'sdk_airtable-ch-sta_3816999c84',
     developmentAppId: 'sdk_airtable-ch-dev_d41135c420', 
     chromeExtension: 'chrome-extension://',
-    defaultStyling: '/css/sidebar_style.css',//'/css/default.css', // switch back to default once done testing 
+    defaultStyling: '/css/default.css', // switch back to default once done testing '/css/sidebar_style.css',//
     expandedStyling: '/css/expanded.css',
     mailToIcon: '/email_icon.png',
     openLinkToRec: 'OPEN_LINK_TO_RECORD'

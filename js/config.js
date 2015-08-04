@@ -8,7 +8,10 @@ var config = {
     defaultStyling: '/css/default.css', // switch back to default once done testing '/css/sidebar_style.css',//
     expandedStyling: '/css/expanded.css',
     mailToIcon: '/email_icon.png',
-    openLinkToRec: 'OPEN_LINK_TO_RECORD'
+    openLinkToRec: 'OPEN_LINK_TO_RECORD',
+    productionBaseUrl: 'https://airtable.com',
+    stagingBaseUrl: 'https://staging.airtable.com',
+    developmentBaseUrl: 'https://hyperbasedev.com:3000'
 };
 
 module.exports = config;

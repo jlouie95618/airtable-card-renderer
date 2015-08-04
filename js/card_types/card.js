@@ -7,8 +7,8 @@ var ColumnTypeConstructors = require('../column_types.js');
 var config = require('../config.js');
 
 var Card = Class.extend({
-    init: function(record, cardNum, verbose) {
-        this._record = record;
+    init: function(cardData, cardNum, verbose) {
+        this._cardData = cardData;
         this._cardNum = cardNum;
         this._verbose = verbose;
     },
@@ -17,39 +17,22 @@ var Card = Class.extend({
         var info = $('<div/>').addClass('card-content');
         var topCard = $('<div/>').addClass('card-top');
         var bottomCard = $('<div/>').addClass('card-bottom');
-        var keys;
-        // Create image tag and pull it from the record
+        console.log(this._cardData);
+        var order = this._cardData.getFieldOrder();
         var images = this._findImageAttachments();
         var constructors = {};
-        var targetEmail = this._findEmail(this._record._targetEmailAddr);
-        var emailKey = this._removeTargetEmailFromFields(this._record._targetEmailAddr);
+        var targetEmail = this._cardData.getTargetEmail();
         // Create the card div which will contain the separate record's contents
-        this._card = $('<div/>').addClass('card');            
-        if (this._record._keys) { // case when order specified by an array of keys
-            keys = this._record._keys;
-            if (emailKey && _.size(keys) > 1) {
-                keys = _.without(keys, emailKey);
-            }
-        } else { // case when order is implied by the object itself
-            keys = _.keys(this._record);
-        }
-        if (this._verbose) { 
-            console.log('cardNum: ', this._cardNum); 
-            console.log('Images Array: ', images);
-            console.log('Record: ', this._record);
-            console.log('keys: ', keys);
-            console.log('keys 2: ', this._record._keys);
-        }
+        this._card = $('<div/>').addClass('card');
         // Generate the image element div
         topCard.append(this._createImgElem(images));
         // Generate the header div
-        topCard.append(this._displayHeaderValue(keys[0], 
-            this._record[keys[0]].displayValue, targetEmail));
+        topCard.append(this._displayHeaderValue(this._cardData.getFirstElem().displayValue, 
+            this._createEmailElem(targetEmail)));
         // Generate the card content constructors
-        _.each(keys, function(key) {
-            if (key !== keys[0]) { // want to omit the very first key
-                constructors[key] = ColumnTypeConstructors[that._record[key].fieldType];
-            }
+        _.each(order, function(key) {
+            var field = (that._cardData.getFields())[key];
+            constructors[key] = ColumnTypeConstructors[field.fieldType];
         });
         // Append the constructed elements onto the appropriate parent elements
         this._createCardContent(constructors, this._card, topCard, bottomCard, 3);
@@ -58,44 +41,20 @@ var Card = Class.extend({
         return this._card;
 
     },
-    _constructViewInAirtableButton: function(bottomCard) {
-        var button = $('<button/>').addClass('extension-options').text('View in Airtable');
-        var buttonContainer = $('<div/>').addClass('card-button').append(button);
-        this._addButtonAndListenerWithUrl(bottomCard, buttonContainer, 
-            config.openLinkToRec, this._record._recordUrl);
-    },
-    _removeTargetEmailFromFields: function(targetEmail) {
+    _createEmailElem: function(email) {
         var that = this;
-        var email = targetEmail;
-        var key;
-        if (targetEmail) {
-            _.each(this._record, function(fieldObject, objectKey) {
-                if (email && fieldObject.displayValue === targetEmail) {
-                    key = objectKey;
-                    if (_.size(that._record._keys) > 1) {
-                        that._record = _.omit(that._record, objectKey);
-                    }
-                    email = null; // keep from omitting more than one field
-                }
-            });
-            this._record = that._record;
-        }
-        return key;
-    },
-    _findEmail: function(targetEmail) { // DOUBLE CHECK FUNCTIONALITY HERE
-        var that = this;
-        var record = this._record;
+        var recordFields = this._cardData.getFields();
         var elem = $('<div/>');
-        _.each(record, function(contentObject, fieldName) {
+        _.each(recordFields, function(fieldObject, fieldName) {
             var Constructor;
-            if (contentObject.fieldType === 'email') {
-                Constructor = ColumnTypeConstructors[contentObject.fieldType];
-                if (targetEmail && targetEmail === contentObject.displayValue) {
-                    elem = new Constructor(null, 
-                        record[fieldName], that._verbose).generateElement(true);    
-                }   
+            if (fieldObject.fieldType === 'email') {
+                Constructor = ColumnTypeConstructors[fieldObject.fieldType];
+                if (email === fieldObject.displayValue) {
+                    elem = new Constructor(null, recordFields[fieldName],
+                        that._verbose).generateElement(true);
+                }
             } else if (that._containsEmailWord(fieldName)) {
-                elem.append(_.escape(contentObject.displayValue));
+                elem.append(_.escape(fieldObject.displayValue));
                 elem.addClass('mod-non-email-type');
             }
         });
@@ -103,17 +62,23 @@ var Card = Class.extend({
     },
     _containsEmailWord: function(fieldName) {
         var lowerCaseFieldName = fieldName.toLowerCase();
-        return lowerCaseFieldName === 'email' || 
+        return lowerCaseFieldName === 'email' ||
             lowerCaseFieldName === 'email address' ||
             lowerCaseFieldName === 'e-mail' ||
             lowerCaseFieldName === 'e-mail address';
     },
+    _constructViewInAirtableButton: function(bottomCard) {
+        var button = $('<button/>').addClass('extension-options').text('View in Airtable');
+        var buttonContainer = $('<div/>').addClass('card-button').append(button);
+        this._addButtonAndListenerWithUrl(bottomCard, buttonContainer, 
+            config.openLinkToRec, this._cardData.getRecordUrl());
+    },
     _findImageAttachments: function() {
-        var record = this._record;
+        var recordFields = this._cardData.getFields();
         var that = this;
         var type = 'image';
         var images = []; // will become an array of objects
-        _.each(record, function(contentObject, fieldName) {
+        _.each(recordFields, function(contentObject, fieldName) {
             if (contentObject.fieldType === 'multipleAttachment') {
                 var attachmentArray = contentObject.displayValue;
                 _.each(attachmentArray, function(attachmentObject, index) {
@@ -142,7 +107,7 @@ var Card = Class.extend({
         }
         return container;
     },
-    _displayHeaderValue: function(name, firstContentDisplayValue, emailElem) {
+    _displayHeaderValue: function(firstContentDisplayValue, emailElem) {
         var elem = $('<div/>');
         var headerTitle = $('<div/>').append(_.escape(firstContentDisplayValue));
         elem.addClass('header');
@@ -156,24 +121,23 @@ var Card = Class.extend({
         return elem;
     },
     _createCardContent: function(constructors, card, top, bottom, numElemInTopCard) {
-        console.log('constructors:', constructors);
         var that = this;
-        var record = this._record;
+        var recordFields = this._cardData.getFields();
         var first = true;
         var topContents = $('<div/>').addClass('elements-container');
         var bottomContents = $('<div/>').addClass('elements-container');
         var numElem = 0;
         var totalElems = _.size(constructors);
-        if (this._verbose) { console.log(constructors, record); }
+        if (this._verbose) { console.log(constructors, recordFields); }
         _.each(constructors, function(FieldTypeConstructor, columnName) {
             var container = $('<div/>').addClass('element');
             // Construct new instance of a particular type, then 
             //  generate the appropriate element
             var elem = new FieldTypeConstructor(columnName, 
-                record[columnName], that._verbose).generateElement(true);
+                recordFields[columnName], that._verbose).generateElement(true);
 
             if (that._verbose) { 
-                console.log('Content Object: ', record[columnName]);
+                console.log('Content Object: ', recordFields[columnName]);
                 console.log(elem);
             }
             if (!that._noImage && first) {
