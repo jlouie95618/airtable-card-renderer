@@ -33,7 +33,7 @@ var Card = Class.extend({
         } else { // case when order is implied by the object itself
             keys = _.keys(this._record);
         }
-        if (true) { 
+        if (this._verbose) { 
             console.log('cardNum: ', this._cardNum); 
             console.log('Images Array: ', images);
             console.log('Record: ', this._record);

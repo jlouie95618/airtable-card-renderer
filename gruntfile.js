@@ -4,13 +4,13 @@ module.exports = function(grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         browserify: {
-            'card_renderer.browser.js': 'card_renderer.js'
+            './build/card_renderer.browser.js': './js/card_renderer.js'
         },
         jshint: {
             // define the files to lint
-            files: ['card_renderer.js','card_renderer_node.js', 'config.js',
-                    'tags.js', 'generic_column_type.js', 'column_types.js',
-                    'card_types/*', 'types/*'],
+            files: ['./js/card_renderer.js', './js/generic_column_type.js', 
+                    './js/column_types.js', './js/config.js', 
+                    './js/card_types/*', './js/types/*'],
             // configure JSHint (documented at http://www.jshint.com/docs/)
             options: {
                 strict: true,
@@ -31,7 +31,7 @@ module.exports = function(grunt) {
         },
         replace: {
             emailproduction: {
-                src: './types/email_column_type.js',
+                src: './js/types/email_column_type.js',
                 overwrite: true,
                 replacements: [{
                     from: /production|staging|development/g,
@@ -39,7 +39,7 @@ module.exports = function(grunt) {
                 }]
             },
             emailstaging: {
-                src: './types/email_column_type.js',
+                src: './js/types/email_column_type.js',
                 overwrite: true,
                 replacements: [{
                     from: /production|staging|development/g,
@@ -47,7 +47,7 @@ module.exports = function(grunt) {
                 }]
             },
             emaildevelopment: {
-                src: './types/email_column_type.js',
+                src: './js/types/email_column_type.js',
                 overwrite: true,
                 replacements: [{
                     from: /production|staging|development/g,
