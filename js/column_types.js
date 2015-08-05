@@ -7,6 +7,8 @@ var ColumnTypeConstructors = {
     'currency': require('./types/currency_column_type.js'),
     'date': require('./types/date_column_type.js'),
     'datetime': require('./types/date_column_type.js'),
+    'dateUTC': require('./types/date_column_type.js'),
+    'datetimeUTC': require('./types/date_column_type.js'),
     'email': require('./types/email_column_type.js'),
     'foreignKey': require('./types/foreign_key_column_type.js'),
     'formula': require('./types/formula_column_type.js'),

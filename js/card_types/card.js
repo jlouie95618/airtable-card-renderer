@@ -17,7 +17,7 @@ var Card = Class.extend({
         var info = $('<div/>').addClass('card-content');
         var topCard = $('<div/>').addClass('card-top');
         var bottomCard = $('<div/>').addClass('card-bottom');
-        console.log(this._cardData);
+        // console.log(this._cardData);
         var order = this._cardData.getFieldOrder();
         var images = this._findImageAttachments();
         var constructors = {};
@@ -30,8 +30,12 @@ var Card = Class.extend({
         topCard.append(this._displayHeaderValue(this._cardData.getFirstElem().displayValue, 
             this._createEmailElem(targetEmail)));
         // Generate the card content constructors
+        // console.log('ORDER: ', order);
         _.each(order, function(key) {
+            // console.log('fields in Card.js: ', that._cardData.getFields());
+            // console.log('KEY: ', key);
             var field = (that._cardData.getFields())[key];
+            // console.log('FIELD: ', field);
             constructors[key] = ColumnTypeConstructors[field.fieldType];
         });
         // Append the constructed elements onto the appropriate parent elements
