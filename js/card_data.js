@@ -6,10 +6,6 @@ var Class = require('./vendor/class.js');
 var CardData = Class.extend({
     _AIRTABLE_BASE_URL: 'https://airtable.com',
     init: function(record, targetEmail, baseUrl, order) {
-        // console.log('in card_data');
-        // console.log('baseUrl: ', baseUrl);
-        // console.log('record: ', record);
-        // console.log('fields: ', record.fields);
         this._record = record;
         this._baseUrl = baseUrl;
         this._targetEmail = this._findEmail(targetEmail);
@@ -32,13 +28,10 @@ var CardData = Class.extend({
         return JSON.stringify(this);  
     },
     setFieldOrder: function(order) {
-        // console.log('order:', order);
         if (_.size(this._record.fields) === 1) {
             this._order = order;
         } else {
             var temp = this._findColumnName(this._targetEmail);
-            // console.log('this._findColumnName(this._targetEmail)', 
-                // temp);
             this._order = _.without(order, temp);
         }
     },
@@ -63,7 +56,6 @@ var CardData = Class.extend({
         return this._firstElem;
     },
     getFields: function() {
-        // console.log('Fields: ', this._record.fields);
         return this._record.fields;
     },
     getFieldOrder: function() {
@@ -90,16 +82,11 @@ var CardData = Class.extend({
 
 CardData.fromJson = function(jsonString) {
     var preCardData = JSON.parse(jsonString);
-    // console.log('preCardData: ', preCardData);
     var cardData = new CardData(preCardData._record, 
         preCardData._targetEmail, preCardData._baseUrl, 
         preCardData._order);
     cardData.setFirstElem(preCardData._firstElem);
-    // console.log('gonna setFieldOrder...', preCardData._order);
-    // console.log('preCardData._order: ', preCardData._order);
-    // cardData.setFieldOrder(preCardData._order);
-    // console.log('cardData._firstElem: ', cardData._firstElem);
-    // cardData.setFirstElem(preCardData._firstElem);
+
     return cardData;
 }
 

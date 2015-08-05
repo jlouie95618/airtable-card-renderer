@@ -20,9 +20,6 @@ var GenericColumnType = Class.extend({
         }
         this._config = config;
         this._verbose = verbose;
-        if (this._verbose) { 
-            console.log('GenericColumnType Constructor: ', contentObject);
-        }
 	},
     generateElement: function() {
         return $('<div/>');

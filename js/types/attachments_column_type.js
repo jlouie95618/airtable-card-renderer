@@ -51,7 +51,6 @@ var AttachmentsColumnType = GenericColumnType.extend({
                 numImages++;
             }
         });
-        if (this._verbose) { console.log('numImages: ', numImages); }
         return numImages;
     },
     _handleDocumentLookup: function(docs, item, anchor) {

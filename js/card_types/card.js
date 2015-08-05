@@ -17,7 +17,6 @@ var Card = Class.extend({
         var info = $('<div/>').addClass('card-content');
         var topCard = $('<div/>').addClass('card-top');
         var bottomCard = $('<div/>').addClass('card-bottom');
-        // console.log(this._cardData);
         var order = this._cardData.getFieldOrder();
         var images = this._findImageAttachments();
         var constructors = {};
@@ -30,12 +29,8 @@ var Card = Class.extend({
         topCard.append(this._displayHeaderValue(this._cardData.getFirstElem().displayValue, 
             this._createEmailElem(targetEmail)));
         // Generate the card content constructors
-        // console.log('ORDER: ', order);
         _.each(order, function(key) {
-            // console.log('fields in Card.js: ', that._cardData.getFields());
-            // console.log('KEY: ', key);
             var field = (that._cardData.getFields())[key];
-            // console.log('FIELD: ', field);
             constructors[key] = ColumnTypeConstructors[field.fieldType];
         });
         // Append the constructed elements onto the appropriate parent elements
@@ -97,7 +92,6 @@ var Card = Class.extend({
         return images;
     },
     _createImgElem: function(imagesArray) {
-        if (this._verbose) { console.log('images: ', imagesArray); }
         var first = imagesArray[0];
         var container = $('<div/>').addClass('img-container');
         if (!imagesArray || imagesArray.length === 0 || !first) {
@@ -132,18 +126,12 @@ var Card = Class.extend({
         var bottomContents = $('<div/>').addClass('elements-container');
         var numElem = 0;
         var totalElems = _.size(constructors);
-        if (this._verbose) { console.log(constructors, recordFields); }
         _.each(constructors, function(FieldTypeConstructor, columnName) {
             var container = $('<div/>').addClass('element');
             // Construct new instance of a particular type, then 
             //  generate the appropriate element
             var elem = new FieldTypeConstructor(columnName, 
                 recordFields[columnName], that._verbose).generateElement(true);
-
-            if (that._verbose) { 
-                console.log('Content Object: ', recordFields[columnName]);
-                console.log(elem);
-            }
             if (!that._noImage && first) {
                 container.addClass('mod-image-present');
                 first = false;

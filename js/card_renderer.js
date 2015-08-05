@@ -30,8 +30,6 @@ var CardRenderer = Class.extend({
 
         // If record isn't an instance of the wrapper, create the wrapper
         //  using generic info that is defined within the CardData class
-        // console.log('well we got to here...', record);
-        // console.log(record instanceof CardData);
         if (!(record instanceof CardData)) {
             record = new CardData(record);
         }
@@ -40,8 +38,6 @@ var CardRenderer = Class.extend({
             compactCard = new CompactCard(record, numCards, verbose);
             expandedCard = new ExpandedCard(record, numCards, style, verbose);
             if (verbose) {
-                console.log('this._numCards', numCards);
-                console.log('inputted (into CardRenderer) record:', record);
             }
             recordContainer.append(compactCard.generateCard());
             recordContainer.append(expandedCard.generateCard());
@@ -61,11 +57,9 @@ var CardRenderer = Class.extend({
         var compactStyle = $('<link/>');
         compactStyle.attr('rel', 'stylesheet');
         compactStyle.attr('type', 'text/css');
-        if (this._verbose) { console.log(divElement); } 
         if (!this._expandedCardStyle) {
             this._expandedCardStyle = expandedCardStyle;
         }
-        if (this._verbose) { console.log(chrome.runtime); }
         if (chrome.runtime) {
             // Install styling for cards in chrome extension:
             switch(this._expandedCardStyle) {
@@ -101,10 +95,6 @@ var CardRenderer = Class.extend({
     },
     // Private Functionality:
     _activateExpandedView: function(eventData) { // TODO: implement event handler
-        if (this._verbose) { console.log(eventData.data.cardIndex); }
-        if (this._verbose) { console.log(eventData); } 
-        if (this._verbose) { console.log($('.compact#compact-' + eventData.data.cardIndex)); }
-        if (this._verbose) { console.log($('.expanded#expanded-' + eventData.data.cardIndex)); }
         $('.compact#compact-' + eventData.data.cardIndex).toggle('slow');
         $('.expanded#expanded-' + eventData.data.cardIndex).toggle('slow');
     }

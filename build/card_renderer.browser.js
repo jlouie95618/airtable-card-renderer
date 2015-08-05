@@ -4,9 +4,105 @@
 var _ = require('underscore');
 var Class = require('./vendor/class.js');
 
+var CardData = Class.extend({
+    _AIRTABLE_BASE_URL: 'https://airtable.com',
+    init: function(record, targetEmail, baseUrl, order) {
+        this._record = record;
+        this._baseUrl = baseUrl;
+        this._targetEmail = this._findEmail(targetEmail);
+        if (order) {
+            this.setFieldOrder(order);
+        } else {
+            this.setFieldOrder(_.keys(this._record.fields));
+        }
+        if (baseUrl) {
+            this._recordUrl = baseUrl;
+        } else {
+            this._recordUrl = this._AIRTABLE_BASE_URL;
+        }
+        if (record._rawJson && record._rawJson.url) {
+            this._recordUrl += record._rawJson.url;
+        }
+
+    },
+    toJson: function() {
+        return JSON.stringify(this);  
+    },
+    setFieldOrder: function(order) {
+        if (_.size(this._record.fields) === 1) {
+            this._order = order;
+        } else {
+            var temp = this._findColumnName(this._targetEmail);
+            this._order = _.without(order, temp);
+        }
+    },
+    setFirstElem: function(elem) {
+        if (elem) {
+            this._firstElem = elem;
+        } else {
+            this._firstElem = this._record.fields[this._order[0]];
+            if (_.size(this._order) > 1) {
+                this._order = _.without(this._order, this._order[0]);
+            }
+        }
+    },
+    _findColumnName: function(targetEmail) {
+        var fields = this._record.fields;
+        var keys = _.keys(this._record.fields);
+        return _.find(keys, function(key) {
+            return fields[key].displayValue === targetEmail;
+        });
+    },
+    getFirstElem: function() {
+        return this._firstElem;
+    },
+    getFields: function() {
+        return this._record.fields;
+    },
+    getFieldOrder: function() {
+        return this._order;
+    },
+    getTargetEmail: function() {
+        return this._targetEmail;
+    },
+    getRecordUrl: function() {
+        return this._recordUrl;
+    },
+    _findEmail: function(targetEmail) {
+        if (targetEmail) { return targetEmail }
+        var result;
+        var emailObject = _.find(this._record.fields, function(fieldObject) {
+            return fieldObject.fieldType === 'email'; 
+        });
+        if (emailObject) {
+            result = emailObject.displayValue;
+        }
+        return result;
+    }
+});
+
+CardData.fromJson = function(jsonString) {
+    var preCardData = JSON.parse(jsonString);
+    var cardData = new CardData(preCardData._record, 
+        preCardData._targetEmail, preCardData._baseUrl, 
+        preCardData._order);
+    cardData.setFirstElem(preCardData._firstElem);
+
+    return cardData;
+}
+
+module.exports = CardData;
+
+},{"./vendor/class.js":27,"underscore":29}],2:[function(require,module,exports){
+'use strict'; // indicate to use Strict Mode
+
+var _ = require('underscore');
+var Class = require('./vendor/class.js');
+
 var CompactCard = require('./card_types/compact_card.js');
 var ExpandedCard = require('./card_types/expanded_card.js');
 var Card = require('./card_types/card.js');
+var CardData = require('./card_data.js');
 var config = require('./config.js');
 
 // The renderer itself doubles as a Card container,
@@ -18,7 +114,7 @@ var CardRenderer = Class.extend({
         this._numCards = 0;
     },
     // Publicly Accessible Functionality:
-    renderCard: function(record) { // record = object with field and value pairs
+    renderCard: function(record) {
         var that = this;
         var numCards = this._numCards;
         var verbose = this._verbose;
@@ -27,13 +123,17 @@ var CardRenderer = Class.extend({
         var compactCard; 
         var expandedCard;
         var recordContainer = $('<div/>').addClass('record');
+
+        // If record isn't an instance of the wrapper, create the wrapper
+        //  using generic info that is defined within the CardData class
+        if (!(record instanceof CardData)) {
+            record = new CardData(record);
+        }
         if (style) { // If the rendering style is not equal to the zero flag
             // Implementation for a compact and expanded card implementation
             compactCard = new CompactCard(record, numCards, verbose);
             expandedCard = new ExpandedCard(record, numCards, style, verbose);
             if (verbose) {
-                console.log('this._numCards', numCards);
-                console.log('inputted (into CardRenderer) record:', record);
             }
             recordContainer.append(compactCard.generateCard());
             recordContainer.append(expandedCard.generateCard());
@@ -45,8 +145,6 @@ var CardRenderer = Class.extend({
             //  'More Info' button is clicked.
             card = new Card(record, numCards, verbose);
             recordContainer.append(card.generateCard());
-            // card.constructViewInAirtableButton();
-            // recordContainer.append(card.createMoreInfoButton());
         }
         this._numCards++;
         return recordContainer;
@@ -55,11 +153,9 @@ var CardRenderer = Class.extend({
         var compactStyle = $('<link/>');
         compactStyle.attr('rel', 'stylesheet');
         compactStyle.attr('type', 'text/css');
-        if (this._verbose) { console.log(divElement); } 
         if (!this._expandedCardStyle) {
             this._expandedCardStyle = expandedCardStyle;
         }
-        if (this._verbose) { console.log(chrome.runtime); }
         if (chrome.runtime) {
             // Install styling for cards in chrome extension:
             switch(this._expandedCardStyle) {
@@ -95,10 +191,6 @@ var CardRenderer = Class.extend({
     },
     // Private Functionality:
     _activateExpandedView: function(eventData) { // TODO: implement event handler
-        if (this._verbose) { console.log(eventData.data.cardIndex); }
-        if (this._verbose) { console.log(eventData); } 
-        if (this._verbose) { console.log($('.compact#compact-' + eventData.data.cardIndex)); }
-        if (this._verbose) { console.log($('.expanded#expanded-' + eventData.data.cardIndex)); }
         $('.compact#compact-' + eventData.data.cardIndex).toggle('slow');
         $('.expanded#expanded-' + eventData.data.cardIndex).toggle('slow');
     }
@@ -106,7 +198,7 @@ var CardRenderer = Class.extend({
 
 module.exports = CardRenderer;
 
-},{"./card_types/card.js":2,"./card_types/compact_card.js":3,"./card_types/expanded_card.js":4,"./config.js":6,"./vendor/class.js":26,"underscore":28}],2:[function(require,module,exports){
+},{"./card_data.js":1,"./card_types/card.js":3,"./card_types/compact_card.js":4,"./card_types/expanded_card.js":5,"./config.js":7,"./vendor/class.js":27,"underscore":29}],3:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
 var _ = require('underscore');
@@ -116,8 +208,8 @@ var ColumnTypeConstructors = require('../column_types.js');
 var config = require('../config.js');
 
 var Card = Class.extend({
-    init: function(record, cardNum, verbose) {
-        this._record = record;
+    init: function(cardData, cardNum, verbose) {
+        this._cardData = cardData;
         this._cardNum = cardNum;
         this._verbose = verbose;
     },
@@ -126,39 +218,21 @@ var Card = Class.extend({
         var info = $('<div/>').addClass('card-content');
         var topCard = $('<div/>').addClass('card-top');
         var bottomCard = $('<div/>').addClass('card-bottom');
-        var keys;
-        // Create image tag and pull it from the record
+        var order = this._cardData.getFieldOrder();
         var images = this._findImageAttachments();
         var constructors = {};
-        var targetEmail = this._findEmail(this._record._targetEmailAddr);
-        var emailKey = this._removeTargetEmailFromFields(this._record._targetEmailAddr);
+        var targetEmail = this._cardData.getTargetEmail();
         // Create the card div which will contain the separate record's contents
-        this._card = $('<div/>').addClass('card');            
-        if (this._record._keys) { // case when order specified by an array of keys
-            keys = this._record._keys;
-            if (emailKey && _.size(keys) > 1) {
-                keys = _.without(keys, emailKey);
-            }
-        } else { // case when order is implied by the object itself
-            keys = _.keys(this._record);
-        }
-        if (this._verbose) { 
-            console.log('cardNum: ', this._cardNum); 
-            console.log('Images Array: ', images);
-            console.log('Record: ', this._record);
-            console.log('keys: ', keys);
-            console.log('keys 2: ', this._record._keys);
-        }
+        this._card = $('<div/>').addClass('card');
         // Generate the image element div
         topCard.append(this._createImgElem(images));
         // Generate the header div
-        topCard.append(this._displayHeaderValue(keys[0], 
-            this._record[keys[0]].displayValue, targetEmail));
+        topCard.append(this._displayHeaderValue(this._cardData.getFirstElem().displayValue, 
+            this._createEmailElem(targetEmail)));
         // Generate the card content constructors
-        _.each(keys, function(key) {
-            if (key !== keys[0]) { // want to omit the very first key
-                constructors[key] = ColumnTypeConstructors[that._record[key].fieldType];
-            }
+        _.each(order, function(key) {
+            var field = (that._cardData.getFields())[key];
+            constructors[key] = ColumnTypeConstructors[field.fieldType];
         });
         // Append the constructed elements onto the appropriate parent elements
         this._createCardContent(constructors, this._card, topCard, bottomCard, 3);
@@ -167,44 +241,20 @@ var Card = Class.extend({
         return this._card;
 
     },
-    _constructViewInAirtableButton: function(bottomCard) {
-        var button = $('<button/>').addClass('extension-options').text('View in Airtable');
-        var buttonContainer = $('<div/>').addClass('card-button').append(button);
-        this._addButtonAndListenerWithUrl(bottomCard, buttonContainer, 
-            config.openLinkToRec, this._record._recordUrl);
-    },
-    _removeTargetEmailFromFields: function(targetEmail) {
+    _createEmailElem: function(email) {
         var that = this;
-        var email = targetEmail;
-        var key;
-        if (targetEmail) {
-            _.each(this._record, function(fieldObject, objectKey) {
-                if (email && fieldObject.displayValue === targetEmail) {
-                    key = objectKey;
-                    if (_.size(that._record._keys) > 1) {
-                        that._record = _.omit(that._record, objectKey);
-                    }
-                    email = null; // keep from omitting more than one field
-                }
-            });
-            this._record = that._record;
-        }
-        return key;
-    },
-    _findEmail: function(targetEmail) { // DOUBLE CHECK FUNCTIONALITY HERE
-        var that = this;
-        var record = this._record;
+        var recordFields = this._cardData.getFields();
         var elem = $('<div/>');
-        _.each(record, function(contentObject, fieldName) {
+        _.each(recordFields, function(fieldObject, fieldName) {
             var Constructor;
-            if (contentObject.fieldType === 'email') {
-                Constructor = ColumnTypeConstructors[contentObject.fieldType];
-                if (targetEmail && targetEmail === contentObject.displayValue) {
-                    elem = new Constructor(null, 
-                        record[fieldName], that._verbose).generateElement(true);    
-                }   
+            if (fieldObject.fieldType === 'email') {
+                Constructor = ColumnTypeConstructors[fieldObject.fieldType];
+                if (email === fieldObject.displayValue) {
+                    elem = new Constructor(null, recordFields[fieldName],
+                        that._verbose).generateElement(true);
+                }
             } else if (that._containsEmailWord(fieldName)) {
-                elem.append(_.escape(contentObject.displayValue));
+                elem.append(_.escape(fieldObject.displayValue));
                 elem.addClass('mod-non-email-type');
             }
         });
@@ -212,17 +262,23 @@ var Card = Class.extend({
     },
     _containsEmailWord: function(fieldName) {
         var lowerCaseFieldName = fieldName.toLowerCase();
-        return lowerCaseFieldName === 'email' || 
+        return lowerCaseFieldName === 'email' ||
             lowerCaseFieldName === 'email address' ||
             lowerCaseFieldName === 'e-mail' ||
             lowerCaseFieldName === 'e-mail address';
     },
+    _constructViewInAirtableButton: function(bottomCard) {
+        var button = $('<button/>').addClass('extension-options').text('View in Airtable');
+        var buttonContainer = $('<div/>').addClass('card-button').append(button);
+        this._addButtonAndListenerWithUrl(bottomCard, buttonContainer, 
+            config.openLinkToRec, this._cardData.getRecordUrl());
+    },
     _findImageAttachments: function() {
-        var record = this._record;
+        var recordFields = this._cardData.getFields();
         var that = this;
         var type = 'image';
         var images = []; // will become an array of objects
-        _.each(record, function(contentObject, fieldName) {
+        _.each(recordFields, function(contentObject, fieldName) {
             if (contentObject.fieldType === 'multipleAttachment') {
                 var attachmentArray = contentObject.displayValue;
                 _.each(attachmentArray, function(attachmentObject, index) {
@@ -237,7 +293,6 @@ var Card = Class.extend({
         return images;
     },
     _createImgElem: function(imagesArray) {
-        if (this._verbose) { console.log('images: ', imagesArray); }
         var first = imagesArray[0];
         var container = $('<div/>').addClass('img-container');
         if (!imagesArray || imagesArray.length === 0 || !first) {
@@ -251,7 +306,7 @@ var Card = Class.extend({
         }
         return container;
     },
-    _displayHeaderValue: function(name, firstContentDisplayValue, emailElem) {
+    _displayHeaderValue: function(firstContentDisplayValue, emailElem) {
         var elem = $('<div/>');
         var headerTitle = $('<div/>').append(_.escape(firstContentDisplayValue));
         elem.addClass('header');
@@ -266,24 +321,18 @@ var Card = Class.extend({
     },
     _createCardContent: function(constructors, card, top, bottom, numElemInTopCard) {
         var that = this;
-        var record = this._record;
+        var recordFields = this._cardData.getFields();
         var first = true;
         var topContents = $('<div/>').addClass('elements-container');
         var bottomContents = $('<div/>').addClass('elements-container');
         var numElem = 0;
         var totalElems = _.size(constructors);
-        if (this._verbose) { console.log(constructors, record); }
         _.each(constructors, function(FieldTypeConstructor, columnName) {
             var container = $('<div/>').addClass('element');
             // Construct new instance of a particular type, then 
             //  generate the appropriate element
             var elem = new FieldTypeConstructor(columnName, 
-                record[columnName], that._verbose).generateElement(true);
-
-            if (that._verbose) { 
-                console.log('Content Object: ', record[columnName]);
-                console.log(elem);
-            }
+                recordFields[columnName], that._verbose).generateElement(true);
             if (!that._noImage && first) {
                 container.addClass('mod-image-present');
                 first = false;
@@ -342,7 +391,7 @@ var Card = Class.extend({
 
 module.exports = Card;
 
-},{"../column_types.js":5,"../config.js":6,"../vendor/class.js":26,"underscore":28}],3:[function(require,module,exports){
+},{"../column_types.js":6,"../config.js":7,"../vendor/class.js":27,"underscore":29}],4:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
 (function() {
@@ -538,7 +587,7 @@ module.exports = Card;
 
 }).call(this);
 
-},{"../column_types.js":5,"../config.js":6,"../vendor/class.js":26,"underscore":28}],4:[function(require,module,exports){
+},{"../column_types.js":6,"../config.js":7,"../vendor/class.js":27,"underscore":29}],5:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
 (function() {
@@ -626,7 +675,7 @@ module.exports = Card;
 
 }).call(this);
 
-},{"../column_types.js":5,"../config.js":6,"../vendor/class.js":26,"underscore":28}],5:[function(require,module,exports){
+},{"../column_types.js":6,"../config.js":7,"../vendor/class.js":27,"underscore":29}],6:[function(require,module,exports){
 'use strict';
 
 var ColumnTypeConstructors = {
@@ -636,6 +685,8 @@ var ColumnTypeConstructors = {
     'currency': require('./types/currency_column_type.js'),
     'date': require('./types/date_column_type.js'),
     'datetime': require('./types/date_column_type.js'),
+    'dateUTC': require('./types/date_column_type.js'),
+    'datetimeUTC': require('./types/date_column_type.js'),
     'email': require('./types/email_column_type.js'),
     'foreignKey': require('./types/foreign_key_column_type.js'),
     'formula': require('./types/formula_column_type.js'),
@@ -653,7 +704,7 @@ var ColumnTypeConstructors = {
 
 module.exports = ColumnTypeConstructors;
 
-},{"./types/attachments_column_type.js":8,"./types/checkbox_column_type.js":9,"./types/count_column_type.js":10,"./types/currency_column_type.js":11,"./types/date_column_type.js":12,"./types/email_column_type.js":13,"./types/foreign_key_column_type.js":14,"./types/formula_column_type.js":15,"./types/lookup_column_type.js":16,"./types/multiline_text_column_type.js":17,"./types/multiselect_column_type.js":18,"./types/number_column_type.js":19,"./types/percent_column_type.js":20,"./types/phone_column_type.js":21,"./types/rollup_column_type.js":22,"./types/select_column_type.js":23,"./types/text_column_type.js":24,"./types/url_column_type.js":25}],6:[function(require,module,exports){
+},{"./types/attachments_column_type.js":9,"./types/checkbox_column_type.js":10,"./types/count_column_type.js":11,"./types/currency_column_type.js":12,"./types/date_column_type.js":13,"./types/email_column_type.js":14,"./types/foreign_key_column_type.js":15,"./types/formula_column_type.js":16,"./types/lookup_column_type.js":17,"./types/multiline_text_column_type.js":18,"./types/multiselect_column_type.js":19,"./types/number_column_type.js":20,"./types/percent_column_type.js":21,"./types/phone_column_type.js":22,"./types/rollup_column_type.js":23,"./types/select_column_type.js":24,"./types/text_column_type.js":25,"./types/url_column_type.js":26}],7:[function(require,module,exports){
 'use strict';
 
 var config = {
@@ -664,12 +715,15 @@ var config = {
     defaultStyling: '/css/default.css', // switch back to default once done testing '/css/sidebar_style.css',//
     expandedStyling: '/css/expanded.css',
     mailToIcon: '/email_icon.png',
-    openLinkToRec: 'OPEN_LINK_TO_RECORD'
+    openLinkToRec: 'OPEN_LINK_TO_RECORD',
+    productionBaseUrl: 'https://airtable.com',
+    stagingBaseUrl: 'https://staging.airtable.com',
+    developmentBaseUrl: 'https://hyperbasedev.com:3000'
 };
 
 module.exports = config;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
 var _ = require('underscore');
@@ -692,9 +746,6 @@ var GenericColumnType = Class.extend({
         }
         this._config = config;
         this._verbose = verbose;
-        if (this._verbose) { 
-            console.log('GenericColumnType Constructor: ', contentObject);
-        }
 	},
     generateElement: function() {
         return $('<div/>');
@@ -712,7 +763,7 @@ var GenericColumnType = Class.extend({
 module.exports = GenericColumnType;
 
 
-},{"./config.js":6,"./vendor/class.js":26,"underscore":28}],8:[function(require,module,exports){
+},{"./config.js":7,"./vendor/class.js":27,"underscore":29}],9:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
 var _ = require('underscore');
@@ -766,7 +817,6 @@ var AttachmentsColumnType = GenericColumnType.extend({
                 numImages++;
             }
         });
-        if (this._verbose) { console.log('numImages: ', numImages); }
         return numImages;
     },
     _handleDocumentLookup: function(docs, item, anchor) {
@@ -783,7 +833,7 @@ var AttachmentsColumnType = GenericColumnType.extend({
 
 module.exports = AttachmentsColumnType;
 
-},{"../generic_column_type.js":7,"underscore":28}],9:[function(require,module,exports){
+},{"../generic_column_type.js":8,"underscore":29}],10:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
 var GenericColumnType = require('../generic_column_type.js'); 
@@ -806,7 +856,7 @@ var CheckboxColumnType = GenericColumnType.extend({
 
 module.exports = CheckboxColumnType;
 
-},{"../generic_column_type.js":7}],10:[function(require,module,exports){
+},{"../generic_column_type.js":8}],11:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
 var GenericColumnType = require('../generic_column_type.js');
@@ -823,7 +873,7 @@ var GenericColumnType = require('../generic_column_type.js');
 
 module.exports = CountColumnType;
 
-},{"../generic_column_type.js":7}],11:[function(require,module,exports){
+},{"../generic_column_type.js":8}],12:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
 var GenericColumnType = require('../generic_column_type.js');
@@ -840,7 +890,7 @@ var CurrencyColumnType = GenericColumnType.extend({
 
 module.exports = CurrencyColumnType;
 
-},{"../generic_column_type.js":7}],12:[function(require,module,exports){
+},{"../generic_column_type.js":8}],13:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
 var moment = require('moment');
@@ -848,18 +898,42 @@ var moment = require('moment');
 var GenericColumnType = require('../generic_column_type.js');
 
 var DateColumnType = GenericColumnType.extend({
+    _MONTHS_OF_THE_YEAR: { 
+        1: 'Jan',
+        2: 'Feb',
+        3: 'Mar',
+        4: 'Apr',
+        5: 'May',
+        6: 'Jun',
+        7: 'Jul',
+        8: 'Aug',
+        9: 'Sep',
+        10: 'Oct',
+        11: 'Nov',
+        12: 'Dec',
+    },
     init: function(columnName, contentObject, verbose) {
-        this._super(columnName, contentObject, true);
+        this._super(columnName, contentObject, verbose);
     },
     generateElement: function(isForCompact) {
         var dateTime;
-        if (this._displayValue.indexOf('T') > -1) {
+        var utcDate;
+        var temp;
+        if (this._fieldType === 'datetime') {
             dateTime = moment(this._displayValue).format('lll');
-        } else {
+        } else if (this._fieldType === 'date') {
             dateTime = moment(this._displayValue).format('ll');
-        }
-        if (this._verbose) {
-            console.log(moment(this._displayValue).format('lll'));
+        } else if (this._fieldType === 'datetimeUTC') {
+            utcDate = new Date(this._displayValue);
+            temp = this._MONTHS_OF_THE_YEAR[utcDate.getUTCMonth() + 1] + 
+                ' ' + utcDate.getUTCDate() + ', ' + utcDate.getUTCFullYear();
+            temp += ' ' + utcDate.getUTCHours() + ':' + utcDate.getUTCMinutes();
+            dateTime = temp;
+        } else {
+            utcDate = this._displayValue.split('-');
+            temp = new Date(utcDate[0], utcDate[1], utcDate[2]);
+            dateTime = this._MONTHS_OF_THE_YEAR[temp.getUTCMonth()] + 
+                ' ' + temp.getUTCDate() + ', ' + temp.getUTCFullYear();
         }
         return this._createBasicLayout(isForCompact, 
                 this._columnName, dateTime); 
@@ -868,7 +942,7 @@ var DateColumnType = GenericColumnType.extend({
 
 module.exports = DateColumnType;
 
-},{"../generic_column_type.js":7,"moment":27}],13:[function(require,module,exports){
+},{"../generic_column_type.js":8,"moment":28}],14:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
 var GenericColumnType = require('../generic_column_type.js');
@@ -881,7 +955,6 @@ var EmailColumnType = GenericColumnType.extend({
         var that = this;
         var email = $('<div/>').append(this._displayValue);
         var mailToIcon = $('<div/>');
-        if (this._verbose && typeof InboxSDK !== 'undefined') { console.log('InboxSDK: ', InboxSDK); }
         if (typeof InboxSDK !== 'undefined') {
             mailToIcon = $(this._createEmailIcon());
             mailToIcon.click(function() { // need to have this change depending on environment!
@@ -914,7 +987,7 @@ var EmailColumnType = GenericColumnType.extend({
 
 module.exports = EmailColumnType;
 
-},{"../generic_column_type.js":7}],14:[function(require,module,exports){
+},{"../generic_column_type.js":8}],15:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
 var _ = require('underscore');
@@ -946,7 +1019,7 @@ var ForeignKeyColumnType = GenericColumnType.extend({
 
 module.exports = ForeignKeyColumnType;
 
-},{"../generic_column_type.js":7,"underscore":28}],15:[function(require,module,exports){
+},{"../generic_column_type.js":8,"underscore":29}],16:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
 var GenericColumnType = require('../generic_column_type.js');
@@ -963,7 +1036,7 @@ var FormulaColumnType = GenericColumnType.extend({
 
 module.exports = FormulaColumnType;
 
-},{"../generic_column_type.js":7}],16:[function(require,module,exports){
+},{"../generic_column_type.js":8}],17:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
 var _ = require('underscore');
@@ -983,7 +1056,6 @@ var LookupColumnType = GenericColumnType.extend({
         var elemNum = 0;
         var images;
         var docs;
-        if (this._verbose) { console.log('lookupResultType: ', this._lookupResultType); }
         if (this._lookupResultType === 'multipleAttachment') {
             _.each(this._displayValue, function(item) {
                 var anchor;
@@ -1041,7 +1113,6 @@ var LookupColumnType = GenericColumnType.extend({
                 numImages++;
             }
         });
-        if (this._verbose) { console.log('numImages: ', numImages); }
         return numImages;
     },
     _handleDocumentLookup: function(docs, item, anchor) {
@@ -1056,10 +1127,6 @@ var LookupColumnType = GenericColumnType.extend({
     },
     _handleDateLookup: function(content) {
         var dateArray = this._displayValue.split(' ');
-        if (this._verbose) {
-            console.log('days: ', dateArray[0]);
-            console.log('time: ', dateArray[1]);
-        }
         content = moment(dateArray[0]).format('ll');
         if (dateArray.length > 1) {
             content += (' ' + dateArray[1]);
@@ -1070,7 +1137,7 @@ var LookupColumnType = GenericColumnType.extend({
 
 module.exports = LookupColumnType;
 
-},{"../generic_column_type.js":7,"moment":27,"underscore":28}],17:[function(require,module,exports){
+},{"../generic_column_type.js":8,"moment":28,"underscore":29}],18:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
 var GenericColumnType = require('../generic_column_type.js');
@@ -1086,7 +1153,7 @@ var MultilineTextColumnType = GenericColumnType.extend({
 });
 
 module.exports = MultilineTextColumnType;
-},{"../generic_column_type.js":7}],18:[function(require,module,exports){
+},{"../generic_column_type.js":8}],19:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
 var _ = require('underscore');
@@ -1118,7 +1185,7 @@ var MultiselectColumnType = GenericColumnType.extend({
 
 module.exports = MultiselectColumnType;
 
-},{"../generic_column_type.js":7,"underscore":28}],19:[function(require,module,exports){
+},{"../generic_column_type.js":8,"underscore":29}],20:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
 var GenericColumnType = require('../generic_column_type.js');
@@ -1135,7 +1202,7 @@ var NumberColumnType = GenericColumnType.extend({
 
 module.exports = NumberColumnType;
 
-},{"../generic_column_type.js":7}],20:[function(require,module,exports){
+},{"../generic_column_type.js":8}],21:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
 var GenericColumnType = require('../generic_column_type.js');
@@ -1152,7 +1219,7 @@ var PercentColumnType = GenericColumnType.extend({
 
 module.exports = PercentColumnType;
 
-},{"../generic_column_type.js":7}],21:[function(require,module,exports){
+},{"../generic_column_type.js":8}],22:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
 var GenericColumnType = require('../generic_column_type.js');
@@ -1169,7 +1236,7 @@ var PhoneColumnType = GenericColumnType.extend({
 
 module.exports = PhoneColumnType;
 
-},{"../generic_column_type.js":7}],22:[function(require,module,exports){
+},{"../generic_column_type.js":8}],23:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
 var GenericColumnType = require('../generic_column_type.js');
@@ -1186,7 +1253,7 @@ var RollupColumnType = GenericColumnType.extend({
 
 module.exports = RollupColumnType;
 
-},{"../generic_column_type.js":7}],23:[function(require,module,exports){
+},{"../generic_column_type.js":8}],24:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
 var GenericColumnType = require('../generic_column_type.js');
@@ -1203,7 +1270,7 @@ var SelectColumnType = GenericColumnType.extend({
 
 module.exports = SelectColumnType;
 
-},{"../generic_column_type.js":7}],24:[function(require,module,exports){
+},{"../generic_column_type.js":8}],25:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
 var GenericColumnType = require('../generic_column_type.js');
@@ -1220,7 +1287,7 @@ var TextColumnType = GenericColumnType.extend({
 
 module.exports = TextColumnType;
 
-},{"../generic_column_type.js":7}],25:[function(require,module,exports){
+},{"../generic_column_type.js":8}],26:[function(require,module,exports){
 'use strict'; // indicate to use Strict Mode
 
 (function() {
@@ -1271,7 +1338,7 @@ module.exports = TextColumnType;
 
 }).call(this);
 
-},{"../generic_column_type.js":7,"underscore":28}],26:[function(require,module,exports){
+},{"../generic_column_type.js":8,"underscore":29}],27:[function(require,module,exports){
 /*jshint strict:false */
 
 /* Simple JavaScript Inheritance
@@ -1345,7 +1412,7 @@ module.exports = TextColumnType;
         window.Class = Class;
     }
 })();
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 //! moment.js
 //! version : 2.10.3
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
@@ -4457,7 +4524,7 @@ module.exports = TextColumnType;
     return _moment;
 
 }));
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -6007,4 +6074,4 @@ module.exports = TextColumnType;
   }
 }.call(this));
 
-},{}]},{},[1]);
+},{}]},{},[2]);

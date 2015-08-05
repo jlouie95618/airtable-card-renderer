@@ -10,7 +10,6 @@ var EmailColumnType = GenericColumnType.extend({
         var that = this;
         var email = $('<div/>').append(this._displayValue);
         var mailToIcon = $('<div/>');
-        if (this._verbose && typeof InboxSDK !== 'undefined') { console.log('InboxSDK: ', InboxSDK); }
         if (typeof InboxSDK !== 'undefined') {
             mailToIcon = $(this._createEmailIcon());
             mailToIcon.click(function() { // need to have this change depending on environment!

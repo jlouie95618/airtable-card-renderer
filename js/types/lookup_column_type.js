@@ -17,7 +17,6 @@ var LookupColumnType = GenericColumnType.extend({
         var elemNum = 0;
         var images;
         var docs;
-        if (this._verbose) { console.log('lookupResultType: ', this._lookupResultType); }
         if (this._lookupResultType === 'multipleAttachment') {
             _.each(this._displayValue, function(item) {
                 var anchor;
@@ -75,7 +74,6 @@ var LookupColumnType = GenericColumnType.extend({
                 numImages++;
             }
         });
-        if (this._verbose) { console.log('numImages: ', numImages); }
         return numImages;
     },
     _handleDocumentLookup: function(docs, item, anchor) {
@@ -90,10 +88,6 @@ var LookupColumnType = GenericColumnType.extend({
     },
     _handleDateLookup: function(content) {
         var dateArray = this._displayValue.split(' ');
-        if (this._verbose) {
-            console.log('days: ', dateArray[0]);
-            console.log('time: ', dateArray[1]);
-        }
         content = moment(dateArray[0]).format('ll');
         if (dateArray.length > 1) {
             content += (' ' + dateArray[1]);
