@@ -54,9 +54,9 @@ var CardRenderer = Class.extend({
         return recordContainer;
     },
     installStyling: function(divElement, expandedCardStyle) {
-        var compactStyle = $('<link/>');
-        compactStyle.attr('rel', 'stylesheet');
-        compactStyle.attr('type', 'text/css');
+        var style = $('<link/>');
+        style.attr('rel', 'stylesheet');
+        style.attr('type', 'text/css');
         if (!this._expandedCardStyle) {
             this._expandedCardStyle = expandedCardStyle;
         }
@@ -64,16 +64,16 @@ var CardRenderer = Class.extend({
             // Install styling for cards in chrome extension:
             switch(this._expandedCardStyle) {
                 case 1:
-                    compactStyle.attr('href', config.chromeExtension + 
-                        chrome.runtime.id + config.compactStyling);
+                    style.attr('href', config.chromeExtension + 
+                        chrome.runtime.id + '/' + config.compactStyling);
                     break;
                 case 2:
-                    compactStyle.attr('href', config.chromeExtension + 
-                        chrome.runtime.id + config.expandedStyling);
+                    style.attr('href', config.chromeExtension + 
+                        chrome.runtime.id + '/' + config.expandedStyling);
                     break;
                 default:
-                    compactStyle.attr('href', config.chromeExtension + 
-                        chrome.runtime.id + config.defaultStyling);
+                    style.attr('href', config.chromeExtension + 
+                        chrome.runtime.id + '/' + config.defaultStyling);
                     break;
             }
         } else {
@@ -81,17 +81,17 @@ var CardRenderer = Class.extend({
             //  to local files
             switch(this._expandedCardStyle) {
                 case 1:
-                    compactStyle.attr('href', '.' + config.compactStyling);
+                    style.attr('href', '../css/' + config.compactStyling);
                     break;
                 case 2:
-                    compactStyle.attr('href', '.' + config.expandedStyling);
+                    style.attr('href', '../css/' + config.expandedStyling);
                     break;
                 default:
-                    compactStyle.attr('href', '.' + config.defaultStyling);
+                    style.attr('href', '../css/' + config.defaultStyling);
                     break;
             }
         }
-        $(divElement).append(compactStyle);
+        $(divElement).append(style);
     },
     // Private Functionality:
     _activateExpandedView: function(eventData) { // TODO: implement event handler

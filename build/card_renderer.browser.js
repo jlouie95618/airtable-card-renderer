@@ -150,9 +150,9 @@ var CardRenderer = Class.extend({
         return recordContainer;
     },
     installStyling: function(divElement, expandedCardStyle) {
-        var compactStyle = $('<link/>');
-        compactStyle.attr('rel', 'stylesheet');
-        compactStyle.attr('type', 'text/css');
+        var style = $('<link/>');
+        style.attr('rel', 'stylesheet');
+        style.attr('type', 'text/css');
         if (!this._expandedCardStyle) {
             this._expandedCardStyle = expandedCardStyle;
         }
@@ -160,16 +160,16 @@ var CardRenderer = Class.extend({
             // Install styling for cards in chrome extension:
             switch(this._expandedCardStyle) {
                 case 1:
-                    compactStyle.attr('href', config.chromeExtension + 
-                        chrome.runtime.id + config.compactStyling);
+                    style.attr('href', config.chromeExtension + 
+                        chrome.runtime.id + '/' + config.compactStyling);
                     break;
                 case 2:
-                    compactStyle.attr('href', config.chromeExtension + 
-                        chrome.runtime.id + config.expandedStyling);
+                    style.attr('href', config.chromeExtension + 
+                        chrome.runtime.id + '/' + config.expandedStyling);
                     break;
                 default:
-                    compactStyle.attr('href', config.chromeExtension + 
-                        chrome.runtime.id + config.defaultStyling);
+                    style.attr('href', config.chromeExtension + 
+                        chrome.runtime.id + '/' + config.defaultStyling);
                     break;
             }
         } else {
@@ -177,17 +177,17 @@ var CardRenderer = Class.extend({
             //  to local files
             switch(this._expandedCardStyle) {
                 case 1:
-                    compactStyle.attr('href', '.' + config.compactStyling);
+                    style.attr('href', '../css/' + config.compactStyling);
                     break;
                 case 2:
-                    compactStyle.attr('href', '.' + config.expandedStyling);
+                    style.attr('href', '../css/' + config.expandedStyling);
                     break;
                 default:
-                    compactStyle.attr('href', '.' + config.defaultStyling);
+                    style.attr('href', '../css/' + config.defaultStyling);
                     break;
             }
         }
-        $(divElement).append(compactStyle);
+        $(divElement).append(style);
     },
     // Private Functionality:
     _activateExpandedView: function(eventData) { // TODO: implement event handler
@@ -382,9 +382,11 @@ var Card = Class.extend({
         $(card).append(button);
         // Add the event listener and tell the listener what to do when a click occurs
         $(button).click(function() {
-            chrome.runtime.sendMessage(request, null, function(response) {
-                if (that._verbose) { console.log(response.message); }
-            });
+            if (chrome.runtime) {
+                chrome.runtime.sendMessage(request, null, function(response) {
+                    if (that._verbose) { console.log(response.message); }
+                });
+            }
         });
     }
 });
@@ -712,9 +714,10 @@ var config = {
     stagingAppId: 'sdk_airtable-ch-sta_3816999c84',
     developmentAppId: 'sdk_airtable-ch-dev_d41135c420', 
     chromeExtension: 'chrome-extension://',
-    defaultStyling: '/css/default.css', // switch back to default once done testing '/css/sidebar_style.css',//
-    expandedStyling: '/css/expanded.css',
-    mailToIcon: '/email_icon.png',
+    defaultStyling: 'css/default.css', // switch back to default once done testing '/css/sidebar_style.css',//
+    compactStyling: 'css/compact.css',
+    expandedStyling: 'css/expanded.css',
+    mailToIcon: 'email_icon.png',
     openLinkToRec: 'OPEN_LINK_TO_RECORD',
     productionBaseUrl: 'https://airtable.com',
     stagingBaseUrl: 'https://staging.airtable.com',
@@ -958,7 +961,7 @@ var EmailColumnType = GenericColumnType.extend({
         if (typeof InboxSDK !== 'undefined') {
             mailToIcon = $(this._createEmailIcon());
             mailToIcon.click(function() { // need to have this change depending on environment!
-                InboxSDK.load('1.0', that._config.stagingAppId).then(function(sdk) {
+                InboxSDK.load('1.0', that._config.productionAppId).then(function(sdk) {
                     sdk.Compose.openNewComposeView().then(function(composeView) {
                         composeView.setToRecipients([that._displayValue]);
                     });
@@ -979,7 +982,7 @@ var EmailColumnType = GenericColumnType.extend({
                 chrome.runtime.id + this._config.mailToIcon);
         } else {
             // Non-chrome extension version:
-            mailToIcon.attr('src', '.' + this._config.mailToIcon);
+            mailToIcon.attr('src', '../../' + this._config.mailToIcon);
         }
         return mailToIcon;
     }

@@ -181,9 +181,11 @@ var Card = Class.extend({
         $(card).append(button);
         // Add the event listener and tell the listener what to do when a click occurs
         $(button).click(function() {
-            chrome.runtime.sendMessage(request, null, function(response) {
-                if (that._verbose) { console.log(response.message); }
-            });
+            if (chrome.runtime) {
+                chrome.runtime.sendMessage(request, null, function(response) {
+                    if (that._verbose) { console.log(response.message); }
+                });
+            }
         });
     }
 });
