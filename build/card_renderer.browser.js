@@ -961,7 +961,7 @@ var EmailColumnType = GenericColumnType.extend({
         if (typeof InboxSDK !== 'undefined') {
             mailToIcon = $(this._createEmailIcon());
             mailToIcon.click(function() { // need to have this change depending on environment!
-                InboxSDK.load('1.0', that._config.productionAppId).then(function(sdk) {
+                InboxSDK.load('1.0', that._config.stagingAppId).then(function(sdk) {
                     sdk.Compose.openNewComposeView().then(function(composeView) {
                         composeView.setToRecipients([that._displayValue]);
                     });
@@ -979,7 +979,7 @@ var EmailColumnType = GenericColumnType.extend({
         mailToIcon.attr('alt', 'mail to icon');
         if (chrome.runtime) {
             mailToIcon.attr('src', this._config.chromeExtension + 
-                chrome.runtime.id + this._config.mailToIcon);
+                chrome.runtime.id + '/' + this._config.mailToIcon);
         } else {
             // Non-chrome extension version:
             mailToIcon.attr('src', '../../' + this._config.mailToIcon);
@@ -1029,9 +1029,13 @@ var GenericColumnType = require('../generic_column_type.js');
 
 var FormulaColumnType = GenericColumnType.extend({
     init: function(columnName, contentObject, verbose) {
+        console.log('contentObject', contentObject);
+        console.log('typeof contentObject.displayValue', typeof contentObject.displayValue);
         this._super(columnName, contentObject, verbose);
     },
     generateElement: function(isForCompact) {
+        console.log('typeof this._displayValue', typeof this._displayValue);
+        console.log(this._displayValue);
         return this._createBasicLayout(isForCompact, 
                 this._columnName, this._displayValue);  
     }

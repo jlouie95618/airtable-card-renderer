@@ -13,7 +13,7 @@ var EmailColumnType = GenericColumnType.extend({
         if (typeof InboxSDK !== 'undefined') {
             mailToIcon = $(this._createEmailIcon());
             mailToIcon.click(function() { // need to have this change depending on environment!
-                InboxSDK.load('1.0', that._config.productionAppId).then(function(sdk) {
+                InboxSDK.load('1.0', that._config.stagingAppId).then(function(sdk) {
                     sdk.Compose.openNewComposeView().then(function(composeView) {
                         composeView.setToRecipients([that._displayValue]);
                     });
@@ -31,7 +31,7 @@ var EmailColumnType = GenericColumnType.extend({
         mailToIcon.attr('alt', 'mail to icon');
         if (chrome.runtime) {
             mailToIcon.attr('src', this._config.chromeExtension + 
-                chrome.runtime.id + this._config.mailToIcon);
+                chrome.runtime.id + '/' + this._config.mailToIcon);
         } else {
             // Non-chrome extension version:
             mailToIcon.attr('src', '../../' + this._config.mailToIcon);
