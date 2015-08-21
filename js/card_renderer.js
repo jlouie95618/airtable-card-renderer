@@ -64,16 +64,13 @@ var CardRenderer = Class.extend({
             // Install styling for cards in chrome extension:
             switch(this._expandedCardStyle) {
                 case 1:
-                    style.attr('href', config.chromeExtension + 
-                        chrome.runtime.id + '/' + config.compactStyling);
+                    style.attr('href', config.compactStyling);
                     break;
                 case 2:
-                    style.attr('href', config.chromeExtension + 
-                        chrome.runtime.id + '/' + config.expandedStyling);
+                    style.attr('href', config.expandedStyling);
                     break;
                 default:
-                    style.attr('href', config.chromeExtension + 
-                        chrome.runtime.id + '/' + config.defaultStyling);
+                    style.attr('href', config.defaultStyling);
                     break;
             }
         } else {
