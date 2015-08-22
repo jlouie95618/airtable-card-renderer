@@ -711,9 +711,9 @@ var config = {
     stagingAppId: 'sdk_airtable-ch-sta_3816999c84',
     developmentAppId: 'sdk_airtable-ch-dev_d41135c420', 
     chromeExtension: 'chrome-extension://',
-    defaultStyling: 'https://s3-us-west-1.amazonaws.com/airtable-gmail-chrome-extension/production-remote/css/default.css',//'css/default.css', // switch back to default once done testing '/css/sidebar_style.css',//
-    compactStyling: 'https://s3-us-west-1.amazonaws.com/airtable-gmail-chrome-extension/production-remote/css/compact.css',//'css/compact.css',
-    expandedStyling: 'https://s3-us-west-1.amazonaws.com/airtable-gmail-chrome-extension/production-remote/css/expanded.css',//'css/expanded.css',
+    defaultStyling: 'https://s3-us-west-1.amazonaws.com/airtable-gmail-chrome-extension/staging-remote/css/default.css',//'css/default.css', // switch back to default once done testing '/css/sidebar_style.css',//
+    compactStyling: 'https://s3-us-west-1.amazonaws.com/airtable-gmail-chrome-extension/staging-remote/css/compact.css',//'css/compact.css',
+    expandedStyling: 'https://s3-us-west-1.amazonaws.com/airtable-gmail-chrome-extension/staging-remote/css/expanded.css',//'css/expanded.css',
     mailToIcon: 'email_icon.png',
     openLinkToRec: 'OPEN_LINK_TO_RECORD',
     productionBaseUrl: 'https://airtable.com',
@@ -958,7 +958,7 @@ var EmailColumnType = GenericColumnType.extend({
         if (typeof InboxSDK !== 'undefined') {
             mailToIcon = $(this._createEmailIcon());
             mailToIcon.click(function() { // need to have this change depending on environment!
-                InboxSDK.load('1.0', that._config.productionAppId).then(function(sdk) {
+                InboxSDK.load('1.0', that._config.stagingAppId).then(function(sdk) {
                     sdk.Compose.openNewComposeView().then(function(composeView) {
                         composeView.setToRecipients([that._displayValue]);
                     });

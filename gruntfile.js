@@ -54,6 +54,30 @@ module.exports = function(grunt) {
                     to: 'development'
                 }]
             },
+            configproduction: {
+                src: './js/config.js',
+                overwrite: true,
+                replacements: [{
+                    from: /production-remote|staging-remote|development-remote/g,
+                    to: 'production-remote'
+                }]
+            },
+            configstaging: {
+                src: './js/config.js',
+                overwrite: true,
+                replacements: [{
+                    from: /production-remote|staging-remote|development-remote/g,
+                    to: 'staging-remote'
+                }]
+            },
+            configdevelopment: {
+                src: './js/config.js',
+                overwrite: true,
+                replacements: [{
+                    from: /production-remote|staging-remote|development-remote/g,
+                    to: 'development-remote'
+                }]
+            },
             css: {
                 src: './css/ios7-style-font-icons.min.css',
                 dest: './css/airtable-gmail-ext-ios7-style-font-icons.min.css',
@@ -78,7 +102,8 @@ module.exports = function(grunt) {
 
     var env = grunt.option('env') || 'production';
     grunt.registerTask('default', ['jshint', 
-        'replace:email' + env, 
+        'replace:email' + env,
+        'replace:config' + env,
         'replace:css', 
         'browserify']);
 };
