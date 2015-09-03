@@ -1,6 +1,7 @@
 'use strict';
 
 var ColumnTypeConstructors = {
+    '_default': require('./generic_column_type.js'),
     'multipleAttachment': require('./types/attachments_column_type.js'),
     'checkbox': require('./types/checkbox_column_type.js'),
     'count': require('./types/count_column_type.js'),    

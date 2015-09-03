@@ -11,32 +11,34 @@ var Card = Class.extend({
         this._cardData = cardData;
         this._cardNum = cardNum;
         this._verbose = verbose;
+        // Initialize the parts of the card
+        this._topCard = $('<div/>').addClass('card-top');
+        this._bottomCard = $('<div/>').addClass('card-bottom');
+        // Retrieve the proper card order
+        this._order = this._cardData.getFieldOrder();
+        // Locate any images and determine a "profile pic" using _images
+        this._images = this._findImageAttachments();
     },
     generateCard: function() {
         var that = this;
-        var info = $('<div/>').addClass('card-content');
-        var topCard = $('<div/>').addClass('card-top');
-        var bottomCard = $('<div/>').addClass('card-bottom');
-        var order = this._cardData.getFieldOrder();
-        var images = this._findImageAttachments();
         var constructors = {};
-        var targetEmail = this._cardData.getTargetEmail();
         // Create the card div which will contain the separate record's contents
         this._card = $('<div/>').addClass('card');
         // Generate the image element div
-        topCard.append(this._createImgElem(images));
+        this._topCard.append(this._createImgElem(this._images));
         // Generate the header div
-        topCard.append(this._displayHeaderValue(this._cardData.getFirstElem().displayValue, 
-            this._createEmailElem(targetEmail)));
+        this._topCard.append(this._displayHeaderValue(this._cardData.getFirstElem().displayValue, 
+            this._createEmailElem(this._cardData.getTargetEmail())));
         // Generate the card content constructors
-        _.each(order, function(key) {
+        _.each(this._order, function(key) {
             var field = (that._cardData.getFields())[key];
-            constructors[key] = ColumnTypeConstructors[field.fieldType];
+            constructors[key] = ColumnTypeConstructors[field.fieldType] ||
+                ColumnTypeConstructors._default;
         });
         // Append the constructed elements onto the appropriate parent elements
-        this._createCardContent(constructors, this._card, topCard, bottomCard, 3);
-        // this._card.append(topCard.append());
-        this._constructViewInAirtableButton(bottomCard);
+        this._createCardContent(constructors, this._card, this._topCard, 
+            this._bottomCard, /* number of elements in top card === */3);
+        this._constructViewInAirtableButton(this._bottomCard);
         return this._card;
 
     },
@@ -44,10 +46,12 @@ var Card = Class.extend({
         var that = this;
         var recordFields = this._cardData.getFields();
         var elem = $('<div/>');
+        // Iterate through the fields to find the first occurence of an email field type
         _.each(recordFields, function(fieldObject, fieldName) {
             var Constructor;
             if (fieldObject.fieldType === 'email') {
-                Constructor = ColumnTypeConstructors[fieldObject.fieldType];
+                Constructor = ColumnTypeConstructors[fieldObject.fieldType] ||
+                    ColumnTypeConstructors._default;
                 if (email === fieldObject.displayValue) {
                     elem = new Constructor(null, recordFields[fieldName],
                         that._verbose).generateElement(true);
@@ -84,7 +88,6 @@ var Card = Class.extend({
                     if (attachmentObject.type.indexOf(type) === 0) {
                         attachmentObject.fieldName = fieldName;
                         images.push(attachmentObject);
-                        // delete attachmentArray[index]; // Is this necessary?
                     } 
                 });
             }
@@ -172,11 +175,8 @@ var Card = Class.extend({
     _addButtonAndListenerWithUrl: function(card, button, message, url) {
         var that = this;
         var request;
-        if (url) {
-            request = { type: message, url: url };
-        } else {
-            request = { type: message };
-        }
+        if (url) { request = { type: message, url: url }; }
+        else { request = { type: message }; }
         // Insert the HTML for the creation of the button
         $(card).append(button);
         // Add the event listener and tell the listener what to do when a click occurs

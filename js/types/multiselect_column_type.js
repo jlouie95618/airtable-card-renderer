@@ -15,6 +15,7 @@ var MultiselectColumnType = GenericColumnType.extend({
         // displayValue is stored as an Array of objects
         _.each(this._displayValue, function(item) {
             item = _.escape(item);
+            // Omit adding a comma to the end of the last element
             if (elemNum === (that._displayValue.length - 1)) {
                 list += item;
             } else {

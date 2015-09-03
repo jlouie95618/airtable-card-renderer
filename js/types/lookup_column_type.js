@@ -9,6 +9,7 @@ var LookupColumnType = GenericColumnType.extend({
     init: function(columnName, contentObject, verbose) {
         this._super(columnName, contentObject, verbose);
         this._lookupResultType = contentObject.lookupResultType;
+        this._numImages = this._determineNumImages(this._displayValue);
     },
     generateElement: function(isForCompact) {
         var that = this;
@@ -52,8 +53,7 @@ var LookupColumnType = GenericColumnType.extend({
     },
     _handleImageLookup: function(images, item, anchor) {
         var image;
-        var numImages = this._determineNumImages(this._displayValue);
-        if (numImages > 1) {
+        if (this._numImages > 1) {
             image = $('<div/>').attr('class', 'img-content-grid');
             image.css('background-image', 'url(' + item.url + ')');
             anchor.append(image);

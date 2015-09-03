@@ -262,10 +262,9 @@
 .loading-gif {
     display: inline-block;
     margin: 0 auto;
-    width: 50px;
+    width: 160px;
     padding: 30px;
-    margin: 0 50px;
-
+    /* margin: 0 50px; */
 }
 
 a {

@@ -21,7 +21,6 @@ var CardRenderer = Class.extend({
     renderCard: function(record) {
         var that = this;
         var numCards = this._numCards;
-        var verbose = this._verbose;
         var style = this._expandedCardStyle;
         var card;
         var compactCard; 
@@ -30,15 +29,11 @@ var CardRenderer = Class.extend({
 
         // If record isn't an instance of the wrapper, create the wrapper
         //  using generic info that is defined within the CardData class
-        if (!(record instanceof CardData)) {
-            record = new CardData(record);
-        }
+        if (!(record instanceof CardData)) { record = new CardData(record); }
         if (style) { // If the rendering style is not equal to the zero flag
             // Implementation for a compact and expanded card implementation
-            compactCard = new CompactCard(record, numCards, verbose);
-            expandedCard = new ExpandedCard(record, numCards, style, verbose);
-            if (verbose) {
-            }
+            compactCard = new CompactCard(record, numCards, this._verbose);
+            expandedCard = new ExpandedCard(record, numCards, style, this._verbose);
             recordContainer.append(compactCard.generateCard());
             recordContainer.append(expandedCard.generateCard());
             recordContainer.click({cardIndex: numCards}, function(eventData) {
@@ -47,7 +42,7 @@ var CardRenderer = Class.extend({
         } else {
             // Code pertaining to just a single card, but is expanded when a
             //  'More Info' button is clicked.
-            card = new Card(record, numCards, verbose);
+            card = new Card(record, numCards, this._verbose);
             recordContainer.append(card.generateCard());
         }
         this._numCards++;

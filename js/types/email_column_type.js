@@ -10,15 +10,20 @@ var EmailColumnType = GenericColumnType.extend({
         var that = this;
         var email = $('<div/>').append(this._displayValue);
         var mailToIcon = $('<div/>');
+        // If InboxSDK is available, have that as the way to "link" the email addresses
         if (typeof InboxSDK !== 'undefined') {
             mailToIcon = $(this._createEmailIcon());
-            mailToIcon.click(function() { // need to have this change depending on environment!
-                InboxSDK.load('1.0', that._config.stagingAppId).then(function(sdk) {
+            mailToIcon.click(function() { // appId needs to change depending on environment
+                InboxSDK.load('1.0', that._config.productionAppId).then(function(sdk) {
                     sdk.Compose.openNewComposeView().then(function(composeView) {
                         composeView.setToRecipients([that._displayValue]);
                     });
                 });
-
+            });
+        } else { // In the absence of InboxSDK, just use a regular mailto link
+            mailToIcon = $(this._createEmailIcon());
+            mailToIcon.click(function() {
+                window.location.href = 'mailto:' + this._displayValue;                
             });
         }
         email.append(mailToIcon);

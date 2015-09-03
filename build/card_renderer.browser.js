@@ -10,20 +10,12 @@ var CardData = Class.extend({
         this._record = record;
         this._baseUrl = baseUrl;
         this._targetEmail = this._findEmail(targetEmail);
-        if (order) {
-            this.setFieldOrder(order);
-        } else {
-            this.setFieldOrder(_.keys(this._record.fields));
-        }
-        if (baseUrl) {
-            this._recordUrl = baseUrl;
-        } else {
-            this._recordUrl = this._AIRTABLE_BASE_URL;
-        }
+        if (order) { this.setFieldOrder(order); } 
+        else { this.setFieldOrder(_.keys(this._record.fields)); }
+        this._recordUrl = baseUrl || this._AIRTABLE_BASE_URL;
         if (record._rawJson && record._rawJson.url) {
             this._recordUrl += record._rawJson.url;
         }
-
     },
     toJson: function() {
         return JSON.stringify(this);  
@@ -46,13 +38,6 @@ var CardData = Class.extend({
             }
         }
     },
-    _findColumnName: function(targetEmail) {
-        var fields = this._record.fields;
-        var keys = _.keys(this._record.fields);
-        return _.find(keys, function(key) {
-            return fields[key].displayValue === targetEmail;
-        });
-    },
     getFirstElem: function() {
         return this._firstElem;
     },
@@ -67,6 +52,13 @@ var CardData = Class.extend({
     },
     getRecordUrl: function() {
         return this._recordUrl;
+    },
+    _findColumnName: function(targetEmail) {
+        var fields = this._record.fields;
+        var keys = _.keys(this._record.fields);
+        return _.find(keys, function(key) {
+            return fields[key].displayValue === targetEmail;
+        });
     },
     _findEmail: function(targetEmail) {
         if (targetEmail) { return targetEmail }
@@ -229,11 +221,12 @@ var Card = Class.extend({
         // Generate the card content constructors
         _.each(order, function(key) {
             var field = (that._cardData.getFields())[key];
-            constructors[key] = ColumnTypeConstructors[field.fieldType];
+            constructors[key] = ColumnTypeConstructors[field.fieldType] ||
+                ColumnTypeConstructors._default;
         });
         // Append the constructed elements onto the appropriate parent elements
-        this._createCardContent(constructors, this._card, topCard, bottomCard, 3);
-        // this._card.append(topCard.append());
+        this._createCardContent(constructors, this._card, topCard, 
+            bottomCard, /* number of elements in top card === */3);
         this._constructViewInAirtableButton(bottomCard);
         return this._card;
 
@@ -282,7 +275,6 @@ var Card = Class.extend({
                     if (attachmentObject.type.indexOf(type) === 0) {
                         attachmentObject.fieldName = fieldName;
                         images.push(attachmentObject);
-                        // delete attachmentArray[index]; // Is this necessary?
                     } 
                 });
             }
@@ -678,6 +670,7 @@ module.exports = Card;
 'use strict';
 
 var ColumnTypeConstructors = {
+    '_default': require('./generic_column_type.js'),
     'multipleAttachment': require('./types/attachments_column_type.js'),
     'checkbox': require('./types/checkbox_column_type.js'),
     'count': require('./types/count_column_type.js'),    
@@ -703,7 +696,7 @@ var ColumnTypeConstructors = {
 
 module.exports = ColumnTypeConstructors;
 
-},{"./types/attachments_column_type.js":9,"./types/checkbox_column_type.js":10,"./types/count_column_type.js":11,"./types/currency_column_type.js":12,"./types/date_column_type.js":13,"./types/email_column_type.js":14,"./types/foreign_key_column_type.js":15,"./types/formula_column_type.js":16,"./types/lookup_column_type.js":17,"./types/multiline_text_column_type.js":18,"./types/multiselect_column_type.js":19,"./types/number_column_type.js":20,"./types/percent_column_type.js":21,"./types/phone_column_type.js":22,"./types/rollup_column_type.js":23,"./types/select_column_type.js":24,"./types/text_column_type.js":25,"./types/url_column_type.js":26}],7:[function(require,module,exports){
+},{"./generic_column_type.js":8,"./types/attachments_column_type.js":9,"./types/checkbox_column_type.js":10,"./types/count_column_type.js":11,"./types/currency_column_type.js":12,"./types/date_column_type.js":13,"./types/email_column_type.js":14,"./types/foreign_key_column_type.js":15,"./types/formula_column_type.js":16,"./types/lookup_column_type.js":17,"./types/multiline_text_column_type.js":18,"./types/multiselect_column_type.js":19,"./types/number_column_type.js":20,"./types/percent_column_type.js":21,"./types/phone_column_type.js":22,"./types/rollup_column_type.js":23,"./types/select_column_type.js":24,"./types/text_column_type.js":25,"./types/url_column_type.js":26}],7:[function(require,module,exports){
 'use strict';
 
 var config = {
@@ -711,9 +704,9 @@ var config = {
     stagingAppId: 'sdk_airtable-ch-sta_3816999c84',
     developmentAppId: 'sdk_airtable-ch-dev_d41135c420', 
     chromeExtension: 'chrome-extension://',
-    defaultStyling: 'https://s3-us-west-1.amazonaws.com/airtable-gmail-chrome-extension/staging-remote/css/default.css',//'css/default.css', // switch back to default once done testing '/css/sidebar_style.css',//
-    compactStyling: 'https://s3-us-west-1.amazonaws.com/airtable-gmail-chrome-extension/staging-remote/css/compact.css',//'css/compact.css',
-    expandedStyling: 'https://s3-us-west-1.amazonaws.com/airtable-gmail-chrome-extension/staging-remote/css/expanded.css',//'css/expanded.css',
+    defaultStyling: 'https://s3-us-west-1.amazonaws.com/airtable-gmail-chrome-extension/production-remote/css/default.css',//'css/default.css', // switch back to default once done testing '/css/sidebar_style.css',//
+    compactStyling: 'https://s3-us-west-1.amazonaws.com/airtable-gmail-chrome-extension/production-remote/css/compact.css',//'css/compact.css',
+    expandedStyling: 'https://s3-us-west-1.amazonaws.com/airtable-gmail-chrome-extension/production-remote/css/expanded.css',//'css/expanded.css',
     mailToIcon: 'email_icon.png',
     openLinkToRec: 'OPEN_LINK_TO_RECORD',
     productionBaseUrl: 'https://airtable.com',
@@ -899,18 +892,10 @@ var GenericColumnType = require('../generic_column_type.js');
 
 var DateColumnType = GenericColumnType.extend({
     _MONTHS_OF_THE_YEAR: { 
-        1: 'Jan',
-        2: 'Feb',
-        3: 'Mar',
-        4: 'Apr',
-        5: 'May',
-        6: 'Jun',
-        7: 'Jul',
-        8: 'Aug',
-        9: 'Sep',
-        10: 'Oct',
-        11: 'Nov',
-        12: 'Dec',
+        1: 'Jan', 2: 'Feb', 3: 'Mar',
+        4: 'Apr', 5: 'May', 6: 'Jun',
+        7: 'Jul', 8: 'Aug', 9: 'Sep',
+        10: 'Oct', 11: 'Nov', 12: 'Dec',
     },
     init: function(columnName, contentObject, verbose) {
         this._super(columnName, contentObject, verbose);
@@ -958,7 +943,7 @@ var EmailColumnType = GenericColumnType.extend({
         if (typeof InboxSDK !== 'undefined') {
             mailToIcon = $(this._createEmailIcon());
             mailToIcon.click(function() { // need to have this change depending on environment!
-                InboxSDK.load('1.0', that._config.stagingAppId).then(function(sdk) {
+                InboxSDK.load('1.0', that._config.productionAppId).then(function(sdk) {
                     sdk.Compose.openNewComposeView().then(function(composeView) {
                         composeView.setToRecipients([that._displayValue]);
                     });
@@ -1026,13 +1011,9 @@ var GenericColumnType = require('../generic_column_type.js');
 
 var FormulaColumnType = GenericColumnType.extend({
     init: function(columnName, contentObject, verbose) {
-        console.log('contentObject', contentObject);
-        console.log('typeof contentObject.displayValue', typeof contentObject.displayValue);
         this._super(columnName, contentObject, verbose);
     },
     generateElement: function(isForCompact) {
-        console.log('typeof this._displayValue', typeof this._displayValue);
-        console.log(this._displayValue);
         return this._createBasicLayout(isForCompact, 
                 this._columnName, this._displayValue);  
     }

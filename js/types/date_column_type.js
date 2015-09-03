@@ -6,18 +6,10 @@ var GenericColumnType = require('../generic_column_type.js');
 
 var DateColumnType = GenericColumnType.extend({
     _MONTHS_OF_THE_YEAR: { 
-        1: 'Jan',
-        2: 'Feb',
-        3: 'Mar',
-        4: 'Apr',
-        5: 'May',
-        6: 'Jun',
-        7: 'Jul',
-        8: 'Aug',
-        9: 'Sep',
-        10: 'Oct',
-        11: 'Nov',
-        12: 'Dec',
+        1: 'Jan', 2: 'Feb', 3: 'Mar',
+        4: 'Apr', 5: 'May', 6: 'Jun',
+        7: 'Jul', 8: 'Aug', 9: 'Sep',
+        10: 'Oct', 11: 'Nov', 12: 'Dec',
     },
     init: function(columnName, contentObject, verbose) {
         this._super(columnName, contentObject, verbose);

@@ -8,11 +8,10 @@ var CheckboxColumnType = GenericColumnType.extend({
     },
     generateElement: function(isForCompact) {
         var checkboxStatus;
-        if (this._displayValue) {
-            checkboxStatus = 'Yes';
-        } else {
-            checkboxStatus = 'No';
-        }
+        // Somewhat arbitrary display value for the checkbox; if
+        //  a different display value is desired; please change
+        if (this._displayValue) { checkboxStatus = 'Yes'; } 
+        else { checkboxStatus = 'No'; }
         return this._createBasicLayout(isForCompact, 
                 this._columnName, checkboxStatus);
     }
