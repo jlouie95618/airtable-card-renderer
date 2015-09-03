@@ -83,6 +83,8 @@ var Card = Class.extend({
         var images = []; // will become an array of objects
         _.each(recordFields, function(contentObject, fieldName) {
             if (contentObject.fieldType === 'multipleAttachment') {
+                // In the case that the field type is a multipleAttachment,
+                //  we know the displayValue will be of an array type
                 var attachmentArray = contentObject.displayValue;
                 _.each(attachmentArray, function(attachmentObject, index) {
                     if (attachmentObject.type.indexOf(type) === 0) {
@@ -135,16 +137,24 @@ var Card = Class.extend({
             //  generate the appropriate element
             var elem = new FieldTypeConstructor(columnName, 
                 recordFields[columnName], that._verbose).generateElement(true);
+            // In the case there is no image, the first element needs to be
+            //  shifted upwards; this is mainly for a visually appealing aesthetic
             if (!that._noImage && first) {
                 container.addClass('mod-image-present');
                 first = false;
             }
+            // If we have reached the limit of elements for the top portion, of
+            //  the card, we add a class to remove spacing below a column item
             if (numElem === (numElemInTopCard - 1)) {
                 container.addClass('mod-last-in-top');
             }
+            // If we have int the last element of the bottom portion, we want
+            //  to modify spacing between the last column item and the 'View
+            //  in Airtable button'
             if (numElem === (totalElems - 1)) {
                 container.addClass('mod-last-elem');
             }
+            // Determine where we want to place the modified
             if (numElem < numElemInTopCard) {
                 topContents.append(container.append(elem));
             } else {
